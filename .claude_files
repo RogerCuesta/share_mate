@@ -1,0 +1,25 @@
+# Este archivo define la estructura de carpetas para los agentes de Claude
+
+# Agentes principales
+.claude/agents/
+.claude/agents/flutter-feature-architect.md
+.claude/agents/flutter-devops-quality-guardian.md
+
+# Sub-agentes
+.claude/agents/sub-agents/
+.claude/agents/sub-agents/clean-architecture-validator.md
+.claude/agents/sub-agents/domain-layer-specialist.md
+.claude/agents/sub-agents/data-layer-specialist.md
+.claude/agents/sub-agents/riverpod-state-architect.md
+.claude/agents/sub-agents/ui-component-builder.md
+.claude/agents/sub-agents/patrol-test-engineer.md
+.claude/agents/sub-agents/performance-auditor.md
+.claude/agents/sub-agents/hive-database-auditor.md
+.claude/agents/sub-agents/code-quality-inspector.md
+.claude/agents/sub-agents/dependency-guardian.md
+.claude/agents/sub-agents/test-coverage-enforcer.md
+.claude/agents/sub-agents/patrol-integration-specialist.md
+.claude/agents/sub-agents/build-configuration-expert.md
+.claude/agents/sub-agents/ci-cd-pipeline-engineer.md
+.claude/agents/sub-agents/crash-analytics-investigator.md
+.claude/agents/sub-agents/security-auditor.md

@@ -1,0 +1,28 @@
+# build.yaml
+
+targets:
+  $default:
+    builders:
+      # Riverpod code generation
+      riverpod_generator:
+        generate_for:
+          - lib/**
+        options:
+          # Generate providers with auto-dispose by default
+          auto_dispose: true
+      
+      # Freezed code generation
+      freezed:
+        generate_for:
+          - lib/**
+        options:
+          # Generate union types
+          union_key: type
+          union_value_case: FreezedUnionCase.pascal
+      
+      # Hive code generation
+      hive_generator:
+        generate_for:
+          - lib/**
+        options:
+          # Generate TypeAdapters
