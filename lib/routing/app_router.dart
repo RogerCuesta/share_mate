@@ -1,0 +1,408 @@
+// lib/routing/app_router.dart
+
+import 'package:flutter/material.dart';
+import 'package:flutter_project_agents/features/auth/domain/entities/user.dart';
+import 'package:flutter_project_agents/features/auth/presentation/providers/auth_provider.dart';
+import 'package:flutter_project_agents/features/auth/presentation/screens/login_screen.dart';
+import 'package:flutter_project_agents/features/auth/presentation/screens/register_screen.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+
+// Route paths
+class AppRoutes {
+  static const splash = '/';
+  static const login = '/login';
+  static const register = '/register';
+  static const home = '/home';
+}
+
+/// Provider for GoRouter instance
+final routerProvider = Provider<GoRouter>((ref) {
+  final authState = ref.watch(authProvider);
+
+  return GoRouter(
+    debugLogDiagnostics: true,
+    initialLocation: AppRoutes.splash,
+    redirect: (context, state) {
+      final currentPath = state.uri.path;
+
+      // Check auth state using when/maybeWhen pattern
+      return authState.when(
+        initial: () {
+          // Still loading, stay on splash
+          if (currentPath != AppRoutes.splash) {
+            return AppRoutes.splash;
+          }
+          return null;
+        },
+        loading: () {
+          // Still loading, stay on splash
+          if (currentPath != AppRoutes.splash) {
+            return AppRoutes.splash;
+          }
+          return null;
+        },
+        authenticated: (user) {
+          // User is authenticated
+          // Redirect to home if trying to access auth screens or splash
+          if (currentPath == AppRoutes.login ||
+              currentPath == AppRoutes.register ||
+              currentPath == AppRoutes.splash) {
+            return AppRoutes.home;
+          }
+          return null;
+        },
+        unauthenticated: () {
+          // User is not authenticated
+          // Redirect to login if trying to access protected routes
+          if (currentPath == AppRoutes.home || currentPath == AppRoutes.splash) {
+            return AppRoutes.login;
+          }
+          return null;
+        },
+        error: (message) {
+          // On error, redirect to login if not already there
+          if (currentPath == AppRoutes.home || currentPath == AppRoutes.splash) {
+            return AppRoutes.login;
+          }
+          return null;
+        },
+      );
+    },
+    routes: [
+      GoRoute(
+        path: AppRoutes.splash,
+        name: 'splash',
+        builder: (context, state) => const SplashScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.login,
+        name: 'login',
+        builder: (context, state) => const LoginScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.register,
+        name: 'register',
+        builder: (context, state) => const RegisterScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.home,
+        name: 'home',
+        builder: (context, state) {
+          // Access the auth state to get the user
+          final container = ProviderScope.containerOf(context);
+          final authState = container.read(authProvider);
+
+          return authState.maybeWhen(
+            authenticated: (user) => HomeScreen(user: user),
+            orElse: () => const SizedBox.shrink(), // Should never happen due to redirect
+          );
+        },
+      ),
+    ],
+    errorBuilder: (context, state) => Scaffold(
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.error_outline, size: 60, color: Colors.red),
+            const SizedBox(height: 16),
+            Text(
+              'Page not found',
+              style: Theme.of(context).textTheme.headlineMedium,
+            ),
+            const SizedBox(height: 8),
+            Text(state.uri.path),
+            const SizedBox(height: 24),
+            FilledButton(
+              onPressed: () => context.go(AppRoutes.splash),
+              child: const Text('Go to Home'),
+            ),
+          ],
+        ),
+      ),
+    ),
+  );
+});
+
+/// Splash Screen - Shown while checking authentication status
+class SplashScreen extends ConsumerStatefulWidget {
+  const SplashScreen({super.key});
+
+  @override
+  ConsumerState<SplashScreen> createState() => _SplashScreenState();
+}
+
+class _SplashScreenState extends ConsumerState<SplashScreen>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _animationController;
+  late Animation<double> _scaleAnimation;
+  late Animation<double> _fadeAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+
+    // Initialize animations
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1200),
+    );
+
+    _scaleAnimation = Tween<double>(begin: 0.5, end: 1).animate(
+      CurvedAnimation(
+        parent: _animationController,
+        curve: Curves.easeOutBack,
+      ),
+    );
+
+    _fadeAnimation = Tween<double>(begin: 0, end: 1).animate(
+      CurvedAnimation(
+        parent: _animationController,
+        curve: const Interval(0, 0.6, curve: Curves.easeOut),
+      ),
+    );
+
+    _animationController.forward();
+
+    // Check authentication status on splash screen load
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(authProvider.notifier).checkAuth();
+    });
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final authState = ref.watch(authProvider);
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    return Scaffold(
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              colorScheme.primaryContainer.withValues(alpha: 0.3),
+              colorScheme.surface,
+            ],
+          ),
+        ),
+        child: Center(
+          child: FadeTransition(
+            opacity: _fadeAnimation,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                // Animated Logo with Hero
+                ScaleTransition(
+                  scale: _scaleAnimation,
+                  child: Hero(
+                    tag: 'app_logo',
+                    child: Container(
+                      padding: const EdgeInsets.all(24),
+                      decoration: BoxDecoration(
+                        color: colorScheme.primaryContainer,
+                        shape: BoxShape.circle,
+                        boxShadow: [
+                          BoxShadow(
+                            color: colorScheme.primary.withValues(alpha: 0.2),
+                            blurRadius: 20,
+                            spreadRadius: 5,
+                          ),
+                        ],
+                      ),
+                      child: Icon(
+                        Icons.subscriptions,
+                        size: 80,
+                        color: colorScheme.primary,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 32),
+
+                // App Name
+                Text(
+                  'SubMate',
+                  style: theme.textTheme.displaySmall?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: colorScheme.primary,
+                    letterSpacing: 1,
+                  ),
+                ),
+                const SizedBox(height: 8),
+
+                // Tagline
+                Text(
+                  'Manage your subscriptions with ease',
+                  style: theme.textTheme.bodyLarge?.copyWith(
+                    color: colorScheme.onSurfaceVariant,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 64),
+
+                // Loading or Error State
+                authState.maybeWhen(
+                  error: (message) => Container(
+                    padding: const EdgeInsets.all(24),
+                    margin: const EdgeInsets.symmetric(horizontal: 32),
+                    decoration: BoxDecoration(
+                      color: colorScheme.errorContainer,
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Column(
+                      children: [
+                        Icon(
+                          Icons.error_outline,
+                          size: 48,
+                          color: colorScheme.error,
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          'Error checking authentication',
+                          style: theme.textTheme.titleMedium?.copyWith(
+                            color: colorScheme.error,
+                            fontWeight: FontWeight.w600,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          message,
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            color: colorScheme.onErrorContainer,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 24),
+                        FilledButton.icon(
+                          onPressed: () {
+                            ref.read(authProvider.notifier).checkAuth();
+                          },
+                          icon: const Icon(Icons.refresh),
+                          label: const Text('Retry'),
+                          style: FilledButton.styleFrom(
+                            backgroundColor: colorScheme.error,
+                            foregroundColor: colorScheme.onError,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  orElse: () => Column(
+                    children: [
+                      SizedBox(
+                        width: 40,
+                        height: 40,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 3,
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            colorScheme.primary,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        'Loading...',
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          color: colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Home Screen - Protected route, requires authentication
+class HomeScreen extends ConsumerWidget {
+
+  const HomeScreen({required this.user, super.key});
+  final User user;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('SubMate'),
+        centerTitle: true,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout),
+            onPressed: () async {
+              await ref.read(authProvider.notifier).logout();
+              // GoRouter will automatically redirect to login after logout
+              // due to the auth state change and redirect logic
+            },
+            tooltip: 'Logout',
+          ),
+        ],
+      ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            CircleAvatar(
+              radius: 50,
+              backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+              child: Text(
+                user.initials,
+                style: Theme.of(context).textTheme.headlineLarge?.copyWith(
+                      color: Theme.of(context).colorScheme.onPrimaryContainer,
+                    ),
+              ),
+            ),
+            const SizedBox(height: 24),
+            Text(
+              'Welcome back!',
+              style: Theme.of(context).textTheme.headlineMedium,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              user.fullName,
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    color: Theme.of(context).colorScheme.primary,
+                    fontWeight: FontWeight.bold,
+                  ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              user.email,
+              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                    color: Theme.of(context).colorScheme.secondary,
+                  ),
+            ),
+            const SizedBox(height: 32),
+            Icon(
+              Icons.subscriptions,
+              size: 80,
+              color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.5),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'Start managing your subscriptions',
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

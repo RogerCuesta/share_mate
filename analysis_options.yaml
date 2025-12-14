@@ -73,7 +73,7 @@ linter:
     - only_throw_errors
     - overridden_fields
     - package_names
-    - package_prefixes
+    # - package_prefixes  # Deprecated lint rule
     - prefer_adjacent_string_concatenation
     - prefer_asserts_in_initializer_lists
     - prefer_collection_literals

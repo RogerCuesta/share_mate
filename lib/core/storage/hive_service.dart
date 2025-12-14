@@ -1,8 +1,11 @@
 // lib/core/storage/hive_service.dart
 
-import 'package:hive_flutter/hive_flutter.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'dart:convert';
+
+import 'package:flutter_project_agents/features/auth/data/models/user_credentials_model.dart';
+import 'package:flutter_project_agents/features/auth/data/models/user_model.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
 /// HiveService manages Hive database initialization, box opening, and cleanup
 /// 
@@ -14,29 +17,26 @@ class HiveService {
   static const _encryptionKeyName = 'hive_master_encryption_key';
   
   /// Initialize Hive and open all required boxes
-  /// 
+  ///
   /// This should be called once at app startup in main()
+  ///
+  /// Note: This only initializes Hive and registers adapters.
+  /// Actual box opening is handled by data sources via initAuthDependencies()
   static Future<void> init() async {
     // Initialize Hive with Flutter
     await Hive.initFlutter();
-    
+
     // Register all TypeAdapters here
-    // Example: Hive.registerAdapter(TaskModelAdapter());
-    // TODO: Register your TypeAdapters after code generation
-    
-    // Open boxes (add your boxes here)
-    // Example: await _openTaskBox();
-    // TODO: Open your boxes
-    
-    print('✅ HiveService initialized successfully');
+    Hive
+      ..registerAdapter(UserModelAdapter())
+      ..registerAdapter(UserCredentialsModelAdapter());
   }
   
   /// Close all Hive boxes
-  /// 
+  ///
   /// Call this when the app is terminating
   static Future<void> closeAll() async {
     await Hive.close();
-    print('✅ All Hive boxes closed');
   }
   
   /// Open a regular box (for small, frequently accessed data)
@@ -46,13 +46,13 @@ class HiveService {
   }) async {
     if (encrypted) {
       final encryptionKey = await _getEncryptionKey();
-      return await Hive.openBox<T>(
+      return Hive.openBox<T>(
         boxName,
         encryptionCipher: HiveAesCipher(encryptionKey),
       );
     }
     
-    return await Hive.openBox<T>(boxName);
+    return Hive.openBox<T>(boxName);
   }
   
   /// Open a lazy box (for large objects like files/images)
@@ -67,20 +67,20 @@ class HiveService {
   }) async {
     if (encrypted) {
       final encryptionKey = await _getEncryptionKey();
-      return await Hive.openLazyBox<T>(
+      return Hive.openLazyBox<T>(
         boxName,
         encryptionCipher: HiveAesCipher(encryptionKey),
       );
     }
     
-    return await Hive.openLazyBox<T>(boxName);
+    return Hive.openLazyBox<T>(boxName);
   }
   
   /// Get or generate encryption key for Hive
   /// 
   /// The key is stored securely using flutter_secure_storage
   static Future<List<int>> _getEncryptionKey() async {
-    var keyString = await _secureStorage.read(key: _encryptionKeyName);
+    final keyString = await _secureStorage.read(key: _encryptionKeyName);
     
     if (keyString == null) {
       // Generate new encryption key
@@ -96,23 +96,21 @@ class HiveService {
   }
   
   /// Delete all data (use with caution!)
-  /// 
+  ///
   /// This is useful for:
   /// - User logout (clear cached data)
   /// - App reset functionality
   /// - Testing
   static Future<void> deleteAllData() async {
     await Hive.deleteFromDisk();
-    print('⚠️  All Hive data deleted');
   }
   
   /// Compact a specific box to reclaim space
-  /// 
+  ///
   /// Call this after bulk deletions to reduce box file size
   static Future<void> compactBox(String boxName) async {
     final box = Hive.box(boxName);
     await box.compact();
-    print('✅ Box "$boxName" compacted');
   }
   
   // Example: Open task box with auto-compaction

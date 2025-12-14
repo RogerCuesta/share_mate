@@ -1,16 +1,21 @@
 // lib/main.dart
 
 import 'package:flutter/material.dart';
+import 'package:flutter_project_agents/core/di/app_dependencies.dart';
+import 'package:flutter_project_agents/core/storage/hive_service.dart';
+import 'package:flutter_project_agents/routing/app_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'core/storage/hive_service.dart';
 
 void main() async {
   // Ensure Flutter bindings are initialized
   WidgetsFlutterBinding.ensureInitialized();
-  
+
   // Initialize Hive database
   await HiveService.init();
-  
+
+  // Initialize auth dependencies (data sources, repositories, use cases)
+  await initAuthDependencies();
+
   // Run the app with Riverpod
   runApp(
     const ProviderScope(
@@ -24,63 +29,25 @@ class MyApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return MaterialApp(
-      title: 'Flutter App',
+    final router = ref.watch(routerProvider);
+
+    return MaterialApp.router(
+      title: 'SubMate',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.blue,
-          brightness: Brightness.light,
+          seedColor: Colors.deepPurple,
         ),
         useMaterial3: true,
       ),
       darkTheme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.blue,
+          seedColor: Colors.deepPurple,
           brightness: Brightness.dark,
         ),
         useMaterial3: true,
       ),
-      themeMode: ThemeMode.system,
-      home: const HomeScreen(),
-    );
-  }
-}
-
-class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Flutter Project'),
-        centerTitle: true,
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.rocket_launch,
-              size: 100,
-              color: Theme.of(context).colorScheme.primary,
-            ),
-            const SizedBox(height: 24),
-            Text(
-              'Ready to start!',
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'Using AI Agents with Vibe Coding',
-              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                color: Theme.of(context).colorScheme.secondary,
-              ),
-            ),
-          ],
-        ),
-      ),
+      routerConfig: router,
     );
   }
 }

@@ -54,3 +54,6 @@ lcov.info
 # Hive
 *.hive
 *.lock
+
+# Claude Code
+claude_files
