@@ -11,7 +11,20 @@ import 'package:flutter_project_agents/features/auth/domain/usecases/get_current
 import 'package:flutter_project_agents/features/auth/domain/usecases/login_user.dart';
 import 'package:flutter_project_agents/features/auth/domain/usecases/logout_user.dart';
 import 'package:flutter_project_agents/features/auth/domain/usecases/register_user.dart';
+import 'package:flutter_project_agents/features/subscriptions/data/datasources/subscription_local_datasource.dart';
+import 'package:flutter_project_agents/features/subscriptions/data/datasources/subscription_remote_datasource.dart';
+import 'package:flutter_project_agents/features/subscriptions/data/repositories/subscription_repository_impl.dart';
+import 'package:flutter_project_agents/features/subscriptions/domain/repositories/subscription_repository.dart';
+import 'package:flutter_project_agents/features/subscriptions/domain/usecases/create_subscription.dart';
+import 'package:flutter_project_agents/features/subscriptions/domain/usecases/delete_subscription.dart';
+import 'package:flutter_project_agents/features/subscriptions/domain/usecases/get_active_subscriptions.dart';
+import 'package:flutter_project_agents/features/subscriptions/domain/usecases/get_monthly_stats.dart';
+import 'package:flutter_project_agents/features/subscriptions/domain/usecases/get_pending_payments.dart';
+import 'package:flutter_project_agents/features/subscriptions/domain/usecases/get_subscription_details.dart';
+import 'package:flutter_project_agents/features/subscriptions/domain/usecases/mark_payment_as_paid.dart';
+import 'package:flutter_project_agents/features/subscriptions/domain/usecases/update_subscription.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hive/hive.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -126,11 +139,99 @@ CheckAuthStatus checkAuthStatus(Ref ref) {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
-// FUTURE FEATURES - Add providers here
+// SUBSCRIPTIONS FEATURE - DATA SOURCES
 // ═══════════════════════════════════════════════════════════════════════════
 
-// Example:
-// @riverpod
-// SubscriptionRepository subscriptionRepository(SubscriptionRepositoryRef ref) {
-//   return SubscriptionRepositoryImpl(...);
-// }
+/// Provider for SubscriptionLocalDataSource (Hive)
+///
+/// This data source manages subscription and member data in Hive cache.
+/// It MUST be initialized before use via initSubscriptionsDependencies().
+///
+/// Note: This is a singleton that persists across provider rebuilds.
+@Riverpod(keepAlive: true)
+SubscriptionLocalDataSource subscriptionLocalDataSource(Ref ref) {
+  throw UnimplementedError(
+    'subscriptionLocalDataSource provider must be overridden in main.dart with the initialized instance',
+  );
+}
+
+/// Provider for SubscriptionRemoteDataSource (Supabase)
+///
+/// This data source manages subscription operations with Supabase backend.
+/// Requires SupabaseService to be initialized.
+@riverpod
+SubscriptionRemoteDataSource subscriptionRemoteDataSource(Ref ref) {
+  final client = ref.watch(supabaseClientProvider);
+  return SubscriptionRemoteDataSourceImpl(client: client);
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// SUBSCRIPTIONS FEATURE - REPOSITORY
+// ═══════════════════════════════════════════════════════════════════════════
+
+/// Provider for SubscriptionRepository implementation
+///
+/// This is the concrete implementation that coordinates between:
+/// - SubscriptionRemoteDataSource (Supabase) for remote operations
+/// - SubscriptionLocalDataSource (Hive) for local cache
+///
+/// Implements offline-first strategy: tries Supabase first, falls back to cache.
+@riverpod
+SubscriptionRepository subscriptionRepository(Ref ref) {
+  return SubscriptionRepositoryImpl(
+    remoteDataSource: ref.watch(subscriptionRemoteDataSourceProvider),
+    localDataSource: ref.watch(subscriptionLocalDataSourceProvider),
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// SUBSCRIPTIONS FEATURE - USE CASES
+// ═══════════════════════════════════════════════════════════════════════════
+
+/// Use case: Get monthly statistics
+@riverpod
+GetMonthlyStats getMonthlyStats(Ref ref) {
+  return GetMonthlyStats(ref.watch(subscriptionRepositoryProvider));
+}
+
+/// Use case: Get active subscriptions
+@riverpod
+GetActiveSubscriptions getActiveSubscriptions(Ref ref) {
+  return GetActiveSubscriptions(ref.watch(subscriptionRepositoryProvider));
+}
+
+/// Use case: Get pending payments
+@riverpod
+GetPendingPayments getPendingPayments(Ref ref) {
+  return GetPendingPayments(ref.watch(subscriptionRepositoryProvider));
+}
+
+/// Use case: Get subscription details
+@riverpod
+GetSubscriptionDetails getSubscriptionDetails(Ref ref) {
+  return GetSubscriptionDetails(ref.watch(subscriptionRepositoryProvider));
+}
+
+/// Use case: Create subscription
+@riverpod
+CreateSubscription createSubscription(Ref ref) {
+  return CreateSubscription(ref.watch(subscriptionRepositoryProvider));
+}
+
+/// Use case: Update subscription
+@riverpod
+UpdateSubscription updateSubscription(Ref ref) {
+  return UpdateSubscription(ref.watch(subscriptionRepositoryProvider));
+}
+
+/// Use case: Delete subscription
+@riverpod
+DeleteSubscription deleteSubscription(Ref ref) {
+  return DeleteSubscription(ref.watch(subscriptionRepositoryProvider));
+}
+
+/// Use case: Mark payment as paid
+@riverpod
+MarkPaymentAsPaid markPaymentAsPaid(Ref ref) {
+  return MarkPaymentAsPaid(ref.watch(subscriptionRepositoryProvider));
+}

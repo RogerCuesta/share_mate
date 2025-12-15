@@ -1,7 +1,7 @@
 // lib/routing/app_router.dart
 
 import 'package:flutter/material.dart';
-import 'package:flutter_project_agents/features/auth/domain/entities/user.dart';
+import 'package:flutter_project_agents/core/presentation/app_shell.dart';
 import 'package:flutter_project_agents/features/auth/presentation/providers/auth_provider.dart';
 import 'package:flutter_project_agents/features/auth/presentation/screens/login_screen.dart';
 import 'package:flutter_project_agents/features/auth/presentation/screens/register_screen.dart';
@@ -13,7 +13,7 @@ class AppRoutes {
   static const splash = '/';
   static const login = '/login';
   static const register = '/register';
-  static const home = '/home';
+  static const app = '/app';
 }
 
 /// Provider for GoRouter instance
@@ -44,25 +44,25 @@ final routerProvider = Provider<GoRouter>((ref) {
         },
         authenticated: (user) {
           // User is authenticated
-          // Redirect to home if trying to access auth screens or splash
+          // Redirect to app if trying to access auth screens or splash
           if (currentPath == AppRoutes.login ||
               currentPath == AppRoutes.register ||
               currentPath == AppRoutes.splash) {
-            return AppRoutes.home;
+            return AppRoutes.app;
           }
           return null;
         },
         unauthenticated: () {
           // User is not authenticated
           // Redirect to login if trying to access protected routes
-          if (currentPath == AppRoutes.home || currentPath == AppRoutes.splash) {
+          if (currentPath == AppRoutes.app || currentPath == AppRoutes.splash) {
             return AppRoutes.login;
           }
           return null;
         },
         error: (message) {
           // On error, redirect to login if not already there
-          if (currentPath == AppRoutes.home || currentPath == AppRoutes.splash) {
+          if (currentPath == AppRoutes.app || currentPath == AppRoutes.splash) {
             return AppRoutes.login;
           }
           return null;
@@ -86,18 +86,9 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const RegisterScreen(),
       ),
       GoRoute(
-        path: AppRoutes.home,
-        name: 'home',
-        builder: (context, state) {
-          // Access the auth state to get the user
-          final container = ProviderScope.containerOf(context);
-          final authState = container.read(authProvider);
-
-          return authState.maybeWhen(
-            authenticated: (user) => HomeScreen(user: user),
-            orElse: () => const SizedBox.shrink(), // Should never happen due to redirect
-          );
-        },
+        path: AppRoutes.app,
+        name: 'app',
+        builder: (context, state) => const AppShell(),
       ),
     ],
     errorBuilder: (context, state) => Scaffold(
@@ -323,84 +314,6 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
               ],
             ),
           ),
-        ),
-      ),
-    );
-  }
-}
-
-/// Home Screen - Protected route, requires authentication
-class HomeScreen extends ConsumerWidget {
-
-  const HomeScreen({required this.user, super.key});
-  final User user;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('SubMate'),
-        centerTitle: true,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: () async {
-              await ref.read(authProvider.notifier).logout();
-              // GoRouter will automatically redirect to login after logout
-              // due to the auth state change and redirect logic
-            },
-            tooltip: 'Logout',
-          ),
-        ],
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            CircleAvatar(
-              radius: 50,
-              backgroundColor: Theme.of(context).colorScheme.primaryContainer,
-              child: Text(
-                user.initials,
-                style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                      color: Theme.of(context).colorScheme.onPrimaryContainer,
-                    ),
-              ),
-            ),
-            const SizedBox(height: 24),
-            Text(
-              'Welcome back!',
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              user.fullName,
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    color: Theme.of(context).colorScheme.primary,
-                    fontWeight: FontWeight.bold,
-                  ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              user.email,
-              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                    color: Theme.of(context).colorScheme.secondary,
-                  ),
-            ),
-            const SizedBox(height: 32),
-            Icon(
-              Icons.subscriptions,
-              size: 80,
-              color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.5),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'Start managing your subscriptions',
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  ),
-            ),
-          ],
         ),
       ),
     );

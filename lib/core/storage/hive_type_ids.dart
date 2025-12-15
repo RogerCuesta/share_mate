@@ -32,11 +32,12 @@ class HiveTypeIds {
   static const int notificationSettings = 22;
   // Reserve 23-29 for future settings-related models
   
-  // Feature: Projects (30-39)
-  static const int project = 30;
-  static const int projectMember = 31;
-  // Reserve 32-39 for future project-related models
-  
+  // Feature: Subscriptions (30-39)
+  static const int subscription = 30;
+  static const int subscriptionMember = 31;
+  static const int monthlyStats = 32;
+  // Reserve 33-39 for future subscription-related models
+
   // Add new feature ranges here (40-49, 50-59, etc.)
   // Example:
   // Feature: Analytics (40-49)
@@ -49,17 +50,17 @@ class HiveTypeIds {
       task, taskCategory, taskAttachment,
       user, userProfile, authToken,
       appSettings, themeSettings, notificationSettings,
-      project, projectMember,
+      subscription, subscriptionMember, monthlyStats,
     ];
-    
+
     return !usedIds.contains(typeId);
   }
-  
+
   /// Returns a list of all used typeIds for documentation
   static List<int> get allUsedTypeIds => [
     task, taskCategory, taskAttachment,
     user, userProfile, authToken,
     appSettings, themeSettings, notificationSettings,
-    project, projectMember,
+    subscription, subscriptionMember, monthlyStats,
   ];
 }

@@ -4,6 +4,8 @@ import 'dart:convert';
 
 import 'package:flutter_project_agents/features/auth/data/models/user_credentials_model.dart';
 import 'package:flutter_project_agents/features/auth/data/models/user_model.dart';
+import 'package:flutter_project_agents/features/subscriptions/data/models/subscription_member_model.dart';
+import 'package:flutter_project_agents/features/subscriptions/data/models/subscription_model.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
@@ -29,7 +31,9 @@ class HiveService {
     // Register all TypeAdapters here
     Hive
       ..registerAdapter(UserModelAdapter())
-      ..registerAdapter(UserCredentialsModelAdapter());
+      ..registerAdapter(UserCredentialsModelAdapter())
+      ..registerAdapter(SubscriptionModelAdapter())
+      ..registerAdapter(SubscriptionMemberModelAdapter());
   }
   
   /// Close all Hive boxes

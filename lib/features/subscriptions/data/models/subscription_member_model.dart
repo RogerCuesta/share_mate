@@ -1,0 +1,111 @@
+import 'package:hive/hive.dart';
+
+import '../../../../core/storage/hive_type_ids.dart';
+import '../../domain/entities/subscription_member.dart';
+
+part 'subscription_member_model.g.dart';
+
+/// Data model for SubscriptionMember with Hive persistence
+@HiveType(typeId: HiveTypeIds.subscriptionMember)
+class SubscriptionMemberModel extends HiveObject {
+  @HiveField(0)
+  final String id;
+
+  @HiveField(1)
+  final String subscriptionId;
+
+  @HiveField(2)
+  final String userId;
+
+  @HiveField(3)
+  final String userName;
+
+  @HiveField(4)
+  final String? userAvatar;
+
+  @HiveField(5)
+  final double amountToPay;
+
+  @HiveField(6)
+  final bool hasPaid;
+
+  @HiveField(7)
+  final DateTime? lastPaymentDate;
+
+  @HiveField(8)
+  final DateTime dueDate;
+
+  SubscriptionMemberModel({
+    required this.id,
+    required this.subscriptionId,
+    required this.userId,
+    required this.userName,
+    this.userAvatar,
+    required this.amountToPay,
+    required this.hasPaid,
+    this.lastPaymentDate,
+    required this.dueDate,
+  });
+
+  /// Convert to domain entity
+  SubscriptionMember toEntity() {
+    return SubscriptionMember(
+      id: id,
+      subscriptionId: subscriptionId,
+      userId: userId,
+      userName: userName,
+      userAvatar: userAvatar,
+      amountToPay: amountToPay,
+      hasPaid: hasPaid,
+      lastPaymentDate: lastPaymentDate,
+      dueDate: dueDate,
+    );
+  }
+
+  /// Create from domain entity
+  factory SubscriptionMemberModel.fromEntity(SubscriptionMember entity) {
+    return SubscriptionMemberModel(
+      id: entity.id,
+      subscriptionId: entity.subscriptionId,
+      userId: entity.userId,
+      userName: entity.userName,
+      userAvatar: entity.userAvatar,
+      amountToPay: entity.amountToPay,
+      hasPaid: entity.hasPaid,
+      lastPaymentDate: entity.lastPaymentDate,
+      dueDate: entity.dueDate,
+    );
+  }
+
+  /// Create from Supabase JSON
+  factory SubscriptionMemberModel.fromJson(Map<String, dynamic> json) {
+    return SubscriptionMemberModel(
+      id: json['id'] as String,
+      subscriptionId: json['subscription_id'] as String,
+      userId: json['user_id'] as String,
+      userName: json['user_name'] as String,
+      userAvatar: json['user_avatar'] as String?,
+      amountToPay: (json['amount_to_pay'] as num).toDouble(),
+      hasPaid: json['has_paid'] as bool? ?? false,
+      lastPaymentDate: json['last_payment_date'] != null
+          ? DateTime.parse(json['last_payment_date'] as String)
+          : null,
+      dueDate: DateTime.parse(json['due_date'] as String),
+    );
+  }
+
+  /// Convert to Supabase JSON
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'subscription_id': subscriptionId,
+      'user_id': userId,
+      'user_name': userName,
+      'user_avatar': userAvatar,
+      'amount_to_pay': amountToPay,
+      'has_paid': hasPaid,
+      'last_payment_date': lastPaymentDate?.toIso8601String(),
+      'due_date': dueDate.toIso8601String(),
+    };
+  }
+}
