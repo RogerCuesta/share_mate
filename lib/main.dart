@@ -1,8 +1,12 @@
 // lib/main.dart
 
 import 'package:flutter/material.dart';
-import 'package:flutter_project_agents/core/di/app_dependencies.dart';
+import 'package:flutter_project_agents/core/config/env_config.dart';
+import 'package:flutter_project_agents/core/di/injection.dart';
 import 'package:flutter_project_agents/core/storage/hive_service.dart';
+import 'package:flutter_project_agents/core/supabase/supabase_service.dart';
+import 'package:flutter_project_agents/features/auth/data/datasources/auth_local_datasource.dart';
+import 'package:flutter_project_agents/features/auth/data/datasources/user_local_datasource.dart';
 import 'package:flutter_project_agents/routing/app_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -10,16 +14,32 @@ void main() async {
   // Ensure Flutter bindings are initialized
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Initialize Hive database
+  // 1. Load environment variables from .env file
+  await EnvConfig.load();
+
+  // 2. Initialize Supabase client
+  await SupabaseService.init();
+
+  // 3. Initialize Hive database (local storage)
   await HiveService.init();
 
-  // Initialize auth dependencies (data sources, repositories, use cases)
-  await initAuthDependencies();
+  //await HiveService.clearAuthData();
 
-  // Run the app with Riverpod
+  // 4. Initialize singleton data sources
+  final userLocalDataSource = UserLocalDataSourceImpl();
+  await userLocalDataSource.init();
+
+  final authLocalDataSource = AuthLocalDataSourceImpl();
+
+  // Run the app with Riverpod and provider overrides
   runApp(
-    const ProviderScope(
-      child: MyApp(),
+    ProviderScope(
+      overrides: [
+        // Override singleton providers with initialized instances
+        userLocalDataSourceProvider.overrideWithValue(userLocalDataSource),
+        authLocalDataSourceProvider.overrideWithValue(authLocalDataSource),
+      ],
+      child: const MyApp(),
     ),
   );
 }
@@ -35,9 +55,7 @@ class MyApp extends ConsumerWidget {
       title: 'SubMate',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.deepPurple,
-        ),
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
       darkTheme: ThemeData(

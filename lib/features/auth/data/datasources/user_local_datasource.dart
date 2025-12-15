@@ -44,15 +44,17 @@ class UserLocalDataSourceImpl implements UserLocalDataSource {
   UserLocalDataSourceImpl();
   static const String _usersBoxName = 'users';
   static const String _credentialsBoxName = 'credentials';
-  static const String _currentUserKey = 'current_user_id';
+  static const String _currentUserIdBoxName = 'current_user_id';
 
   late final Box<UserModel> _usersBox;
   late final Box<UserCredentialsModel> _credentialsBox;
+  late final Box<String> _currentUserIdBox;
 
   /// Initialize boxes (call this after Hive.init)
   Future<void> init() async {
     _usersBox = await Hive.openBox<UserModel>(_usersBoxName);
     _credentialsBox = await Hive.openBox<UserCredentialsModel>(_credentialsBoxName);
+    _currentUserIdBox = await Hive.openBox<String>(_currentUserIdBoxName);
   }
 
   @override
@@ -69,8 +71,8 @@ class UserLocalDataSourceImpl implements UserLocalDataSource {
     );
     await _credentialsBox.put(user.email.toLowerCase(), credentials);
 
-    // Set as current user
-    await _usersBox.put(_currentUserKey, user);
+    // Set as current user (store only the ID, not the object)
+    await _currentUserIdBox.put('current', user.id);
   }
 
   @override
@@ -111,16 +113,18 @@ class UserLocalDataSourceImpl implements UserLocalDataSource {
       await _usersBox.delete(userId);
 
       // Clear current user if it was this user
-      final currentUser = await getCurrentUser();
-      if (currentUser?.id == userId) {
-        await _usersBox.delete(_currentUserKey);
+      final currentUserId = _currentUserIdBox.get('current');
+      if (currentUserId == userId) {
+        await _currentUserIdBox.delete('current');
       }
     }
   }
 
   @override
   Future<UserModel?> getCurrentUser() async {
-    return _usersBox.get(_currentUserKey);
+    final currentUserId = _currentUserIdBox.get('current');
+    if (currentUserId == null) return null;
+    return _usersBox.get(currentUserId);
   }
 
   @override

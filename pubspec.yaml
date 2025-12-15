@@ -31,6 +31,12 @@ dependencies:
   crypto: ^3.0.3
   uuid: ^4.3.3
 
+  # Environment Variables
+  flutter_dotenv: ^5.1.0
+
+  # Supabase
+  supabase_flutter: ^2.9.1
+
   # HTTP Client
   dio: ^5.4.1
   
@@ -59,11 +65,10 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
-  
-  # Add assets here
-  # assets:
-  #   - assets/images/
-  #   - assets/icons/
+
+  # Environment variables
+  assets:
+    - .env
 
   # Add fonts here
   # fonts:

@@ -1,7 +1,7 @@
 // lib/features/auth/presentation/screens/register_screen.dart
 
 import 'package:flutter/material.dart';
-import 'package:flutter_project_agents/core/di/app_dependencies.dart';
+import 'package:flutter_project_agents/core/di/injection.dart';
 import 'package:flutter_project_agents/features/auth/domain/usecases/login_user.dart';
 import 'package:flutter_project_agents/features/auth/presentation/providers/auth_provider.dart';
 import 'package:flutter_project_agents/features/auth/presentation/providers/register_form_provider.dart';

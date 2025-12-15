@@ -1,6 +1,6 @@
 // lib/features/auth/presentation/providers/auth_provider.dart
 
-import 'package:flutter_project_agents/core/di/app_dependencies.dart';
+import 'package:flutter_project_agents/core/di/injection.dart';
 import 'package:flutter_project_agents/features/auth/domain/entities/user.dart';
 import 'package:flutter_project_agents/features/auth/domain/usecases/check_auth_status.dart';
 import 'package:flutter_project_agents/features/auth/domain/usecases/get_current_user.dart';

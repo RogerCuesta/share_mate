@@ -20,6 +20,7 @@ class UserModel extends HiveObject {
     required this.email,
     required this.fullName,
     required this.createdAt,
+    this.supabaseId,
   });
 
   /// Convert domain entity to data model
@@ -29,6 +30,7 @@ class UserModel extends HiveObject {
       email: user.email,
       fullName: user.fullName,
       createdAt: user.createdAt,
+      supabaseId: user.supabaseId,
     );
   }
 
@@ -39,6 +41,7 @@ class UserModel extends HiveObject {
       email: json['email'] as String,
       fullName: json['full_name'] as String,
       createdAt: DateTime.parse(json['created_at'] as String),
+      supabaseId: json['supabase_id'] as String?,
     );
   }
   @HiveField(0)
@@ -53,6 +56,9 @@ class UserModel extends HiveObject {
   @HiveField(3)
   final DateTime createdAt;
 
+  @HiveField(4)
+  final String? supabaseId;
+
   /// Convert data model to domain entity
   User toEntity() {
     return User(
@@ -60,6 +66,7 @@ class UserModel extends HiveObject {
       email: email,
       fullName: fullName,
       createdAt: createdAt,
+      supabaseId: supabaseId,
     );
   }
 
@@ -70,6 +77,7 @@ class UserModel extends HiveObject {
       'email': email,
       'full_name': fullName,
       'created_at': createdAt.toIso8601String(),
+      'supabase_id': supabaseId,
     };
   }
 
@@ -79,12 +87,14 @@ class UserModel extends HiveObject {
     String? email,
     String? fullName,
     DateTime? createdAt,
+    String? supabaseId,
   }) {
     return UserModel(
       id: id ?? this.id,
       email: email ?? this.email,
       fullName: fullName ?? this.fullName,
       createdAt: createdAt ?? this.createdAt,
+      supabaseId: supabaseId ?? this.supabaseId,
     );
   }
 
@@ -95,7 +105,8 @@ class UserModel extends HiveObject {
         other.id == id &&
         other.email == email &&
         other.fullName == fullName &&
-        other.createdAt == createdAt;
+        other.createdAt == createdAt &&
+        other.supabaseId == supabaseId;
   }
 
   @override
@@ -103,11 +114,12 @@ class UserModel extends HiveObject {
     return id.hashCode ^
         email.hashCode ^
         fullName.hashCode ^
-        createdAt.hashCode;
+        createdAt.hashCode ^
+        supabaseId.hashCode;
   }
 
   @override
   String toString() {
-    return 'UserModel(id: $id, email: $email, fullName: $fullName, createdAt: $createdAt)';
+    return 'UserModel(id: $id, email: $email, fullName: $fullName, createdAt: $createdAt, supabaseId: $supabaseId)';
   }
 }

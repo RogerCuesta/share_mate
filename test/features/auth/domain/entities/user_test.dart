@@ -186,6 +186,44 @@ void main() {
       });
     });
 
+    group('Business Logic - Supabase Sync Status', () {
+      test('isSyncedWithSupabase returns true when supabaseId is set', () {
+        final user = User(
+          id: '123',
+          email: 'test@example.com',
+          fullName: 'John Doe',
+          createdAt: DateTime.now(),
+          supabaseId: 'supabase-uuid-123',
+        );
+        expect(user.isSyncedWithSupabase, true);
+        expect(user.isLocalOnly, false);
+      });
+
+      test('isSyncedWithSupabase returns false when supabaseId is null', () {
+        final user = User(
+          id: '123',
+          email: 'test@example.com',
+          fullName: 'John Doe',
+          createdAt: DateTime.now(),
+          supabaseId: null,
+        );
+        expect(user.isSyncedWithSupabase, false);
+        expect(user.isLocalOnly, true);
+      });
+
+      test('isLocalOnly returns true when user has no supabaseId', () {
+        final user = User(
+          id: 'local-123',
+          email: 'offline@example.com',
+          fullName: 'Offline User',
+          createdAt: DateTime.now(),
+          // supabaseId not set (null)
+        );
+        expect(user.isLocalOnly, true);
+        expect(user.isSyncedWithSupabase, false);
+      });
+    });
+
     group('Equality', () {
       test('two users with same data are equal', () {
         final user1 = User(

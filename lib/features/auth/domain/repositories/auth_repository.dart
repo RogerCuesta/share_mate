@@ -13,6 +13,10 @@ import 'package:flutter_project_agents/features/auth/domain/entities/user.dart';
 /// Uses Either<Failure, Success> for functional error handling:
 /// - Left: Contains the failure/error
 /// - Right: Contains the successful result
+///
+/// Implementation Strategy (Supabase + Local):
+/// - Repository coordinates between local (Hive) and remote (Supabase) data sources
+/// - Supports offline-first approach with eventual consistency
 abstract class AuthRepository {
   /// Register a new user with email and password
   ///
@@ -22,8 +26,13 @@ abstract class AuthRepository {
   /// - Password meets security requirements (min 8 chars)
   /// - Full name is not empty
   ///
+  /// Implementation:
+  /// - Attempts to register with Supabase (if online)
+  /// - Falls back to local registration (if offline)
+  /// - Stores user data locally in Hive
+  ///
   /// Returns:
-  /// - Right(User): Registration successful
+  /// - Right(User): Registration successful (with or without supabaseId)
   /// - Left(AuthFailure): Registration failed (email exists, validation error, etc.)
   Future<Either<AuthFailure, User>> registerUser({
     required String email,
@@ -35,6 +44,11 @@ abstract class AuthRepository {
   ///
   /// Validates credentials and creates a new session.
   ///
+  /// Implementation:
+  /// - Attempts Supabase authentication (if online)
+  /// - Falls back to local credential verification (if offline)
+  /// - Creates and stores session (JWT from Supabase or local UUID token)
+  ///
   /// Returns:
   /// - Right(AuthSession): Login successful, session created
   /// - Left(AuthFailure): Login failed (invalid credentials, user not found, etc.)
@@ -45,7 +59,10 @@ abstract class AuthRepository {
 
   /// Logout current user
   ///
-  /// Clears the current session from secure storage.
+  /// Implementation:
+  /// - Signs out from Supabase (if online)
+  /// - Clears local session from secure storage
+  /// - Maintains user data in Hive for offline access
   ///
   /// Returns:
   /// - Right(Unit): Logout successful
@@ -138,6 +155,32 @@ class NoActiveSessionFailure extends AuthFailure {
 
 class SessionExpiredFailure extends AuthFailure {
   const SessionExpiredFailure() : super('Session has expired');
+}
+
+/// Network-related failures
+class NetworkFailure extends AuthFailure {
+  const NetworkFailure([String? customMessage])
+      : super(customMessage ?? 'Network error. Please check your connection.');
+}
+
+class SupabaseAuthFailure extends AuthFailure {
+  const SupabaseAuthFailure(super.message);
+}
+
+/// Supabase-specific auth failures
+/// (These map to Supabase error codes)
+class EmailAlreadyInUseFailure extends AuthFailure {
+  const EmailAlreadyInUseFailure()
+      : super('This email is already registered with Supabase');
+}
+
+class WrongPasswordFailure extends AuthFailure {
+  const WrongPasswordFailure() : super('Incorrect password');
+}
+
+class TooManyRequestsFailure extends AuthFailure {
+  const TooManyRequestsFailure()
+      : super('Too many login attempts. Please try again later.');
 }
 
 /// Generic failures

@@ -104,6 +104,29 @@ class HiveService {
   static Future<void> deleteAllData() async {
     await Hive.deleteFromDisk();
   }
+
+  /// Clear all auth-related data (users, credentials, current user)
+  ///
+  /// This is useful for:
+  /// - Resetting auth state during development
+  /// - Fixing corrupted auth data
+  /// - Testing
+  static Future<void> clearAuthData() async {
+    try {
+      // Delete auth boxes if they exist
+      if (Hive.isBoxOpen('users')) {
+        await Hive.box('users').clear();
+      }
+      if (Hive.isBoxOpen('credentials')) {
+        await Hive.box('credentials').clear();
+      }
+      if (Hive.isBoxOpen('current_user_id')) {
+        await Hive.box('current_user_id').clear();
+      }
+    } catch (e) {
+      // Ignore errors if boxes don't exist
+    }
+  }
   
   /// Compact a specific box to reclaim space
   ///
