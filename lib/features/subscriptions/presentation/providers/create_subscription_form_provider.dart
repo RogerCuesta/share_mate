@@ -193,7 +193,7 @@ class CreateSubscriptionForm extends _$CreateSubscriptionForm {
       result.fold(
         (failure) {
           // Handle failure
-          final errorMsg = failure.when(
+          final errorMsg = failure.maybeWhen(
             serverError: (message) => message ?? 'Server error occurred',
             networkError: () => 'Network error. Please check your connection.',
             cacheError: (message) => message ?? 'Cache error occurred',
@@ -201,6 +201,7 @@ class CreateSubscriptionForm extends _$CreateSubscriptionForm {
             invalidData: (message) => message ?? 'Invalid data',
             paymentError: (message) => message ?? 'Payment error',
             memberError: (message) => message ?? 'Member error',
+            orElse: () => 'An error occurred',
           );
           state = state.copyWith(
             isLoading: false,
@@ -211,7 +212,6 @@ class CreateSubscriptionForm extends _$CreateSubscriptionForm {
           // Success - invalidate providers to refresh data
           ref.invalidate(monthlyStatsProvider);
           ref.invalidate(activeSubscriptionsProvider);
-          ref.invalidate(allSubscriptionsProvider);
 
           state = state.copyWith(
             isLoading: false,
@@ -229,24 +229,5 @@ class CreateSubscriptionForm extends _$CreateSubscriptionForm {
   }
 }
 
-/// Provider for all subscriptions (used for invalidation)
-@riverpod
-Future<List<Subscription>> allSubscriptions(AllSubscriptionsRef ref) async {
-  final authState = ref.watch(authProvider);
-  final userId = authState.maybeWhen(
-    authenticated: (user) => user.id,
-    orElse: () => null,
-  );
-
-  if (userId == null) {
-    throw Exception('User not authenticated');
-  }
-
-  final useCase = ref.watch(getAllSubscriptionsProvider);
-  final result = await useCase(userId);
-
-  return result.fold(
-    (failure) => throw Exception(failure.toString()),
-    (subscriptions) => subscriptions,
-  );
-}
+// Note: Removed allSubscriptionsProvider - not needed
+// The activeSubscriptionsProvider handles updates

@@ -162,6 +162,7 @@ class SubscriptionSeedData {
         subscriptionId: 'sub_1',
         userId: 'user_2',
         userName: 'Sarah Jenkins',
+        userEmail: 'sarah@email.com',
         userAvatar: null,
         amountToPay: 5.33, // 15.99 / 3 members
         hasPaid: false,
@@ -176,6 +177,7 @@ class SubscriptionSeedData {
         subscriptionId: 'sub_2',
         userId: 'user_3',
         userName: 'Mike T.',
+        userEmail: 'sarah@email.com',
         userAvatar: null,
         amountToPay: 5.00, // 9.99 / 2 members
         hasPaid: false,
@@ -190,6 +192,7 @@ class SubscriptionSeedData {
         subscriptionId: 'sub_3',
         userId: 'user_3',
         userName: 'Emma Wilson',
+        userEmail: 'sarah@email.com',
         userAvatar: null,
         amountToPay: 4.66, // 13.99 / 3 members
         hasPaid: false,
@@ -204,6 +207,7 @@ class SubscriptionSeedData {
         subscriptionId: 'sub_3',
         userId: 'user_4',
         userName: 'David Lee',
+        userEmail: 'sarah@email.com',
         userAvatar: null,
         amountToPay: 4.66, // 13.99 / 3 members
         hasPaid: false,
@@ -218,6 +222,7 @@ class SubscriptionSeedData {
         subscriptionId: 'sub_4',
         userId: 'user_2',
         userName: 'Alex Rodriguez',
+        userEmail: 'sarah@email.com',
         userAvatar: null,
         amountToPay: 3.00, // 11.99 / 4 members
         hasPaid: false,
@@ -232,6 +237,7 @@ class SubscriptionSeedData {
         subscriptionId: 'sub_4',
         userId: 'user_3',
         userName: 'Jessica Chen',
+        userEmail: 'sarah@email.com',
         userAvatar: null,
         amountToPay: 3.00, // 11.99 / 4 members
         hasPaid: false,
@@ -246,6 +252,7 @@ class SubscriptionSeedData {
         subscriptionId: 'sub_4',
         userId: 'user_4',
         userName: 'Chris Parker',
+        userEmail: 'sarah@email.com',
         userAvatar: null,
         amountToPay: 3.00, // 11.99 / 4 members
         hasPaid: false,
@@ -260,6 +267,7 @@ class SubscriptionSeedData {
         subscriptionId: 'sub_5',
         userId: 'user_5',
         userName: 'Rachel Green',
+        userEmail: 'sarah@email.com',
         userAvatar: null,
         amountToPay: 7.50, // 14.99 / 2 members
         hasPaid: false,
@@ -274,6 +282,7 @@ class SubscriptionSeedData {
         subscriptionId: 'sub_6',
         userId: 'user_6',
         userName: 'Tom Brady',
+        userEmail: 'sarah@email.com',
         userAvatar: null,
         amountToPay: 5.50, // 10.99 / 2 members
         hasPaid: false,
@@ -288,6 +297,7 @@ class SubscriptionSeedData {
         subscriptionId: 'sub_7',
         userId: 'user_2',
         userName: 'Lisa Anderson',
+        userEmail: 'sarah@email.com',
         userAvatar: null,
         amountToPay: 5.33, // 15.99 / 3 members
         hasPaid: false,
@@ -302,6 +312,7 @@ class SubscriptionSeedData {
         subscriptionId: 'sub_7',
         userId: 'user_6',
         userName: 'Kevin Martinez',
+        userEmail: 'sarah@email.com',
         userAvatar: null,
         amountToPay: 5.33, // 15.99 / 3 members
         hasPaid: false,

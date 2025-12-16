@@ -18,6 +18,9 @@ class SubscriptionMember with _$SubscriptionMember {
     /// Display name of the user
     required String userName,
 
+    /// Email address of the user
+    required String userEmail,
+
     /// URL for the user's avatar/profile picture
     String? userAvatar,
 

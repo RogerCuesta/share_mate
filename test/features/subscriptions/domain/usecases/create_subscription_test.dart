@@ -8,9 +8,15 @@ import 'package:mocktail/mocktail.dart';
 
 class MockSubscriptionRepository extends Mock implements SubscriptionRepository {}
 
+class FakeSubscription extends Fake implements Subscription {}
+
 void main() {
   late CreateSubscription useCase;
   late MockSubscriptionRepository mockRepository;
+
+  setUpAll(() {
+    registerFallbackValue(FakeSubscription());
+  });
 
   setUp(() {
     mockRepository = MockSubscriptionRepository();

@@ -278,6 +278,7 @@ class SubscriptionRepositoryMock implements SubscriptionRepository {
             subscriptionId: subscriptionId,
             userId: userId,
             userName: userName,
+            userEmail: "newmember@example.com",
             userAvatar: userAvatar,
             amountToPay: subscription.costPerPerson,
             hasPaid: false,

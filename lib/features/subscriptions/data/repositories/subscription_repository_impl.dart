@@ -356,6 +356,7 @@ class SubscriptionRepositoryImpl implements SubscriptionRepository {
             subscriptionId: subscriptionId,
             userId: userId,
             userName: userName,
+            userEmail: "member@example.com", // TODO: Get from user profile
             userAvatar: userAvatar,
             amountToPay: subscription.costPerPerson,
             hasPaid: false,

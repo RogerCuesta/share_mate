@@ -21,21 +21,24 @@ class SubscriptionMemberModel extends HiveObject {
   final String userName;
 
   @HiveField(4)
-  final String? userAvatar;
+  final String userEmail;
 
   @HiveField(5)
-  final double amountToPay;
+  final String? userAvatar;
 
   @HiveField(6)
-  final bool hasPaid;
+  final double amountToPay;
 
   @HiveField(7)
-  final DateTime? lastPaymentDate;
+  final bool hasPaid;
 
   @HiveField(8)
-  final DateTime dueDate;
+  final DateTime? lastPaymentDate;
 
   @HiveField(9)
+  final DateTime dueDate;
+
+  @HiveField(10)
   final DateTime createdAt;
 
   SubscriptionMemberModel({
@@ -43,6 +46,7 @@ class SubscriptionMemberModel extends HiveObject {
     required this.subscriptionId,
     required this.userId,
     required this.userName,
+    required this.userEmail,
     this.userAvatar,
     required this.amountToPay,
     required this.hasPaid,
@@ -58,6 +62,7 @@ class SubscriptionMemberModel extends HiveObject {
       subscriptionId: subscriptionId,
       userId: userId,
       userName: userName,
+      userEmail: userEmail,
       userAvatar: userAvatar,
       amountToPay: amountToPay,
       hasPaid: hasPaid,
@@ -74,6 +79,7 @@ class SubscriptionMemberModel extends HiveObject {
       subscriptionId: entity.subscriptionId,
       userId: entity.userId,
       userName: entity.userName,
+      userEmail: entity.userEmail,
       userAvatar: entity.userAvatar,
       amountToPay: entity.amountToPay,
       hasPaid: entity.hasPaid,
@@ -90,6 +96,7 @@ class SubscriptionMemberModel extends HiveObject {
       subscriptionId: json['subscription_id'] as String,
       userId: json['user_id'] as String,
       userName: json['user_name'] as String,
+      userEmail: json['user_email'] as String,
       userAvatar: json['user_avatar'] as String?,
       amountToPay: (json['amount_to_pay'] as num).toDouble(),
       hasPaid: json['has_paid'] as bool? ?? false,
@@ -108,6 +115,7 @@ class SubscriptionMemberModel extends HiveObject {
       'subscription_id': subscriptionId,
       'user_id': userId,
       'user_name': userName,
+      'user_email': userEmail,
       'user_avatar': userAvatar,
       'amount_to_pay': amountToPay,
       'has_paid': hasPaid,
