@@ -5,6 +5,7 @@ import 'package:flutter_project_agents/core/presentation/app_shell.dart';
 import 'package:flutter_project_agents/features/auth/presentation/providers/auth_provider.dart';
 import 'package:flutter_project_agents/features/auth/presentation/screens/login_screen.dart';
 import 'package:flutter_project_agents/features/auth/presentation/screens/register_screen.dart';
+import 'package:flutter_project_agents/features/subscriptions/presentation/screens/create_subscription_screen.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -14,6 +15,7 @@ class AppRoutes {
   static const login = '/login';
   static const register = '/register';
   static const app = '/app';
+  static const createSubscription = '/create-subscription';
 }
 
 /// Provider for GoRouter instance
@@ -89,6 +91,11 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: AppRoutes.app,
         name: 'app',
         builder: (context, state) => const AppShell(),
+      ),
+      GoRoute(
+        path: AppRoutes.createSubscription,
+        name: 'create-subscription',
+        builder: (context, state) => const CreateSubscriptionScreen(),
       ),
     ],
     errorBuilder: (context, state) => Scaffold(
