@@ -4,10 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_project_agents/features/subscriptions/presentation/providers/subscriptions_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-/// Custom Bottom Navigation Bar with blur effect
+/// Custom Bottom Navigation Bar with notched design for centered FAB
 ///
 /// Features:
 /// - 4 navigation items (Home, Friends, Analytics, Settings)
+/// - Circular notch in center for FAB
 /// - Active state with color transition
 /// - Filled/Outlined icons based on state
 /// - Glassmorphism background
@@ -19,29 +20,25 @@ class CustomBottomNavBar extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final selectedIndex = ref.watch(selectedBottomNavIndexProvider);
 
-    return ClipRRect(
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-        child: Container(
-          decoration: BoxDecoration(
-            color: const Color(0xFF1F1F2E).withOpacity(0.95),
-            border: Border(
-              top: BorderSide(
-                color: Colors.white.withOpacity(0.1),
-                width: 1,
+    return BottomAppBar(
+      shape: const CircularNotchedRectangle(),
+      notchMargin: 8.0,
+      color: const Color(0xFF1F1F2E).withValues(alpha: 0.95),
+      elevation: 0,
+      child: ClipRRect(
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+          child: Container(
+            decoration: BoxDecoration(
+              border: Border(
+                top: BorderSide(
+                  color: Colors.white.withValues(alpha: 0.1),
+                  width: 1,
+                ),
               ),
             ),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.3),
-                blurRadius: 20,
-                offset: const Offset(0, -5),
-              ),
-            ],
-          ),
-          child: SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+            child: SizedBox(
+              height: 60,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
@@ -63,6 +60,8 @@ class CustomBottomNavBar extends ConsumerWidget {
                         .read(selectedBottomNavIndexProvider.notifier)
                         .setIndex(1),
                   ),
+                  // Spacer for the notch/FAB
+                  const SizedBox(width: 48),
                   _NavBarItem(
                     icon: Icons.analytics_outlined,
                     activeIcon: Icons.analytics,
@@ -141,7 +140,7 @@ class _NavBarItemState extends State<_NavBarItem>
 
     _colorAnimation = ColorTween(
       begin: Colors.grey[400],
-      end: const Color(0xFF6B4FBB),
+      end: const Color(0xFF6C63FF),
     ).animate(_controller);
 
     if (widget.isActive) {
@@ -173,14 +172,14 @@ class _NavBarItemState extends State<_NavBarItem>
     return InkWell(
       onTap: widget.onTap,
       borderRadius: BorderRadius.circular(12),
-      splashColor: const Color(0xFF6B4FBB).withOpacity(0.2),
-      highlightColor: const Color(0xFF6B4FBB).withOpacity(0.1),
+      splashColor: const Color(0xFF6C63FF).withValues(alpha: 0.2),
+      highlightColor: const Color(0xFF6C63FF).withValues(alpha: 0.1),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
           color: widget.isActive
-              ? const Color(0xFF6B4FBB).withOpacity(0.15)
+              ? const Color(0xFF6C63FF).withValues(alpha: 0.15)
               : Colors.transparent,
           borderRadius: BorderRadius.circular(12),
         ),
