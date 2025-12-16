@@ -32,6 +32,9 @@ class SubscriptionMember with _$SubscriptionMember {
 
     /// Due date for this member's payment
     required DateTime dueDate,
+
+    /// When the member was added to the subscription
+    required DateTime createdAt,
   }) = _SubscriptionMember;
 
   const SubscriptionMember._();

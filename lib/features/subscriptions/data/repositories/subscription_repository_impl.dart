@@ -361,6 +361,7 @@ class SubscriptionRepositoryImpl implements SubscriptionRepository {
             hasPaid: false,
             lastPaymentDate: null,
             dueDate: subscription.dueDate,
+            createdAt: DateTime.now(),
           );
 
           final memberModel = SubscriptionMemberModel.fromEntity(member);

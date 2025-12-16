@@ -283,6 +283,7 @@ class SubscriptionRepositoryMock implements SubscriptionRepository {
             hasPaid: false,
             lastPaymentDate: null,
             dueDate: subscription.dueDate,
+            createdAt: DateTime.now(),
           );
 
           _cachedMembers!.add(newMember);

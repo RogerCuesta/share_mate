@@ -167,6 +167,7 @@ class SubscriptionSeedData {
         hasPaid: false,
         lastPaymentDate: now.subtract(const Duration(days: 34)),
         dueDate: now.subtract(const Duration(days: 4)),
+        createdAt: now.subtract(const Duration(days: 90)),
       ),
 
       // Mike Thompson - Overdue 5 days (Spotify)
@@ -180,6 +181,7 @@ class SubscriptionSeedData {
         hasPaid: false,
         lastPaymentDate: now.subtract(const Duration(days: 35)),
         dueDate: now.subtract(const Duration(days: 5)),
+        createdAt: now.subtract(const Duration(days: 60)),
       ),
 
       // Emma Wilson - Pending (Disney+)
@@ -193,6 +195,7 @@ class SubscriptionSeedData {
         hasPaid: false,
         lastPaymentDate: null,
         dueDate: now.add(const Duration(days: 15)),
+        createdAt: now.subtract(const Duration(days: 45)),
       ),
 
       // David Lee - Pending (Disney+)
@@ -206,6 +209,7 @@ class SubscriptionSeedData {
         hasPaid: false,
         lastPaymentDate: null,
         dueDate: now.add(const Duration(days: 15)),
+        createdAt: now.subtract(const Duration(days: 45)),
       ),
 
       // Alex Rodriguez - Due soon (YouTube Premium)
@@ -219,6 +223,7 @@ class SubscriptionSeedData {
         hasPaid: false,
         lastPaymentDate: now.subtract(const Duration(days: 25)),
         dueDate: now.add(const Duration(days: 5)),
+        createdAt: now.subtract(const Duration(days: 120)),
       ),
 
       // Jessica Chen - Pending (YouTube Premium)
@@ -232,6 +237,7 @@ class SubscriptionSeedData {
         hasPaid: false,
         lastPaymentDate: null,
         dueDate: now.add(const Duration(days: 5)),
+        createdAt: now.subtract(const Duration(days: 120)),
       ),
 
       // Chris Parker - Overdue 2 days (YouTube Premium)
@@ -245,6 +251,7 @@ class SubscriptionSeedData {
         hasPaid: false,
         lastPaymentDate: now.subtract(const Duration(days: 32)),
         dueDate: now.subtract(const Duration(days: 2)),
+        createdAt: now.subtract(const Duration(days: 120)),
       ),
 
       // Rachel Green - Pending (Amazon Prime)
@@ -258,6 +265,7 @@ class SubscriptionSeedData {
         hasPaid: false,
         lastPaymentDate: null,
         dueDate: now.add(const Duration(days: 20)),
+        createdAt: now.subtract(const Duration(days: 180)),
       ),
 
       // Tom Brady - Pending (Apple Music)
@@ -271,6 +279,7 @@ class SubscriptionSeedData {
         hasPaid: false,
         lastPaymentDate: null,
         dueDate: now.add(const Duration(days: 12)),
+        createdAt: now.subtract(const Duration(days: 30)),
       ),
 
       // Lisa Anderson - Pending (HBO Max)
@@ -284,6 +293,7 @@ class SubscriptionSeedData {
         hasPaid: false,
         lastPaymentDate: null,
         dueDate: now.add(const Duration(days: 8)),
+        createdAt: now.subtract(const Duration(days: 75)),
       ),
 
       // Kevin Martinez - Pending (HBO Max)
@@ -297,6 +307,7 @@ class SubscriptionSeedData {
         hasPaid: false,
         lastPaymentDate: null,
         dueDate: now.add(const Duration(days: 8)),
+        createdAt: now.subtract(const Duration(days: 75)),
       ),
     ];
   }

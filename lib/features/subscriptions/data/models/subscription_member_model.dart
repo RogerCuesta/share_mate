@@ -35,6 +35,9 @@ class SubscriptionMemberModel extends HiveObject {
   @HiveField(8)
   final DateTime dueDate;
 
+  @HiveField(9)
+  final DateTime createdAt;
+
   SubscriptionMemberModel({
     required this.id,
     required this.subscriptionId,
@@ -45,6 +48,7 @@ class SubscriptionMemberModel extends HiveObject {
     required this.hasPaid,
     this.lastPaymentDate,
     required this.dueDate,
+    required this.createdAt,
   });
 
   /// Convert to domain entity
@@ -59,6 +63,7 @@ class SubscriptionMemberModel extends HiveObject {
       hasPaid: hasPaid,
       lastPaymentDate: lastPaymentDate,
       dueDate: dueDate,
+      createdAt: createdAt,
     );
   }
 
@@ -74,6 +79,7 @@ class SubscriptionMemberModel extends HiveObject {
       hasPaid: entity.hasPaid,
       lastPaymentDate: entity.lastPaymentDate,
       dueDate: entity.dueDate,
+      createdAt: entity.createdAt,
     );
   }
 
@@ -91,6 +97,7 @@ class SubscriptionMemberModel extends HiveObject {
           ? DateTime.parse(json['last_payment_date'] as String)
           : null,
       dueDate: DateTime.parse(json['due_date'] as String),
+      createdAt: DateTime.parse(json['created_at'] as String),
     );
   }
 
@@ -106,6 +113,7 @@ class SubscriptionMemberModel extends HiveObject {
       'has_paid': hasPaid,
       'last_payment_date': lastPaymentDate?.toIso8601String(),
       'due_date': dueDate.toIso8601String(),
+      'created_at': createdAt.toIso8601String(),
     };
   }
 }

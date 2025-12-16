@@ -85,7 +85,9 @@ CREATE INDEX idx_members_due_date ON subscription_members(due_date);
 - `has_paid`: Whether payment has been received
 - `last_payment_date`: When the last payment was made
 - `due_date`: When payment is due
-- `created_at`: Timestamp of creation
+- `created_at`: Timestamp of creation (automatically set by Supabase)
+
+**Note**: The `created_at` field should be included in your Flutter `SubscriptionMember` entity if you want to track when members were added.
 
 ---
 
@@ -260,6 +262,60 @@ INSERT INTO subscription_members (
 
 ---
 
+## Working with the `shared_with` Field
+
+Since `shared_with` is not stored in Supabase but derived from `subscription_members`, follow this pattern:
+
+### When Fetching Subscriptions
+
+```dart
+// 1. Fetch subscriptions
+final subscriptions = await supabase
+  .from('subscriptions')
+  .select()
+  .eq('owner_id', userId);
+
+// 2. For each subscription, fetch its members
+for (var subscription in subscriptions) {
+  final members = await supabase
+    .from('subscription_members')
+    .select('user_id')
+    .eq('subscription_id', subscription['id']);
+
+  // 3. Populate shared_with in your model
+  subscription['shared_with'] = members.map((m) => m['user_id']).toList();
+}
+```
+
+### When Creating/Updating Subscriptions
+
+```dart
+// DON'T send shared_with to Supabase
+final subscriptionData = {
+  'name': 'Netflix',
+  'color': '#E50914',
+  'total_cost': 15.99,
+  'billing_cycle': 'monthly',
+  'due_date': dueDate.toIso8601String(),
+  'owner_id': userId,
+  'status': 'active',
+  // DO NOT INCLUDE: 'shared_with': [...]
+};
+
+await supabase.from('subscriptions').insert(subscriptionData);
+
+// Instead, create members separately
+for (var memberId in sharedWith) {
+  await supabase.from('subscription_members').insert({
+    'subscription_id': subscriptionId,
+    'user_id': memberId,
+    // ... other member fields
+  });
+}
+```
+
+---
+
 ## Backup & Migration
 
 ### Backup Schema
@@ -306,12 +362,132 @@ final subscription = SupabaseService.client
 ## Notes
 
 - All timestamps are stored in UTC
-- The `shared_with` field from the domain model is NOT stored in the database
+- **The `shared_with` field from the domain model is NOT stored in the database**
   - It's derived from the `subscription_members` table
   - This ensures data consistency and avoids duplication
+  - **IMPORTANT**: When fetching subscriptions, you must make a separate query to get members and populate `sharedWith` in the app layer
+  - Do NOT send `shared_with` in INSERT/UPDATE operations to Supabase
 - Cascade deletes ensure that when a subscription is deleted, all members are also deleted
 - The unique constraint on `subscription_members` prevents duplicate members
 - RLS policies ensure users can only access their own data
+- The `created_at` field in `subscription_members` is automatically set by Supabase and should be mapped in the Flutter app
+
+---
+
+## Required Code Changes Before Integration
+
+Before integrating with Supabase, you must update the following files:
+
+### 1. Update `SubscriptionMember` Entity (Optional)
+
+Add `createdAt` field to match Supabase schema:
+
+```dart
+// lib/features/subscriptions/domain/entities/subscription_member.dart
+@freezed
+class SubscriptionMember with _$SubscriptionMember {
+  const factory SubscriptionMember({
+    required String id,
+    required String subscriptionId,
+    required String userId,
+    required String userName,
+    String? userAvatar,
+    required double amountToPay,
+    @Default(false) bool hasPaid,
+    DateTime? lastPaymentDate,
+    required DateTime dueDate,
+    required DateTime createdAt, // ADD THIS FIELD
+  }) = _SubscriptionMember;
+}
+```
+
+### 2. Update `SubscriptionModel.toJson()`
+
+Remove `shared_with` field when sending to Supabase:
+
+```dart
+// lib/features/subscriptions/data/models/subscription_model.dart
+Map<String, dynamic> toJson() {
+  return {
+    'id': id,
+    'name': name,
+    'icon_url': iconUrl,
+    'color': color,
+    'total_cost': totalCost,
+    'billing_cycle': billingCycle,
+    'due_date': dueDate.toIso8601String(),
+    'owner_id': ownerId,
+    // REMOVE: 'shared_with': sharedWith,
+    'status': status,
+    'created_at': createdAt.toIso8601String(),
+  };
+}
+```
+
+### 3. Update `SubscriptionMemberModel`
+
+Add `createdAt` field to match Supabase:
+
+```dart
+// lib/features/subscriptions/data/models/subscription_member_model.dart
+@HiveType(typeId: HiveTypeIds.subscriptionMember)
+class SubscriptionMemberModel extends HiveObject {
+  // ... existing fields ...
+
+  @HiveField(9) // Use next available field number
+  final DateTime createdAt;
+
+  // Update constructor and methods accordingly
+}
+```
+
+### 4. Update `SubscriptionRemoteDataSource`
+
+Modify `getSubscriptions()` to populate `sharedWith`:
+
+```dart
+Future<List<SubscriptionModel>> getSubscriptions(String userId) async {
+  try {
+    // 1. Fetch subscriptions
+    final response = await _client
+        .from('subscriptions')
+        .select()
+        .eq('owner_id', userId)
+        .order('created_at', ascending: false);
+
+    final List<dynamic> data = response as List<dynamic>;
+    final subscriptions = <SubscriptionModel>[];
+
+    // 2. For each subscription, fetch members and populate sharedWith
+    for (var json in data) {
+      final subscriptionId = json['id'] as String;
+
+      // Fetch members for this subscription
+      final membersResponse = await _client
+          .from('subscription_members')
+          .select('user_id')
+          .eq('subscription_id', subscriptionId);
+
+      // Add shared_with to JSON before parsing
+      json['shared_with'] = (membersResponse as List<dynamic>)
+          .map((m) => m['user_id'] as String)
+          .toList();
+
+      subscriptions.add(
+        SubscriptionModel.fromJson(json as Map<String, dynamic>)
+      );
+    }
+
+    return subscriptions;
+  } catch (e) {
+    throw SubscriptionRemoteException(
+      'Failed to fetch subscriptions: ${e.toString()}',
+    );
+  }
+}
+```
+
+**Alternative**: Use a Supabase view or function to join the data automatically.
 
 ---
 

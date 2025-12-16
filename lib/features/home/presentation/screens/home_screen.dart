@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../../core/widgets/custom_bottom_nav_bar.dart';
 import '../../../subscriptions/presentation/providers/subscriptions_provider.dart';
 import '../widgets/action_required_section.dart';
 import '../widgets/active_subscriptions_section.dart';
@@ -71,7 +70,6 @@ class HomeScreen extends ConsumerWidget {
           ],
         ),
       ),
-      bottomNavigationBar: const CustomBottomNavBar(),
     );
   }
 }

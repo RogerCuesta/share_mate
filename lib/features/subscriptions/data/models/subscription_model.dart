@@ -109,6 +109,7 @@ class SubscriptionModel extends HiveObject {
   }
 
   /// Convert to Supabase JSON
+  /// Note: shared_with is NOT sent to Supabase as it's derived from subscription_members table
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -119,7 +120,6 @@ class SubscriptionModel extends HiveObject {
       'billing_cycle': billingCycle,
       'due_date': dueDate.toIso8601String(),
       'owner_id': ownerId,
-      'shared_with': sharedWith,
       'status': status,
       'created_at': createdAt.toIso8601String(),
     };
