@@ -38,7 +38,7 @@ class CustomBottomNavBar extends ConsumerWidget {
               ),
             ),
             child: SizedBox(
-              height: 60,
+              height: 70,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
@@ -176,7 +176,7 @@ class _NavBarItemState extends State<_NavBarItem>
       highlightColor: const Color(0xFF6C63FF).withValues(alpha: 0.1),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
         decoration: BoxDecoration(
           color: widget.isActive
               ? const Color(0xFF6C63FF).withValues(alpha: 0.15)
@@ -195,7 +195,7 @@ class _NavBarItemState extends State<_NavBarItem>
                   return Icon(
                     widget.isActive ? widget.activeIcon : widget.icon,
                     color: _colorAnimation.value,
-                    size: 26,
+                    size: 24,
                   );
                 },
               ),

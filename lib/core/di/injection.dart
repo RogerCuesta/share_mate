@@ -14,7 +14,6 @@ import 'package:flutter_project_agents/features/auth/domain/usecases/register_us
 import 'package:flutter_project_agents/features/subscriptions/data/datasources/subscription_local_datasource.dart';
 import 'package:flutter_project_agents/features/subscriptions/data/datasources/subscription_remote_datasource.dart';
 import 'package:flutter_project_agents/features/subscriptions/data/repositories/subscription_repository_impl.dart';
-import 'package:flutter_project_agents/features/subscriptions/data/repositories/subscription_repository_mock.dart';
 import 'package:flutter_project_agents/features/subscriptions/domain/repositories/subscription_repository.dart';
 import 'package:flutter_project_agents/features/subscriptions/domain/usecases/create_subscription.dart';
 import 'package:flutter_project_agents/features/subscriptions/domain/usecases/delete_subscription.dart';
@@ -25,7 +24,6 @@ import 'package:flutter_project_agents/features/subscriptions/domain/usecases/ge
 import 'package:flutter_project_agents/features/subscriptions/domain/usecases/mark_payment_as_paid.dart';
 import 'package:flutter_project_agents/features/subscriptions/domain/usecases/update_subscription.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:hive/hive.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -172,13 +170,9 @@ SubscriptionRemoteDataSource subscriptionRemoteDataSource(Ref ref) {
 
 /// Provider for SubscriptionRepository implementation
 ///
-/// **DEVELOPMENT MODE**: Currently using MOCK data for UI testing.
-/// This returns [SubscriptionRepositoryMock] with realistic seed data.
+/// **PRODUCTION MODE**: Using real Supabase backend with offline-first strategy.
 ///
-/// **PRODUCTION MODE**: Uncomment the SubscriptionRepositoryImpl code below
-/// and comment out the mock implementation.
-///
-/// The real implementation coordinates between:
+/// The implementation coordinates between:
 /// - SubscriptionRemoteDataSource (Supabase) for remote operations
 /// - SubscriptionLocalDataSource (Hive) for local cache
 ///
@@ -186,20 +180,12 @@ SubscriptionRemoteDataSource subscriptionRemoteDataSource(Ref ref) {
 @riverpod
 SubscriptionRepository subscriptionRepository(Ref ref) {
   // ============================================================================
-  // MOCK REPOSITORY - For UI Testing (CURRENTLY ACTIVE)
+  // REAL REPOSITORY - Production Implementation (ACTIVE)
   // ============================================================================
-  return SubscriptionRepositoryMock();
-
-  // ============================================================================
-  // REAL REPOSITORY - For Production (COMMENTED OUT)
-  // ============================================================================
-  // Uncomment the code below when ready to use real Supabase backend:
-  /*
   return SubscriptionRepositoryImpl(
     remoteDataSource: ref.watch(subscriptionRemoteDataSourceProvider),
     localDataSource: ref.watch(subscriptionLocalDataSourceProvider),
   );
-  */
 }
 
 // ═══════════════════════════════════════════════════════════════════════════

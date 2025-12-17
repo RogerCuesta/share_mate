@@ -5,7 +5,6 @@ import 'package:flutter_project_agents/features/auth/presentation/providers/auth
 import 'package:flutter_project_agents/features/subscriptions/domain/entities/predefined_services.dart';
 import 'package:flutter_project_agents/features/subscriptions/domain/entities/subscription.dart';
 import 'package:flutter_project_agents/features/subscriptions/domain/entities/subscription_member_input.dart';
-import 'package:flutter_project_agents/features/subscriptions/domain/failures/subscription_failure.dart';
 import 'package:flutter_project_agents/features/subscriptions/presentation/providers/subscriptions_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:uuid/uuid.dart';
@@ -69,51 +68,6 @@ class CreateGroupSubscriptionFormState {
     return '#6C63FF'; // Default purple
   }
 
-  /// Get total number of members including the owner
-  int get totalMembers => members.length + 1; // +1 for owner
-
-  /// Calculate split amount per person
-  double get splitAmount {
-    final price = double.tryParse(totalPrice) ?? 0;
-    if (totalMembers == 0) return 0;
-    return price / totalMembers;
-  }
-
-  /// Get breakdown of payments per member
-  List<MemberPaymentBreakdown> get paymentBreakdown {
-    final price = double.tryParse(totalPrice) ?? 0;
-    if (totalMembers == 0) return [];
-
-    final baseAmount = price / totalMembers;
-    final remainder = price - (baseAmount * totalMembers);
-
-    final breakdown = <MemberPaymentBreakdown>[];
-
-    // Add members
-    for (var i = 0; i < members.length; i++) {
-      breakdown.add(
-        MemberPaymentBreakdown(
-          name: members[i].name,
-          email: members[i].email,
-          amount: baseAmount,
-          isOwner: false,
-        ),
-      );
-    }
-
-    // Add owner (gets the remainder if any)
-    breakdown.add(
-      MemberPaymentBreakdown(
-        name: 'You',
-        email: '',
-        amount: baseAmount + remainder,
-        isOwner: true,
-      ),
-    );
-
-    return breakdown;
-  }
-
   /// Validate form fields
   String? validate() {
     // Validate service name
@@ -162,21 +116,6 @@ class CreateGroupSubscriptionFormState {
 
   /// Check if form is valid
   bool get isValid => validate() == null;
-}
-
-/// Member payment breakdown for preview
-class MemberPaymentBreakdown {
-  final String name;
-  final String email;
-  final double amount;
-  final bool isOwner;
-
-  MemberPaymentBreakdown({
-    required this.name,
-    required this.email,
-    required this.amount,
-    required this.isOwner,
-  });
 }
 
 /// Provider for create group subscription form state
@@ -293,17 +232,18 @@ class CreateGroupSubscriptionForm extends _$CreateGroupSubscriptionForm {
       final createSubscription = ref.read(createSubscriptionProvider);
       final result = await createSubscription(subscription);
 
-      result.fold(
-        (failure) {
+      await result.fold(
+        (failure) async {
           // Handle failure
+          print('❌ [CreateGroupForm] Failed to create subscription: $failure');
           final errorMsg = failure.maybeWhen(
-            serverError: (message) => message ?? 'Server error occurred',
+            serverError: (message) => message,
             networkError: () => 'Network error. Please check your connection.',
-            cacheError: (message) => message ?? 'Cache error occurred',
+            cacheError: (message) => message,
             notFound: () => 'Subscription not found',
-            invalidData: (message) => message ?? 'Invalid data',
-            paymentError: (message) => message ?? 'Payment error',
-            memberError: (message) => message ?? 'Member error',
+            invalidData: (message) => message,
+            paymentError: (message) => message,
+            memberError: (message) => message,
             orElse: () => 'An error occurred',
           );
           state = state.copyWith(
@@ -311,8 +251,46 @@ class CreateGroupSubscriptionForm extends _$CreateGroupSubscriptionForm {
             errorMessage: errorMsg,
           );
         },
-        (createdSubscription) {
+        (createdSubscription) async {
+          print('✅ [CreateGroupForm] Subscription created: ${createdSubscription.id}');
+          print('👥 [CreateGroupForm] Adding ${state.members.length} members...');
+
+          // Calculate split amount
+          final totalMembers = state.members.length + 1; // +1 for owner
+          final splitAmount = parsedPrice / totalMembers;
+          final floorAmount = (splitAmount * 100).floor() / 100;
+
+          // Add members to the subscription
+          final repository = ref.read(subscriptionRepositoryProvider);
+          int successCount = 0;
+          int failCount = 0;
+
+          for (final memberInput in state.members) {
+            print('   ➕ Adding member: ${memberInput.name} (${memberInput.email})');
+
+            final result = await repository.addMemberToSubscription(
+              subscriptionId: createdSubscription.id,
+              userId: memberInput.id, // Using local ID as placeholder
+              userName: memberInput.name,
+              userAvatar: memberInput.avatar,
+            );
+
+            result.fold(
+              (failure) {
+                print('   ❌ Failed to add ${memberInput.name}: $failure');
+                failCount++;
+              },
+              (addedMember) {
+                print('   ✅ Added member: ${addedMember.userName} (\$${addedMember.amountToPay.toStringAsFixed(2)})');
+                successCount++;
+              },
+            );
+          }
+
+          print('📊 [CreateGroupForm] Members added: $successCount success, $failCount failed');
+
           // Success - invalidate providers to refresh data
+          print('🔄 [CreateGroupForm] Invalidating providers...');
           ref.invalidate(monthlyStatsProvider);
           ref.invalidate(activeSubscriptionsProvider);
 
@@ -321,6 +299,8 @@ class CreateGroupSubscriptionForm extends _$CreateGroupSubscriptionForm {
             isSuccess: true,
             clearError: true,
           );
+
+          print('✅ [CreateGroupForm] Group subscription created successfully!');
         },
       );
     } catch (e) {

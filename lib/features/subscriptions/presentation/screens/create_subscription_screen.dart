@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_project_agents/features/subscriptions/domain/entities/subscription.dart';
 import 'package:flutter_project_agents/features/subscriptions/presentation/providers/create_subscription_form_provider.dart';
 import 'package:flutter_project_agents/features/subscriptions/presentation/widgets/billing_cycle_selector.dart';
-import 'package:flutter_project_agents/features/subscriptions/presentation/widgets/color_picker_widget.dart';
+import 'package:flutter_project_agents/features/subscriptions/presentation/widgets/service_icon_picker.dart';
 import 'package:flutter_project_agents/features/subscriptions/presentation/widgets/subscription_preview_card.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -29,7 +28,6 @@ class _CreateSubscriptionScreenState
     extends ConsumerState<CreateSubscriptionScreen> {
   final _nameController = TextEditingController();
   final _costController = TextEditingController();
-  final _iconUrlController = TextEditingController();
 
   @override
   void initState() {
@@ -75,7 +73,6 @@ class _CreateSubscriptionScreenState
   void dispose() {
     _nameController.dispose();
     _costController.dispose();
-    _iconUrlController.dispose();
     super.dispose();
   }
 
@@ -85,21 +82,22 @@ class _CreateSubscriptionScreenState
     final formNotifier = ref.read(createSubscriptionFormProvider.notifier);
 
     return Scaffold(
-      backgroundColor: const Color(0xFF1A1A2E),
+      backgroundColor: const Color(0xFF0D0D1E),
       appBar: AppBar(
-        backgroundColor: const Color(0xFF1A1A2E),
+        backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.close, color: Colors.white),
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () => context.pop(),
         ),
         title: const Text(
-          'Create Subscription',
+          'Add Subscription',
           style: TextStyle(
             color: Colors.white,
             fontWeight: FontWeight.bold,
           ),
         ),
+        centerTitle: true,
       ),
       body: SafeArea(
         child: CustomScrollView(
@@ -121,62 +119,180 @@ class _CreateSubscriptionScreenState
                     ),
                     const SizedBox(height: 32),
 
-                    // Name Field
-                    _buildTextField(
-                      controller: _nameController,
-                      label: 'Subscription Name',
-                      hint: 'e.g., Netflix, Spotify',
-                      icon: Icons.subscriptions,
-                      onChanged: formNotifier.updateName,
+                    // Service Name Section
+                    _buildSectionCard(
+                      title: 'Service Name',
+                      child: Column(
+                        children: [
+                          TextField(
+                            controller: _nameController,
+                            style: const TextStyle(color: Colors.white),
+                            decoration: InputDecoration(
+                              hintText: 'e.g., Netflix, Spotify',
+                              hintStyle: TextStyle(color: Colors.grey[600]),
+                              prefixIcon: const Icon(
+                                Icons.subscriptions,
+                                color: Color(0xFF6C63FF),
+                              ),
+                              filled: true,
+                              fillColor: const Color(0xFF2A2A3E),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide.none,
+                              ),
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: const BorderSide(
+                                  color: Color(0xFF3D3D54),
+                                ),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: const BorderSide(
+                                  color: Color(0xFF6C63FF),
+                                  width: 2,
+                                ),
+                              ),
+                            ),
+                            onChanged: formNotifier.updateName,
+                          ),
+                          const SizedBox(height: 16),
+                          ServiceIconPicker(
+                            selectedService: formState.iconUrl,
+                            onServiceSelected: formNotifier.updateIconUrl,
+                          ),
+                        ],
+                      ),
                     ),
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 16),
 
-                    // Cost Field
-                    _buildTextField(
-                      controller: _costController,
-                      label: 'Cost',
-                      hint: '0.00',
-                      icon: Icons.attach_money,
-                      keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                      inputFormatters: [
-                        FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}')),
-                      ],
-                      onChanged: formNotifier.updateCost,
+                    // Total Price Section
+                    _buildSectionCard(
+                      title: 'Total Price',
+                      child: TextField(
+                        controller: _costController,
+                        keyboardType: const TextInputType.numberWithOptions(
+                          decimal: true,
+                        ),
+                        inputFormatters: [
+                          FilteringTextInputFormatter.allow(
+                            RegExp(r'^\d+\.?\d{0,2}'),
+                          ),
+                        ],
+                        style: const TextStyle(color: Colors.white),
+                        decoration: InputDecoration(
+                          hintText: '0.00',
+                          hintStyle: TextStyle(color: Colors.grey[600]),
+                          prefixIcon: const Icon(
+                            Icons.attach_money,
+                            color: Color(0xFF6C63FF),
+                          ),
+                          filled: true,
+                          fillColor: const Color(0xFF2A2A3E),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide.none,
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: const BorderSide(
+                              color: Color(0xFF3D3D54),
+                            ),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: const BorderSide(
+                              color: Color(0xFF6C63FF),
+                              width: 2,
+                            ),
+                          ),
+                        ),
+                        onChanged: formNotifier.updateCost,
+                      ),
                     ),
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 16),
 
-                    // Billing Cycle Selector
-                    BillingSycleSelector(
-                      selectedCycle: formState.billingCycle,
-                      onCycleSelected: formNotifier.updateBillingCycle,
+                    // Billing Cycle Section
+                    _buildSectionCard(
+                      title: 'Billing Cycle',
+                      child: BillingSycleSelector(
+                        selectedCycle: formState.billingCycle,
+                        onCycleSelected: formNotifier.updateBillingCycle,
+                      ),
                     ),
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 16),
 
-                    // Due Date Picker
-                    _buildDatePicker(
-                      context: context,
-                      label: 'Due Date',
-                      selectedDate: formState.dueDate,
-                      onDateSelected: formNotifier.updateDueDate,
+                    // Renewal Date Section
+                    _buildSectionCard(
+                      title: 'Renewal Date',
+                      child: InkWell(
+                        onTap: () => _selectDate(context, formNotifier),
+                        child: Container(
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF2A2A3E),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: const Color(0xFF3D3D54),
+                            ),
+                          ),
+                          child: Row(
+                            children: [
+                              const Icon(
+                                Icons.calendar_today,
+                                color: Color(0xFF6C63FF),
+                              ),
+                              const SizedBox(width: 12),
+                              Text(
+                                '${formState.dueDate.day}/${formState.dueDate.month}/${formState.dueDate.year}',
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
                     ),
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 24),
 
-                    // Color Picker
-                    ColorPickerWidget(
-                      selectedColor: formState.color,
-                      onColorSelected: formNotifier.updateColor,
+                    // Create Subscription Button
+                    SizedBox(
+                      width: double.infinity,
+                      height: 56,
+                      child: ElevatedButton(
+                        onPressed: formState.isLoading
+                            ? null
+                            : () async {
+                                await formNotifier.submit();
+                              },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF6B4FBB),
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                        ),
+                        child: formState.isLoading
+                            ? const SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: Colors.white,
+                                ),
+                              )
+                            : const Text(
+                                'Create Subscription',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                      ),
                     ),
-                    const SizedBox(height: 20),
-
-                    // Icon URL Field (Optional)
-                    _buildTextField(
-                      controller: _iconUrlController,
-                      label: 'Icon URL (Optional)',
-                      hint: 'https://example.com/icon.png',
-                      icon: Icons.image,
-                      onChanged: formNotifier.updateIconUrl,
-                    ),
-                    const SizedBox(height: 100), // Padding for FAB
+                    const SizedBox(height: 40),
                   ],
                 ),
               ),
@@ -184,166 +300,63 @@ class _CreateSubscriptionScreenState
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: formState.isLoading
-            ? null
-            : () async {
-                await formNotifier.submit();
-              },
-        backgroundColor: const Color(0xFF6C63FF),
-        icon: formState.isLoading
-            ? const SizedBox(
-                width: 20,
-                height: 20,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  color: Colors.white,
-                ),
-              )
-            : const Icon(Icons.check, color: Colors.white),
-        label: Text(
-          formState.isLoading ? 'Saving...' : 'Save Subscription',
-          style: const TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.w600,
+    );
+  }
+
+  /// Build a section card wrapper with title
+  Widget _buildSectionCard({
+    required String title,
+    required Widget child,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: const Color(0xFF1E1E2D),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+            ),
           ),
-        ),
+          const SizedBox(height: 12),
+          child,
+        ],
       ),
     );
   }
 
-  /// Build a text field with consistent styling
-  Widget _buildTextField({
-    required TextEditingController controller,
-    required String label,
-    required String hint,
-    required IconData icon,
-    TextInputType? keyboardType,
-    List<TextInputFormatter>? inputFormatters,
-    required ValueChanged<String> onChanged,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        const SizedBox(height: 8),
-        TextField(
-          controller: controller,
-          keyboardType: keyboardType,
-          inputFormatters: inputFormatters,
-          style: const TextStyle(color: Colors.white),
-          decoration: InputDecoration(
-            hintText: hint,
-            hintStyle: TextStyle(color: Colors.grey[600]),
-            prefixIcon: Icon(icon, color: const Color(0xFF6C63FF)),
-            filled: true,
-            fillColor: const Color(0xFF2D2D44),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(16),
-              borderSide: BorderSide.none,
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(16),
-              borderSide: const BorderSide(
-                color: Color(0xFF3D3D54),
-                width: 1,
-              ),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(16),
-              borderSide: const BorderSide(
-                color: Color(0xFF6C63FF),
-                width: 2,
-              ),
+  /// Show date picker dialog
+  Future<void> _selectDate(
+    BuildContext context,
+    CreateSubscriptionForm formNotifier,
+  ) async {
+    final date = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now().add(const Duration(days: 30)),
+      firstDate: DateTime.now(),
+      lastDate: DateTime.now().add(const Duration(days: 365)),
+      builder: (context, child) {
+        return Theme(
+          data: ThemeData.dark().copyWith(
+            colorScheme: const ColorScheme.dark(
+              primary: Color(0xFF6B4FBB),
+              surface: Color(0xFF2A2A3E),
             ),
           ),
-          onChanged: onChanged,
-        ),
-      ],
+          child: child!,
+        );
+      },
     );
-  }
 
-  /// Build a date picker field
-  Widget _buildDatePicker({
-    required BuildContext context,
-    required String label,
-    required DateTime selectedDate,
-    required ValueChanged<DateTime> onDateSelected,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        const SizedBox(height: 8),
-        InkWell(
-          onTap: () async {
-            final pickedDate = await showDatePicker(
-              context: context,
-              initialDate: selectedDate,
-              firstDate: DateTime.now(),
-              lastDate: DateTime.now().add(const Duration(days: 365 * 2)),
-              builder: (context, child) {
-                return Theme(
-                  data: ThemeData.dark().copyWith(
-                    colorScheme: const ColorScheme.dark(
-                      primary: Color(0xFF6C63FF),
-                      onPrimary: Colors.white,
-                      surface: Color(0xFF2D2D44),
-                      onSurface: Colors.white,
-                    ),
-                  ),
-                  child: child!,
-                );
-              },
-            );
-
-            if (pickedDate != null) {
-              onDateSelected(pickedDate);
-            }
-          },
-          child: Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: const Color(0xFF2D2D44),
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(
-                color: const Color(0xFF3D3D54),
-                width: 1,
-              ),
-            ),
-            child: Row(
-              children: [
-                const Icon(
-                  Icons.calendar_today,
-                  color: Color(0xFF6C63FF),
-                ),
-                const SizedBox(width: 12),
-                Text(
-                  '${selectedDate.day}/${selectedDate.month}/${selectedDate.year}',
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 16,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ],
-    );
+    if (date != null) {
+      formNotifier.updateDueDate(date);
+    }
   }
 }

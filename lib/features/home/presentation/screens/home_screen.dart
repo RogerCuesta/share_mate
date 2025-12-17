@@ -63,9 +63,9 @@ class HomeScreen extends ConsumerWidget {
               ),
             ),
 
-            // Bottom padding
+            // Bottom padding (accounts for BottomAppBar + FAB + SafeArea)
             const SliverToBoxAdapter(
-              child: SizedBox(height: 100),
+              child: SizedBox(height: 120),
             ),
           ],
         ),

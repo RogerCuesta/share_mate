@@ -5,17 +5,20 @@ import 'package:flutter_project_agents/features/subscriptions/domain/entities/su
 import 'package:flutter_project_agents/features/subscriptions/presentation/widgets/add_member_dialog.dart';
 
 /// Section displaying the list of members with add/remove functionality
+///
+/// Displays a header with "Members" title and "Add" button, followed by
+/// a list of member cards showing avatar, name, email, and delete button.
 class MembersListSection extends StatelessWidget {
-  final List<SubscriptionMemberInput> members;
-  final ValueChanged<SubscriptionMemberInput> onMemberAdded;
-  final ValueChanged<String> onMemberRemoved;
-
   const MembersListSection({
-    super.key,
     required this.members,
     required this.onMemberAdded,
     required this.onMemberRemoved,
+    super.key,
   });
+
+  final List<SubscriptionMemberInput> members;
+  final ValueChanged<SubscriptionMemberInput> onMemberAdded;
+  final ValueChanged<String> onMemberRemoved;
 
   Future<void> _showAddMemberDialog(BuildContext context) async {
     final member = await showDialog<SubscriptionMemberInput>(
@@ -30,130 +33,114 @@ class MembersListSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // Header
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            const Text(
-              'Members',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            TextButton.icon(
-              onPressed: () => _showAddMemberDialog(context),
-              icon: const Icon(Icons.add, color: Color(0xFF6C63FF), size: 20),
-              label: const Text(
-                'Add',
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: const Color(0xFF1E1E2D),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Header with title and add button
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                'Members',
                 style: TextStyle(
-                  color: Color(0xFF6C63FF),
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
+                  color: Colors.white,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              ElevatedButton.icon(
+                onPressed: () => _showAddMemberDialog(context),
+                icon: const Icon(Icons.add, size: 18),
+                label: const Text('Add'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF6B4FBB),
+                  foregroundColor: Colors.white,
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+
+          // Members list or empty state
+          if (members.isEmpty)
+            Center(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Text(
+                  'No members added yet',
+                  style: TextStyle(
+                    color: Colors.grey[400],
+                    fontSize: 16,
+                  ),
+                ),
+              ),
+            )
+          else
+            ...members.map(
+              (member) => Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: _MemberTile(
+                  member: member,
+                  onDelete: () => onMemberRemoved(member.id),
                 ),
               ),
             ),
-          ],
-        ),
-        const SizedBox(height: 12),
-
-        // Members list
-        if (members.isEmpty)
-          Container(
-            padding: const EdgeInsets.all(24),
-            decoration: BoxDecoration(
-              color: const Color(0xFF2D2D44),
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: Center(
-              child: Column(
-                children: [
-                  Icon(
-                    Icons.people_outline,
-                    size: 48,
-                    color: Colors.grey[600],
-                  ),
-                  const SizedBox(height: 12),
-                  Text(
-                    'No members added yet',
-                    style: TextStyle(
-                      color: Colors.grey[400],
-                      fontSize: 16,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          )
-        else
-          ListView.separated(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: members.length,
-            separatorBuilder: (context, index) => const SizedBox(height: 12),
-            itemBuilder: (context, index) {
-              final member = members[index];
-              return _MemberItem(
-                member: member,
-                onDelete: () => onMemberRemoved(member.id),
-              );
-            },
-          ),
-      ],
+        ],
+      ),
     );
   }
 }
 
-/// Individual member item
-class _MemberItem extends StatelessWidget {
-  final SubscriptionMemberInput member;
-  final VoidCallback onDelete;
-
-  const _MemberItem({
+/// Individual member tile displaying avatar, name, email, and delete button
+class _MemberTile extends StatelessWidget {
+  const _MemberTile({
     required this.member,
     required this.onDelete,
   });
 
+  final SubscriptionMemberInput member;
+  final VoidCallback onDelete;
+
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: const Color(0xFF2D2D44),
+        color: const Color(0xFF2A2A3E),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: const Color(0xFF3D3D54),
-          width: 1,
-        ),
       ),
       child: Row(
         children: [
-          // Avatar placeholder
-          Container(
-            width: 48,
-            height: 48,
-            decoration: BoxDecoration(
-              color: const Color(0xFF3D3D54),
-              borderRadius: BorderRadius.circular(24),
-            ),
-            child: Center(
-              child: Text(
-                member.name.isNotEmpty ? member.name[0].toUpperCase() : '?',
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
+          // Avatar placeholder with "img" text
+          CircleAvatar(
+            radius: 24,
+            backgroundColor: Colors.grey[700],
+            child: const Text(
+              'img',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
               ),
             ),
           ),
           const SizedBox(width: 12),
 
-          // Member info
+          // Name and email
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -163,10 +150,10 @@ class _MemberItem extends StatelessWidget {
                   style: const TextStyle(
                     color: Colors.white,
                     fontSize: 16,
-                    fontWeight: FontWeight.w600,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: 2),
                 Text(
                   member.email,
                   style: TextStyle(
@@ -184,7 +171,10 @@ class _MemberItem extends StatelessWidget {
             icon: const Icon(
               Icons.delete_outline,
               color: Colors.red,
+              size: 22,
             ),
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(),
           ),
         ],
       ),

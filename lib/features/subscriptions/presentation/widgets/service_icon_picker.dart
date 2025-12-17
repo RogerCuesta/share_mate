@@ -5,17 +5,18 @@ import 'package:flutter_project_agents/features/subscriptions/domain/entities/pr
 
 /// Widget for selecting a predefined service icon
 ///
-/// Displays a grid of 8 predefined services + 1 custom option.
-/// Each service has its own color and icon/logo representation.
+/// Displays a grid of 8 predefined services in a 4x2 layout.
+/// Each service has its own background color with white icon/text.
+/// Selected service shows a white border.
 class ServiceIconPicker extends StatelessWidget {
+  const ServiceIconPicker({
+    required this.onServiceSelected,
+    this.selectedService,
+    super.key,
+  });
+
   final String? selectedService;
   final ValueChanged<String> onServiceSelected;
-
-  const ServiceIconPicker({
-    super.key,
-    this.selectedService,
-    required this.onServiceSelected,
-  });
 
   @override
   Widget build(BuildContext context) {
@@ -23,22 +24,21 @@ class ServiceIconPicker extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text(
-          'Select Service',
+          'Select Service Icon',
           style: TextStyle(
             color: Colors.white,
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
           ),
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 16),
         GridView.builder(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 4,
-            crossAxisSpacing: 12,
-            mainAxisSpacing: 12,
-            childAspectRatio: 1,
+            crossAxisSpacing: 16,
+            mainAxisSpacing: 16,
           ),
           itemCount: PredefinedServices.services.length,
           itemBuilder: (context, index) {
@@ -57,18 +57,19 @@ class ServiceIconPicker extends StatelessWidget {
   }
 }
 
-/// Individual service icon item
+/// Individual service icon item with animated selection
 class _ServiceIconItem extends StatelessWidget {
-  final PredefinedService service;
-  final bool isSelected;
-  final VoidCallback onTap;
-
   const _ServiceIconItem({
     required this.service,
     required this.isSelected,
     required this.onTap,
   });
 
+  final PredefinedService service;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  /// Parse hex color string to Color object
   Color _parseColor(String hexColor) {
     final hex = hexColor.replaceAll('#', '');
     return Color(int.parse('FF$hex', radix: 16));
@@ -78,62 +79,71 @@ class _ServiceIconItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final serviceColor = _parseColor(service.color);
 
-    return InkWell(
+    return GestureDetector(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(16),
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
+        duration: const Duration(milliseconds: 250),
+        curve: Curves.easeInOut,
         decoration: BoxDecoration(
-          color: const Color(0xFF2D2D44),
+          color: serviceColor,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: isSelected ? serviceColor : const Color(0xFF3D3D54),
-            width: isSelected ? 2 : 1,
-          ),
+          border: isSelected
+              ? Border.all(
+                  color: Colors.white,
+                  width: 3,
+                )
+              : null,
+          boxShadow: isSelected
+              ? [
+                  BoxShadow(
+                    color: serviceColor.withValues(alpha: 0.4),
+                    blurRadius: 12,
+                    offset: const Offset(0, 4),
+                  ),
+                ]
+              : null,
         ),
-        child: Stack(
-          children: [
-            // Service icon/text
-            Center(
-              child: service.iconText != null
-                  ? Text(
-                      service.iconText!,
-                      style: TextStyle(
-                        color: serviceColor,
-                        fontSize: service.iconText!.length > 3 ? 12 : 20,
-                        fontWeight: FontWeight.bold,
-                      ),
-                      textAlign: TextAlign.center,
-                    )
-                  : Icon(
-                      service.icon ?? Icons.help_outline,
-                      color: serviceColor,
-                      size: 28,
-                    ),
-            ),
-
-            // Selected checkmark
-            if (isSelected)
-              Positioned(
-                top: 4,
-                right: 4,
-                child: Container(
-                  width: 20,
-                  height: 20,
-                  decoration: BoxDecoration(
-                    color: serviceColor,
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(
-                    Icons.check,
-                    color: Colors.white,
-                    size: 14,
-                  ),
-                ),
-              ),
-          ],
+        child: Center(
+          child: _buildServiceContent(),
         ),
       ),
     );
+  }
+
+  /// Build the icon or text content for the service
+  Widget _buildServiceContent() {
+    if (service.iconText != null) {
+      // Calculate font size based on text length
+      final fontSize = _calculateFontSize(service.iconText!);
+
+      return Text(
+        service.iconText!,
+        style: TextStyle(
+          color: Colors.white,
+          fontSize: fontSize,
+          fontWeight: FontWeight.bold,
+          letterSpacing: service.iconText!.length > 1 ? -0.5 : 0,
+        ),
+        textAlign: TextAlign.center,
+      );
+    }
+
+    // Use icon if no text is provided
+    return Icon(
+      service.icon ?? Icons.add_circle_outline,
+      color: Colors.white,
+      size: 32,
+    );
+  }
+
+  /// Calculate appropriate font size based on text length
+  double _calculateFontSize(String text) {
+    if (text.length == 1) {
+      return 28; // Single letter (N, P, C)
+    } else if (text.length <= 3) {
+      return 18; // HBO, CR
+    } else {
+      return 14; // hulu or longer
+    }
   }
 }

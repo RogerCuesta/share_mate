@@ -31,7 +31,7 @@ class SubscriptionRepositoryImpl implements SubscriptionRepository {
       // Try remote first
       final statsModel = await _remoteDataSource.calculateMonthlyStats(userId);
       return Right(statsModel.toEntity());
-    } on SubscriptionRemoteException catch (e) {
+    } on SubscriptionRemoteException {
       // If remote fails, calculate from local cache
       try {
         final subscriptions =
@@ -259,7 +259,7 @@ class SubscriptionRepositoryImpl implements SubscriptionRepository {
       await _localDataSource.updateSubscription(remoteModel);
 
       return Right(remoteModel.toEntity());
-    } on SubscriptionRemoteException catch (e) {
+    } on SubscriptionRemoteException {
       // Remote failed, but local is already saved
       // Return network error
       return Left(SubscriptionFailure.networkError());

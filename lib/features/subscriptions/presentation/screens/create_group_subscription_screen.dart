@@ -2,7 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_project_agents/features/subscriptions/domain/entities/subscription.dart';
+import 'package:flutter_project_agents/features/auth/presentation/providers/auth_provider.dart';
 import 'package:flutter_project_agents/features/subscriptions/presentation/providers/create_group_subscription_form_provider.dart';
 import 'package:flutter_project_agents/features/subscriptions/presentation/widgets/billing_cycle_selector.dart';
 import 'package:flutter_project_agents/features/subscriptions/presentation/widgets/members_list_section.dart';
@@ -292,8 +292,11 @@ class _CreateGroupSubscriptionScreenState
               // Split Bill Preview
               SplitBillPreviewCard(
                 totalAmount: double.tryParse(formState.totalPrice) ?? 0,
-                totalMembers: formState.totalMembers,
-                breakdown: formState.paymentBreakdown,
+                members: formState.members,
+                currentUserName: ref.watch(authProvider).maybeWhen(
+                      authenticated: (user) => user.fullName,
+                      orElse: () => 'You',
+                    ),
               ),
               const SizedBox(height: 100), // Padding for FAB
             ],

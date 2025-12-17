@@ -194,13 +194,13 @@ class CreateSubscriptionForm extends _$CreateSubscriptionForm {
         (failure) {
           // Handle failure
           final errorMsg = failure.maybeWhen(
-            serverError: (message) => message ?? 'Server error occurred',
+            serverError: (message) => message,
             networkError: () => 'Network error. Please check your connection.',
-            cacheError: (message) => message ?? 'Cache error occurred',
+            cacheError: (message) => message,
             notFound: () => 'Subscription not found',
-            invalidData: (message) => message ?? 'Invalid data',
-            paymentError: (message) => message ?? 'Payment error',
-            memberError: (message) => message ?? 'Member error',
+            invalidData: (message) => message,
+            paymentError: (message) => message,
+            memberError: (message) => message,
             orElse: () => 'An error occurred',
           );
           state = state.copyWith(

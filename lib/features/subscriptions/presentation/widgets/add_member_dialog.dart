@@ -6,7 +6,9 @@ import 'package:uuid/uuid.dart';
 
 /// Dialog for adding a new member to a subscription
 ///
-/// Collects member name and email with validation.
+/// Displays a form to collect member name and email with validation.
+/// Returns a [SubscriptionMemberInput] when the user taps "Add",
+/// or null if canceled.
 class AddMemberDialog extends StatefulWidget {
   const AddMemberDialog({super.key});
 
@@ -15,9 +17,9 @@ class AddMemberDialog extends StatefulWidget {
 }
 
 class _AddMemberDialogState extends State<AddMemberDialog> {
+  final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
-  final _formKey = GlobalKey<FormState>();
 
   @override
   void dispose() {
@@ -101,7 +103,6 @@ class _AddMemberDialogState extends State<AddMemberDialog> {
                     borderRadius: BorderRadius.circular(12),
                     borderSide: const BorderSide(
                       color: Color(0xFF3D3D54),
-                      width: 1,
                     ),
                   ),
                   focusedBorder: OutlineInputBorder(
@@ -115,7 +116,6 @@ class _AddMemberDialogState extends State<AddMemberDialog> {
                     borderRadius: BorderRadius.circular(12),
                     borderSide: const BorderSide(
                       color: Colors.red,
-                      width: 1,
                     ),
                   ),
                   focusedErrorBorder: OutlineInputBorder(
@@ -166,7 +166,6 @@ class _AddMemberDialogState extends State<AddMemberDialog> {
                     borderRadius: BorderRadius.circular(12),
                     borderSide: const BorderSide(
                       color: Color(0xFF3D3D54),
-                      width: 1,
                     ),
                   ),
                   focusedBorder: OutlineInputBorder(
@@ -180,7 +179,6 @@ class _AddMemberDialogState extends State<AddMemberDialog> {
                     borderRadius: BorderRadius.circular(12),
                     borderSide: const BorderSide(
                       color: Colors.red,
-                      width: 1,
                     ),
                   ),
                   focusedErrorBorder: OutlineInputBorder(
