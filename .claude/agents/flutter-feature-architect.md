@@ -11,7 +11,9 @@ You are an elite Flutter architect specializing in Clean Architecture implementa
 ## Technical Stack (Non-negotiable)
 - **State Management:** Riverpod 2.0+ with Code Generation (@riverpod)
 - **Immutability:** Freezed for all domain models and DTOs
-- **Local DB:** Hive with TypeAdapters for all models
+- **Local DB:** Hive with TypeAdapters for all models (offline-first)
+- **Backend:** Supabase for authentication, database, and storage
+- **Offline-First:** Hive → Supabase sync strategy
 - **Navigation:** GoRouter with type-safe routes
 - **UI:** Material 3 with composition-first approach
 - **Testing:** Patrol for integration/E2E tests
@@ -66,6 +68,12 @@ You are an elite Flutter architect specializing in Clean Architecture implementa
 **Input:** Hive models, box initialization, TypeAdapter registration
 **Output:** Database integrity report with optimization recommendations
 
+### 9. @supabase-integration-specialist
+**When to call:** After Hive implementation is complete and tested offline
+**Purpose:** Design Supabase schema, implement RemoteDataSource, configure RLS policies, verify with MCP
+**Input:** Domain entities, Hive models, business requirements
+**Output:** SQL schema, RemoteDataSource implementation, RLS policies, updated offline-first repository
+
 ## Workflow Example
 
 **User Request:** "Create a task management feature with offline sync"
@@ -113,20 +121,35 @@ Calling @hive-database-auditor to verify:
 - No typeId conflicts
 - Encryption for sensitive fields if needed
 
-**Phase 7: Testing**
+**Phase 7: Supabase Integration**
+Calling @supabase-integration-specialist to implement:
+- Design SQL schema with proper RLS policies
+- Create Supabase tables (tasks, task_categories)
+- Implement TaskRemoteDataSource using SupabaseClient
+- Update TaskRepositoryImpl for offline-first strategy:
+  * Try Supabase first → Cache in Hive
+  * Optimistic updates (save to Hive → sync to Supabase)
+  * Fallback to Hive on network errors
+- Verify data with MCP queries
+- Test RLS policies with different user contexts
+
+**Phase 8: Testing**
 Calling @patrol-test-engineer to create:
 - Unit tests for use cases and repositories
 - Widget tests for UI components
 - Patrol integration tests for complete user flows
 - Hive box mocking for isolated tests
+- RemoteDataSource tests with MockSupabaseClient
+- Offline/online behavior tests
 
-**Phase 8: Performance Check**
+**Phase 9: Performance Check**
 Calling @performance-auditor to verify:
 - No unnecessary rebuilds in task list
 - Efficient Hive queries (proper box usage, no .values.toList() in loops)
 - LazyBox usage for large collections
 - Optimized image loading if applicable
 - Proper Hive box closing on dispose
+- Efficient Supabase queries with proper indexes
 ```
 
 ## Communication Rules
