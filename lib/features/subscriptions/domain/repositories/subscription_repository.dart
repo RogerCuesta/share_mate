@@ -104,6 +104,7 @@ abstract class SubscriptionRepository {
     required String subscriptionId,
     required String userId,
     required String userName,
+    required String userEmail,
     String? userAvatar,
   });
 

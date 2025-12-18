@@ -259,6 +259,7 @@ class SubscriptionRepositoryMock implements SubscriptionRepository {
     required String subscriptionId,
     required String userId,
     required String userName,
+    required String userEmail,
     String? userAvatar,
   }) async {
     await _simulateDelay();
@@ -278,7 +279,7 @@ class SubscriptionRepositoryMock implements SubscriptionRepository {
             subscriptionId: subscriptionId,
             userId: userId,
             userName: userName,
-            userEmail: "newmember@example.com",
+            userEmail: userEmail,
             userAvatar: userAvatar,
             amountToPay: subscription.costPerPerson,
             hasPaid: false,

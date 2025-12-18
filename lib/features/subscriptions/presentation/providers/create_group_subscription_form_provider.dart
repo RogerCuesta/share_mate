@@ -272,6 +272,7 @@ class CreateGroupSubscriptionForm extends _$CreateGroupSubscriptionForm {
               subscriptionId: createdSubscription.id,
               userId: memberInput.id, // Using local ID as placeholder
               userName: memberInput.name,
+              userEmail: memberInput.email,
               userAvatar: memberInput.avatar,
             );
 

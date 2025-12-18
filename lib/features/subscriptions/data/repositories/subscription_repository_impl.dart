@@ -341,6 +341,7 @@ class SubscriptionRepositoryImpl implements SubscriptionRepository {
     required String subscriptionId,
     required String userId,
     required String userName,
+    required String userEmail,
     String? userAvatar,
   }) async {
     try {
@@ -356,7 +357,7 @@ class SubscriptionRepositoryImpl implements SubscriptionRepository {
             subscriptionId: subscriptionId,
             userId: userId,
             userName: userName,
-            userEmail: "member@example.com", // TODO: Get from user profile
+            userEmail: userEmail,
             userAvatar: userAvatar,
             amountToPay: subscription.costPerPerson,
             hasPaid: false,
