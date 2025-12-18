@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_project_agents/features/subscriptions/domain/entities/subscription_member_input.dart';
 import 'package:flutter_project_agents/features/subscriptions/presentation/providers/create_subscription_form_provider.dart';
 import 'package:flutter_project_agents/features/subscriptions/presentation/widgets/billing_cycle_selector.dart';
 import 'package:flutter_project_agents/features/subscriptions/presentation/widgets/service_icon_picker.dart';
@@ -255,6 +256,289 @@ class _CreateSubscriptionScreenState
                         ),
                       ),
                     ),
+                    const SizedBox(height: 16),
+
+                    // Members Section
+                    _buildSectionCard(
+                      title: 'Members',
+                      child: Column(
+                        children: [
+                          // Add Member Button
+                          InkWell(
+                            onTap: () => _showAddMemberDialog(context, formNotifier),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 12,
+                              ),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF6B4FBB).withOpacity(0.2),
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(
+                                  color: const Color(0xFF6B4FBB),
+                                  width: 1.5,
+                                ),
+                              ),
+                              child: const Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    Icons.add_circle_outline,
+                                    color: Color(0xFF6B4FBB),
+                                    size: 20,
+                                  ),
+                                  SizedBox(width: 8),
+                                  Text(
+                                    'Add',
+                                    style: TextStyle(
+                                      color: Color(0xFF6B4FBB),
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+
+                          // Members List
+                          if (formState.members.isNotEmpty) ...[
+                            const SizedBox(height: 16),
+                            ...formState.members.map((member) => Padding(
+                              padding: const EdgeInsets.only(bottom: 12),
+                              child: Container(
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFF2A2A3E),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Row(
+                                  children: [
+                                    // Avatar placeholder
+                                    Container(
+                                      width: 40,
+                                      height: 40,
+                                      decoration: BoxDecoration(
+                                        color: const Color(0xFF3D3D54),
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      child: Center(
+                                        child: Text(
+                                          member.name.isNotEmpty
+                                              ? member.name[0].toUpperCase()
+                                              : 'M',
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 12),
+                                    // Member info
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            member.name,
+                                            style: const TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          ),
+                                          const SizedBox(height: 2),
+                                          Text(
+                                            member.email,
+                                            style: TextStyle(
+                                              color: Colors.grey[400],
+                                              fontSize: 12,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    // Remove button
+                                    IconButton(
+                                      icon: const Icon(
+                                        Icons.delete_outline,
+                                        color: Colors.red,
+                                        size: 20,
+                                      ),
+                                      onPressed: () => formNotifier.removeMember(member.id),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            )),
+                          ],
+                        ],
+                      ),
+                    ),
+
+                    // Split Bill Preview (only show if there are members)
+                    if (formState.isGroupSubscription) ...[
+                      const SizedBox(height: 16),
+                      _buildSectionCard(
+                        title: 'Split Bill Preview',
+                        child: Column(
+                          children: [
+                            // Total Amount Row
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                const Text(
+                                  'Total Amount',
+                                  style: TextStyle(
+                                    color: Colors.white70,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                                Text(
+                                  '\$${formState.cost.isEmpty ? "0.00" : double.tryParse(formState.cost)?.toStringAsFixed(2) ?? "0.00"}',
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 12),
+                            // Total Members Row
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                const Text(
+                                  'Total Members',
+                                  style: TextStyle(
+                                    color: Colors.white70,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                                Text(
+                                  '${formState.members.length + 1} people',
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 16),
+                            // Each Person Pays
+                            Container(
+                              padding: const EdgeInsets.all(16),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF6B4FBB).withOpacity(0.2),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  const Text(
+                                    'Each Person Pays',
+                                    style: TextStyle(
+                                      color: Color(0xFF6B4FBB),
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                  Row(
+                                    children: [
+                                      Text(
+                                        '\$${formState.splitAmount.toStringAsFixed(2)}',
+                                        style: const TextStyle(
+                                          color: Color(0xFF6B4FBB),
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 8),
+                                      const Icon(
+                                        Icons.people_outline,
+                                        color: Color(0xFF6B4FBB),
+                                        size: 20,
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+                            const Divider(color: Color(0xFF3D3D54)),
+                            const SizedBox(height: 12),
+                            // Breakdown label
+                            const Row(
+                              children: [
+                                Text(
+                                  'Breakdown',
+                                  style: TextStyle(
+                                    color: Colors.white70,
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 12),
+                            // Member breakdowns
+                            ...formState.members.map((member) => Padding(
+                              padding: const EdgeInsets.only(bottom: 8),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    member.name,
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                  Text(
+                                    '\$${formState.splitAmount.toStringAsFixed(2)}',
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            )),
+                            // You (owner) row
+                            Padding(
+                              padding: const EdgeInsets.only(bottom: 8),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  const Text(
+                                    'You',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  Text(
+                                    '\$${_calculateOwnerAmount(formState).toStringAsFixed(2)}',
+                                    style: const TextStyle(
+                                      color: Color(0xFF6B4FBB),
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+
                     const SizedBox(height: 24),
 
                     // Create Subscription Button
@@ -358,5 +642,107 @@ class _CreateSubscriptionScreenState
     if (date != null) {
       formNotifier.updateDueDate(date);
     }
+  }
+
+  /// Calculate owner's amount (handles remainder from division)
+  double _calculateOwnerAmount(CreateSubscriptionFormState state) {
+    if (state.members.isEmpty) return 0.0;
+    final totalCost = double.tryParse(state.cost) ?? 0.0;
+    final totalMembers = state.members.length;
+    final memberTotal = state.splitAmount * totalMembers;
+    return totalCost - memberTotal; // Owner gets the remainder
+  }
+
+  /// Show dialog to add a hardcoded member
+  void _showAddMemberDialog(
+    BuildContext context,
+    CreateSubscriptionForm formNotifier,
+  ) {
+    // Hardcoded members list for now
+    final availableMembers = [
+      const SubscriptionMemberInput(
+        id: 'member_1',
+        name: 'Sarah Jenkins',
+        email: 'sarah@email.com',
+        avatar: null,
+      ),
+      const SubscriptionMemberInput(
+        id: 'member_2',
+        name: 'Mike Thompson',
+        email: 'mike@email.com',
+        avatar: null,
+      ),
+      const SubscriptionMemberInput(
+        id: 'member_3',
+        name: 'Emma Wilson',
+        email: 'emma@email.com',
+        avatar: null,
+      ),
+    ];
+
+    // Filter out already added members
+    final state = ref.read(createSubscriptionFormProvider);
+    final addedIds = state.members.map((m) => m.id).toSet();
+    final availableToAdd = availableMembers
+        .where((m) => !addedIds.contains(m.id))
+        .toList();
+
+    if (availableToAdd.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('All available members have been added'),
+          backgroundColor: Colors.orange,
+        ),
+      );
+      return;
+    }
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: const Color(0xFF1E1E2D),
+        title: const Text(
+          'Add Member',
+          style: TextStyle(color: Colors.white),
+        ),
+        content: SizedBox(
+          width: double.maxFinite,
+          child: ListView.builder(
+            shrinkWrap: true,
+            itemCount: availableToAdd.length,
+            itemBuilder: (context, index) {
+              final member = availableToAdd[index];
+              return ListTile(
+                leading: CircleAvatar(
+                  backgroundColor: const Color(0xFF6B4FBB),
+                  child: Text(
+                    member.name[0].toUpperCase(),
+                    style: const TextStyle(color: Colors.white),
+                  ),
+                ),
+                title: Text(
+                  member.name,
+                  style: const TextStyle(color: Colors.white),
+                ),
+                subtitle: Text(
+                  member.email,
+                  style: const TextStyle(color: Colors.white70),
+                ),
+                onTap: () {
+                  formNotifier.addMember(member);
+                  Navigator.of(context).pop();
+                },
+              );
+            },
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Cancel'),
+          ),
+        ],
+      ),
+    );
   }
 }

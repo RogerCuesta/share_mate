@@ -1,5 +1,6 @@
 import 'package:flutter_project_agents/features/auth/presentation/providers/auth_provider.dart';
 import 'package:flutter_project_agents/features/subscriptions/domain/entities/subscription.dart';
+import 'package:flutter_project_agents/features/subscriptions/domain/entities/subscription_member_input.dart';
 import 'package:flutter_project_agents/features/subscriptions/domain/failures/subscription_failure.dart';
 import 'package:flutter_project_agents/features/subscriptions/domain/usecases/create_subscription.dart';
 import 'package:flutter_project_agents/features/subscriptions/presentation/providers/subscriptions_provider.dart';
@@ -17,6 +18,7 @@ class CreateSubscriptionFormState {
   final DateTime dueDate;
   final String color;
   final String iconUrl;
+  final List<SubscriptionMemberInput> members;
   final bool isLoading;
   final String? errorMessage;
   final bool isSuccess;
@@ -28,6 +30,7 @@ class CreateSubscriptionFormState {
     DateTime? dueDate,
     this.color = '#6C63FF',
     this.iconUrl = '',
+    this.members = const [],
     this.isLoading = false,
     this.errorMessage,
     this.isSuccess = false,
@@ -40,6 +43,7 @@ class CreateSubscriptionFormState {
     DateTime? dueDate,
     String? color,
     String? iconUrl,
+    List<SubscriptionMemberInput>? members,
     bool? isLoading,
     String? errorMessage,
     bool? isSuccess,
@@ -51,11 +55,23 @@ class CreateSubscriptionFormState {
       dueDate: dueDate ?? this.dueDate,
       color: color ?? this.color,
       iconUrl: iconUrl ?? this.iconUrl,
+      members: members ?? this.members,
       isLoading: isLoading ?? this.isLoading,
       errorMessage: errorMessage,
       isSuccess: isSuccess ?? this.isSuccess,
     );
   }
+
+  /// Calculate split amount per person including the owner
+  double get splitAmount {
+    if (members.isEmpty) return 0.0;
+    final totalCost = double.tryParse(cost) ?? 0.0;
+    final totalPeople = members.length + 1; // +1 for owner
+    return totalCost / totalPeople;
+  }
+
+  /// Get whether this is a group subscription
+  bool get isGroupSubscription => members.isNotEmpty;
 
   /// Validate form fields
   String? validate() {
@@ -135,6 +151,18 @@ class CreateSubscriptionForm extends _$CreateSubscriptionForm {
     state = state.copyWith(iconUrl: url, errorMessage: null);
   }
 
+  /// Add a member to the subscription (hardcoded for now)
+  void addMember(SubscriptionMemberInput member) {
+    final updatedMembers = [...state.members, member];
+    state = state.copyWith(members: updatedMembers, errorMessage: null);
+  }
+
+  /// Remove a member from the subscription
+  void removeMember(String memberId) {
+    final updatedMembers = state.members.where((m) => m.id != memberId).toList();
+    state = state.copyWith(members: updatedMembers, errorMessage: null);
+  }
+
   /// Reset form to initial state
   void reset() {
     state = CreateSubscriptionFormState();
@@ -190,8 +218,8 @@ class CreateSubscriptionForm extends _$CreateSubscriptionForm {
       final createSubscription = ref.read(createSubscriptionProvider);
       final result = await createSubscription(subscription);
 
-      result.fold(
-        (failure) {
+      await result.fold(
+        (failure) async {
           // Handle failure
           final errorMsg = failure.maybeWhen(
             serverError: (message) => message,
@@ -208,7 +236,22 @@ class CreateSubscriptionForm extends _$CreateSubscriptionForm {
             errorMessage: errorMsg,
           );
         },
-        (createdSubscription) {
+        (createdSubscription) async {
+          // If it's a group subscription, add members
+          if (state.isGroupSubscription) {
+            final repository = ref.read(subscriptionRepositoryProvider);
+
+            for (final memberInput in state.members) {
+              await repository.addMemberToSubscription(
+                subscriptionId: createdSubscription.id,
+                userId: memberInput.id,
+                userName: memberInput.name,
+                userEmail: memberInput.email,
+                userAvatar: memberInput.avatar,
+              );
+            }
+          }
+
           // Success - invalidate providers to refresh data
           ref.invalidate(monthlyStatsProvider);
           ref.invalidate(activeSubscriptionsProvider);
