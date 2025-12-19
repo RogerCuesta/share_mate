@@ -110,8 +110,7 @@ class SubscriptionMemberModel extends HiveObject {
 
   /// Convert to Supabase JSON
   Map<String, dynamic> toJson() {
-    return {
-      'id': id,
+    final json = {
       'subscription_id': subscriptionId,
       'user_id': userId,
       'user_name': userName,
@@ -123,5 +122,13 @@ class SubscriptionMemberModel extends HiveObject {
       'due_date': dueDate.toIso8601String(),
       'created_at': createdAt.toIso8601String(),
     };
+
+    // Only include id if it's not empty (for updates)
+    // Supabase will auto-generate UUID if id is not provided (for inserts)
+    if (id.isNotEmpty) {
+      json['id'] = id;
+    }
+
+    return json;
   }
 }
