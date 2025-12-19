@@ -8,9 +8,10 @@ import 'package:flutter_project_agents/core/supabase/supabase_service.dart';
 import 'package:flutter_project_agents/features/auth/data/datasources/auth_local_datasource.dart';
 import 'package:flutter_project_agents/features/auth/data/datasources/user_local_datasource.dart';
 import 'package:flutter_project_agents/features/subscriptions/data/datasources/subscription_local_datasource.dart';
+import 'package:flutter_project_agents/features/subscriptions/data/models/subscription_member_model.dart';
+import 'package:flutter_project_agents/features/subscriptions/data/models/subscription_model.dart';
 import 'package:flutter_project_agents/routing/app_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:hive_flutter/hive_flutter.dart';
 
 void main() async {
   // Ensure Flutter bindings are initialized
@@ -33,9 +34,13 @@ void main() async {
 
   final authLocalDataSource = AuthLocalDataSourceImpl();
 
-  // 5. Open Hive boxes for subscriptions
-  await Hive.openBox(SubscriptionLocalDataSourceImpl.subscriptionsBoxName);
-  await Hive.openBox(SubscriptionLocalDataSourceImpl.membersBoxName);
+  // 5. Open Hive boxes for subscriptions with proper types
+  await HiveService.openBox<SubscriptionModel>(
+    SubscriptionLocalDataSourceImpl.subscriptionsBoxName,
+  );
+  await HiveService.openBox<SubscriptionMemberModel>(
+    SubscriptionLocalDataSourceImpl.membersBoxName,
+  );
 
   final subscriptionLocalDataSource = SubscriptionLocalDataSourceImpl();
 
