@@ -62,11 +62,38 @@ WHERE user_name = 'Mike T.' AND user_email = 'no-email@example.com';
 
 ---
 
+### 2025-12-19: remove_user_id_foreign_key_from_subscription_members
+
+**Purpose:** Remove foreign key constraint on `user_id` to allow placeholder users.
+
+**Reason:** The app uses hardcoded members with placeholder UUIDs that don't exist in `auth.users`. The FK constraint was preventing creation of group subscriptions with non-registered members.
+
+**SQL:**
+```sql
+ALTER TABLE subscription_members
+DROP CONSTRAINT IF EXISTS subscription_members_user_id_fkey;
+
+COMMENT ON COLUMN subscription_members.user_id IS 'User ID - can be a placeholder UUID for non-registered users (no FK constraint)';
+```
+
+**Status:** ✅ Applied successfully
+
+**Impact:**
+- Allows adding members who are not registered users
+- Enables hardcoded demo members (Sarah, Mike, Emma)
+- Future friends feature will work with both registered and placeholder users
+
+---
+
 ## Current Schema Status
 
 ### Tables
 - ✅ `subscriptions` - All columns present
 - ✅ `subscription_members` - All columns present (user_email and updated_at added)
+
+### Constraints Modified
+- ❌ Removed: `subscription_members.user_id` FK to `auth.users` (allows placeholder users)
+- ✅ Kept: `subscription_members.subscription_id` FK to `subscriptions` (maintains integrity)
 
 ### Missing from initial execution
 The following columns were missing from the initial schema execution but have been added via migrations:
