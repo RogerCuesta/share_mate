@@ -658,22 +658,22 @@ class _CreateSubscriptionScreenState
     BuildContext context,
     CreateSubscriptionForm formNotifier,
   ) {
-    // Hardcoded members list for now
+    // Hardcoded members list for now (using fixed UUIDs for consistency)
     final availableMembers = [
       const SubscriptionMemberInput(
-        id: 'member_1',
+        id: '00000000-0000-0000-0000-000000000001', // Placeholder UUID for Sarah
         name: 'Sarah Jenkins',
         email: 'sarah@email.com',
         avatar: null,
       ),
       const SubscriptionMemberInput(
-        id: 'member_2',
+        id: '00000000-0000-0000-0000-000000000002', // Placeholder UUID for Mike
         name: 'Mike Thompson',
         email: 'mike@email.com',
         avatar: null,
       ),
       const SubscriptionMemberInput(
-        id: 'member_3',
+        id: '00000000-0000-0000-0000-000000000003', // Placeholder UUID for Emma
         name: 'Emma Wilson',
         email: 'emma@email.com',
         avatar: null,
