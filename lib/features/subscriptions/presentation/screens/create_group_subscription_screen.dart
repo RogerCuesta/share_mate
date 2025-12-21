@@ -2,7 +2,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_project_agents/features/auth/presentation/providers/auth_provider.dart';
 import 'package:flutter_project_agents/features/subscriptions/presentation/providers/create_group_subscription_form_provider.dart';
 import 'package:flutter_project_agents/features/subscriptions/presentation/widgets/billing_cycle_selector.dart';
 import 'package:flutter_project_agents/features/subscriptions/presentation/widgets/members_list_section.dart';
@@ -34,12 +33,17 @@ class _CreateGroupSubscriptionScreenState
       ref.listenManual(
         createGroupSubscriptionFormProvider,
         (previous, next) {
+          print('📊 [CreateGroupSubscriptionScreen] State changed');
+          print('   isSuccess: ${next.isSuccess}');
+          print('   errorMessage: ${next.errorMessage}');
+
           if (next.isSuccess) {
             // Show success message
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
                 content: Text('Group subscription created successfully!'),
                 backgroundColor: Colors.green,
+                duration: Duration(seconds: 2),
               ),
             );
 
@@ -51,16 +55,65 @@ class _CreateGroupSubscriptionScreenState
             });
           } else if (next.errorMessage != null) {
             // Show error
+            print('❌ [CreateGroupSubscriptionScreen] Showing error: ${next.errorMessage}');
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(next.errorMessage!),
                 backgroundColor: Colors.red,
+                duration: const Duration(seconds: 3),
               ),
             );
           }
         },
       );
     });
+  }
+
+  /// Show confirmation dialog before removing a member
+  Future<void> _showRemoveMemberDialog(
+    BuildContext context,
+    String memberId,
+    String memberName,
+  ) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: const Color(0xFF1E1E2D),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        title: const Text(
+          'Remove Member',
+          style: TextStyle(color: Colors.white),
+        ),
+        content: Text(
+          'Are you sure you want to remove $memberName from this subscription?',
+          style: TextStyle(color: Colors.grey[300]),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: Text(
+              'Cancel',
+              style: TextStyle(color: Colors.grey[400]),
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('Remove'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true) {
+      print('🗑️ [CreateGroupSubscriptionScreen] Removing member: $memberName');
+      ref.read(createGroupSubscriptionFormProvider.notifier).removeMember(memberId);
+    }
   }
 
   @override
@@ -281,23 +334,29 @@ class _CreateGroupSubscriptionScreenState
               ),
               const SizedBox(height: 32),
 
-              // Members Section
+              // Members Section - Connected to provider
               MembersListSection(
                 members: formState.members,
                 onMemberAdded: formNotifier.addMember,
-                onMemberRemoved: formNotifier.removeMember,
+                onMemberRemoved: (memberId) {
+                  // Find member name for confirmation dialog
+                  final member = formState.members.firstWhere(
+                    (m) => m.id == memberId,
+                    orElse: () => formState.members.first,
+                  );
+                  _showRemoveMemberDialog(context, memberId, member.name);
+                },
               ),
               const SizedBox(height: 32),
 
-              // Split Bill Preview
-              SplitBillPreviewCard(
-                totalAmount: double.tryParse(formState.totalPrice) ?? 0,
-                members: formState.members,
-                currentUserName: ref.watch(authProvider).maybeWhen(
-                      authenticated: (user) => user.fullName,
-                      orElse: () => 'You',
-                    ),
-              ),
+              // Split Bill Preview - Reactive with provider breakdown
+              if (formState.members.isNotEmpty && formState.totalPrice.isNotEmpty)
+                SplitBillPreviewCard(
+                  totalAmount: double.tryParse(formState.totalPrice) ?? 0,
+                  totalMembers: formState.totalMembers,
+                  splitAmount: formState.splitAmount,
+                  breakdown: formState.breakdown,
+                ),
               const SizedBox(height: 100), // Padding for FAB
             ],
           ),

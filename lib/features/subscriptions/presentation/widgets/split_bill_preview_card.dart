@@ -1,35 +1,32 @@
 // lib/features/subscriptions/presentation/widgets/split_bill_preview_card.dart
 
 import 'package:flutter/material.dart';
-import 'package:flutter_project_agents/features/subscriptions/domain/entities/subscription_member_input.dart';
+import 'package:flutter_project_agents/features/subscriptions/presentation/providers/create_group_subscription_form_provider.dart';
 
 /// Card displaying split bill preview with breakdown
 ///
 /// Shows the total amount, member count, split calculation with purple gradient card,
-/// and individual breakdown for each member. The current user receives any remainder
-/// from decimal rounding to ensure the total adds up correctly.
+/// and individual breakdown for each member. Uses breakdown from provider which ensures
+/// proper rounding where the owner receives any remainder from decimal calculations.
 class SplitBillPreviewCard extends StatelessWidget {
   const SplitBillPreviewCard({
     required this.totalAmount,
-    required this.members,
-    required this.currentUserName,
+    required this.totalMembers,
+    required this.splitAmount,
+    required this.breakdown,
     super.key,
   });
 
   final double totalAmount;
-  final List<SubscriptionMemberInput> members;
-  final String currentUserName;
+  final int totalMembers;
+  final double splitAmount;
+  final List<MemberSplit> breakdown;
 
   @override
   Widget build(BuildContext context) {
-    if (totalAmount == 0 || members.isEmpty) {
+    if (totalAmount == 0 || breakdown.isEmpty) {
       return const SizedBox.shrink();
     }
-
-    final totalMembers = members.length + 1; // +1 for current user
-    final splitAmount = totalAmount / totalMembers;
-    final floorAmount = (splitAmount * 100).floor() / 100; // Round to 2 decimals
-    final remainder = totalAmount - (floorAmount * (totalMembers - 1));
 
     return Container(
       padding: const EdgeInsets.all(20),
@@ -107,7 +104,7 @@ class SplitBillPreviewCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Text(
-                      'Each Person Pays',
+                      'Approx. Per Person',
                       style: TextStyle(
                         color: Colors.white70,
                         fontSize: 14,
@@ -115,7 +112,7 @@ class SplitBillPreviewCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      '\$${floorAmount.toStringAsFixed(2)}',
+                      '\$${splitAmount.toStringAsFixed(2)}',
                       style: const TextStyle(
                         color: Colors.white,
                         fontSize: 28,
@@ -151,18 +148,12 @@ class SplitBillPreviewCard extends StatelessWidget {
           ),
           const SizedBox(height: 8),
 
-          // Members List
-          ...members.map(
-            (member) => _BreakdownRow(
-              name: member.name,
-              amount: floorAmount,
+          // Breakdown list from provider
+          ...breakdown.map(
+            (memberSplit) => _BreakdownRow(
+              name: memberSplit.name,
+              amount: memberSplit.amount,
             ),
-          ),
-
-          // Current User (with remainder to handle cents)
-          _BreakdownRow(
-            name: 'You',
-            amount: remainder,
           ),
         ],
       ),
