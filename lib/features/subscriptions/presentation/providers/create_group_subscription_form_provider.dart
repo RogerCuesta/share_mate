@@ -11,6 +11,17 @@ import 'package:uuid/uuid.dart';
 
 part 'create_group_subscription_form_provider.g.dart';
 
+/// Helper class for member split breakdown
+class MemberSplit {
+  final String name;
+  final double amount;
+
+  const MemberSplit({
+    required this.name,
+    required this.amount,
+  });
+}
+
 /// Form state for creating a group subscription
 class CreateGroupSubscriptionFormState {
   final String serviceName;
@@ -29,7 +40,7 @@ class CreateGroupSubscriptionFormState {
     this.totalPrice = '',
     this.billingCycle = BillingCycle.monthly,
     DateTime? renewalDate,
-    this.members = const [],
+    this.members = const [], // ✅ Empty list by default, no hardcoded members
     this.isLoading = false,
     this.errorMessage,
     this.isSuccess = false,
@@ -68,6 +79,43 @@ class CreateGroupSubscriptionFormState {
     return '#6C63FF'; // Default purple
   }
 
+  /// Total members (members list + owner)
+  int get totalMembers => members.length + 1;
+
+  /// Split amount per person
+  double get splitAmount {
+    if (totalMembers == 0 || totalPrice.isEmpty) return 0.0;
+    final parsedPrice = double.tryParse(totalPrice) ?? 0.0;
+    return parsedPrice / totalMembers;
+  }
+
+  /// Breakdown with proper rounding
+  List<MemberSplit> get breakdown {
+    if (totalPrice.isEmpty || members.isEmpty) return [];
+
+    final parsedPrice = double.tryParse(totalPrice) ?? 0.0;
+    if (parsedPrice == 0) return [];
+
+    // Floor amount for each member
+    final floorAmount = (splitAmount * 100).floor() / 100;
+
+    // Calculate remainder for the owner
+    final remainder = parsedPrice - (floorAmount * members.length);
+
+    return [
+      // Members get floor amount
+      ...members.map((m) => MemberSplit(
+        name: m.name,
+        amount: floorAmount,
+      )),
+      // Owner gets the remainder
+      MemberSplit(
+        name: 'You',
+        amount: remainder,
+      ),
+    ];
+  }
+
   /// Validate form fields
   String? validate() {
     // Validate service name
@@ -98,16 +146,16 @@ class CreateGroupSubscriptionFormState {
       return 'Renewal date must be in the future';
     }
 
-    // Validate members
+    // ✅ Validate members
     if (members.isEmpty) {
-      return 'Add at least one member to create a group';
+      return 'Add at least one member to create a group subscription';
     }
 
-    // Validate each member
+    // Validate each member has valid email
+    final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
     for (final member in members) {
-      final memberError = member.validate();
-      if (memberError != null) {
-        return 'Member ${member.name}: $memberError';
+      if (!emailRegex.hasMatch(member.email)) {
+        return 'Invalid email for member: ${member.name}';
       }
     }
 
@@ -123,16 +171,19 @@ class CreateGroupSubscriptionFormState {
 class CreateGroupSubscriptionForm extends _$CreateGroupSubscriptionForm {
   @override
   CreateGroupSubscriptionFormState build() {
-    return CreateGroupSubscriptionFormState();
+    print('🏗️ [CreateGroupSubscriptionForm] Initializing with empty members list');
+    return CreateGroupSubscriptionFormState(); // ✅ No hardcoded members
   }
 
   /// Update service name
   void updateServiceName(String name) {
+    print('📝 [CreateGroupSubscriptionForm] Updating service name: $name');
     state = state.copyWith(serviceName: name, clearError: true);
   }
 
   /// Select a predefined service icon
   void selectServiceIcon(String serviceName) {
+    print('🎨 [CreateGroupSubscriptionForm] Selecting service icon: $serviceName');
     state = state.copyWith(
       selectedServiceIcon: serviceName,
       serviceName: serviceName == 'Custom' ? '' : serviceName,
@@ -142,54 +193,113 @@ class CreateGroupSubscriptionForm extends _$CreateGroupSubscriptionForm {
 
   /// Update total price
   void updateTotalPrice(String price) {
+    print('💰 [CreateGroupSubscriptionForm] Updating price: \$$price');
     state = state.copyWith(totalPrice: price, clearError: true);
+
+    // Log new split amount if members exist
+    if (state.members.isNotEmpty) {
+      print('   📊 New split: \$${state.splitAmount.toStringAsFixed(2)} per person');
+    }
   }
 
   /// Update billing cycle
   void updateBillingCycle(BillingCycle cycle) {
+    print('🔄 [CreateGroupSubscriptionForm] Updating billing cycle: $cycle');
     state = state.copyWith(billingCycle: cycle, clearError: true);
   }
 
   /// Update renewal date
   void updateRenewalDate(DateTime date) {
+    print('📅 [CreateGroupSubscriptionForm] Updating renewal date: ${date.toIso8601String()}');
     state = state.copyWith(renewalDate: date, clearError: true);
   }
 
   /// Add a member to the subscription
   void addMember(SubscriptionMemberInput member) {
+    print('➕ [CreateGroupSubscriptionForm] Adding member: ${member.name} (${member.email})');
+
+    // ✅ Validate that email doesn't exist already
+    final emailExists = state.members.any((m) => m.email == member.email);
+    if (emailExists) {
+      print('⚠️ [CreateGroupSubscriptionForm] Email already exists: ${member.email}');
+      state = state.copyWith(errorMessage: 'This email is already in the group');
+      return;
+    }
+
     final updatedMembers = [...state.members, member];
-    state = state.copyWith(members: updatedMembers, clearError: true);
+    state = state.copyWith(
+      members: updatedMembers,
+      clearError: true,
+    );
+
+    print('✅ [CreateGroupSubscriptionForm] Member added. Total members: ${updatedMembers.length}');
+    print('💰 [CreateGroupSubscriptionForm] New split: \$${state.splitAmount.toStringAsFixed(2)} per person');
   }
 
   /// Remove a member from the subscription
   void removeMember(String memberId) {
+    print('➖ [CreateGroupSubscriptionForm] Removing member: $memberId');
+
     final updatedMembers = state.members
         .where((member) => member.id != memberId)
         .toList();
-    state = state.copyWith(members: updatedMembers, clearError: true);
+
+    state = state.copyWith(
+      members: updatedMembers,
+      clearError: true,
+    );
+
+    print('✅ [CreateGroupSubscriptionForm] Member removed. Total members: ${updatedMembers.length}');
+
+    if (updatedMembers.isEmpty) {
+      print('⚠️ [CreateGroupSubscriptionForm] No members left in group');
+    } else {
+      print('💰 [CreateGroupSubscriptionForm] New split: \$${state.splitAmount.toStringAsFixed(2)} per person');
+    }
   }
 
   /// Update a member in the subscription
   void updateMember(String memberId, SubscriptionMemberInput updatedMember) {
+    print('✏️ [CreateGroupSubscriptionForm] Updating member: $memberId');
+
     final updatedMembers = state.members.map((member) {
       return member.id == memberId ? updatedMember : member;
     }).toList();
+
     state = state.copyWith(members: updatedMembers, clearError: true);
+    print('✅ [CreateGroupSubscriptionForm] Member updated');
+  }
+
+  /// Clear error message
+  void clearError() {
+    if (state.errorMessage != null) {
+      print('🧹 [CreateGroupSubscriptionForm] Clearing error message');
+      state = state.copyWith(clearError: true);
+    }
   }
 
   /// Reset form to initial state
   void reset() {
+    print('🔄 [CreateGroupSubscriptionForm] Resetting form to initial state');
     state = CreateGroupSubscriptionFormState();
   }
 
   /// Submit the form and create the group subscription
   Future<void> submit() async {
+    print('📤 [CreateGroupSubscriptionForm] Submitting form...');
+    print('   Service: ${state.serviceName}');
+    print('   Price: \$${state.totalPrice}');
+    print('   Members: ${state.members.length}');
+
     // Validate form
     final validationError = state.validate();
     if (validationError != null) {
+      print('❌ [CreateGroupSubscriptionForm] Validation failed: $validationError');
       state = state.copyWith(errorMessage: validationError);
       return;
     }
+
+    print('✅ [CreateGroupSubscriptionForm] Validation passed');
 
     // Set loading state
     state = state.copyWith(isLoading: true, clearError: true);
@@ -203,12 +313,15 @@ class CreateGroupSubscriptionForm extends _$CreateGroupSubscriptionForm {
       );
 
       if (currentUser == null) {
+        print('❌ [CreateGroupSubscriptionForm] User not authenticated');
         state = state.copyWith(
           isLoading: false,
           errorMessage: 'User not authenticated',
         );
         return;
       }
+
+      print('👤 [CreateGroupSubscriptionForm] Current user: ${currentUser.id}');
 
       // Parse total price
       final parsedPrice = double.parse(state.totalPrice);
@@ -228,6 +341,8 @@ class CreateGroupSubscriptionForm extends _$CreateGroupSubscriptionForm {
         createdAt: DateTime.now(),
       );
 
+      print('🔨 [CreateGroupSubscriptionForm] Creating subscription...');
+
       // Call use case to create subscription
       final createSubscription = ref.read(createSubscriptionProvider);
       final result = await createSubscription(subscription);
@@ -235,7 +350,7 @@ class CreateGroupSubscriptionForm extends _$CreateGroupSubscriptionForm {
       await result.fold(
         (failure) async {
           // Handle failure
-          print('❌ [CreateGroupForm] Failed to create subscription: $failure');
+          print('❌ [CreateGroupSubscriptionForm] Failed to create subscription: $failure');
           final errorMsg = failure.maybeWhen(
             serverError: (message) => message,
             networkError: () => 'Network error. Please check your connection.',
@@ -252,13 +367,8 @@ class CreateGroupSubscriptionForm extends _$CreateGroupSubscriptionForm {
           );
         },
         (createdSubscription) async {
-          print('✅ [CreateGroupForm] Subscription created: ${createdSubscription.id}');
-          print('👥 [CreateGroupForm] Adding ${state.members.length} members...');
-
-          // Calculate split amount
-          final totalMembers = state.members.length + 1; // +1 for owner
-          final splitAmount = parsedPrice / totalMembers;
-          final floorAmount = (splitAmount * 100).floor() / 100;
+          print('✅ [CreateGroupSubscriptionForm] Subscription created: ${createdSubscription.id}');
+          print('👥 [CreateGroupSubscriptionForm] Adding ${state.members.length} members...');
 
           // Add members to the subscription
           final repository = ref.read(subscriptionRepositoryProvider);
@@ -270,7 +380,7 @@ class CreateGroupSubscriptionForm extends _$CreateGroupSubscriptionForm {
 
             final result = await repository.addMemberToSubscription(
               subscriptionId: createdSubscription.id,
-              userId: memberInput.id, // Using local ID as placeholder
+              userId: memberInput.id,
               userName: memberInput.name,
               userEmail: memberInput.email,
               userAvatar: memberInput.avatar,
@@ -288,10 +398,10 @@ class CreateGroupSubscriptionForm extends _$CreateGroupSubscriptionForm {
             );
           }
 
-          print('📊 [CreateGroupForm] Members added: $successCount success, $failCount failed');
+          print('📊 [CreateGroupSubscriptionForm] Members added: $successCount success, $failCount failed');
 
           // Success - invalidate providers to refresh data
-          print('🔄 [CreateGroupForm] Invalidating providers...');
+          print('🔄 [CreateGroupSubscriptionForm] Invalidating providers...');
           ref.invalidate(monthlyStatsProvider);
           ref.invalidate(activeSubscriptionsProvider);
 
@@ -301,10 +411,16 @@ class CreateGroupSubscriptionForm extends _$CreateGroupSubscriptionForm {
             clearError: true,
           );
 
-          print('✅ [CreateGroupForm] Group subscription created successfully!');
+          print('✅ [CreateGroupSubscriptionForm] Group subscription created successfully!');
+          print('📊 [CreateGroupSubscriptionForm] Breakdown:');
+          for (final split in state.breakdown) {
+            print('   ${split.name}: \$${split.amount.toStringAsFixed(2)}');
+          }
         },
       );
-    } catch (e) {
+    } catch (e, stackTrace) {
+      print('❌ [CreateGroupSubscriptionForm] Unexpected error: $e');
+      print('Stack trace: $stackTrace');
       state = state.copyWith(
         isLoading: false,
         errorMessage: 'Unexpected error: ${e.toString()}',
