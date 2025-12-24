@@ -1,7 +1,9 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:uuid/uuid.dart';
 
 import '../../../../core/supabase/supabase_service.dart';
 import '../models/monthly_stats_model.dart';
+import '../models/payment_history_model.dart';
 import '../models/subscription_member_model.dart';
 import '../models/subscription_model.dart';
 
@@ -54,6 +56,48 @@ abstract class SubscriptionRemoteDataSource {
 
   /// Remove a member from a subscription
   Future<void> removeMember(String memberId);
+
+  /// Update member amount and optionally reset payment status
+  Future<SubscriptionMemberModel> updateMemberAmount({
+    required String memberId,
+    required double amountToPay,
+    bool? hasPaid, // null = don't update has_paid field
+  });
+
+  /// Mark a payment as paid (2-step transaction: update member + insert history)
+  Future<PaymentHistoryModel> markPaymentAsPaid({
+    required String subscriptionId,
+    required String memberId,
+    required double amount,
+    required DateTime paymentDate,
+    required String markedBy,
+    String? notes,
+  });
+
+  /// Mark all pending payments as paid for a subscription
+  Future<int> markAllPaymentsAsPaid({
+    required String subscriptionId,
+    required DateTime paymentDate,
+    required String markedBy,
+    String? notes,
+  });
+
+  /// Unmark a payment (undo paid status)
+  Future<PaymentHistoryModel> unmarkPayment({
+    required String subscriptionId,
+    required String memberId,
+    required double amount,
+    required DateTime paymentDate,
+    required String markedBy,
+    String? notes,
+  });
+
+  /// Get payment history for a subscription
+  Future<List<PaymentHistoryModel>> getPaymentHistory({
+    required String subscriptionId,
+    String? memberId,
+    int? limit,
+  });
 }
 
 /// Implementation of SubscriptionRemoteDataSource using Supabase
@@ -381,15 +425,24 @@ class SubscriptionRemoteDataSourceImpl
     try {
       print('🔍 [SubscriptionRemoteDS] Updating subscription: ${subscription.name} (ID: ${subscription.id})');
 
-      // Remove shared_with before sending to Supabase
-      final jsonData = subscription.toJson();
-      jsonData.remove('shared_with');
+      // Only send updatable fields (exclude id, created_at, updated_at, shared_with)
+      final updateData = {
+        'name': subscription.name,
+        'icon_url': subscription.iconUrl,
+        'color': subscription.color,
+        'total_cost': subscription.totalCost,
+        'billing_cycle': subscription.billingCycle,
+        'due_date': subscription.dueDate.toIso8601String(),
+        'status': subscription.status,
+        // owner_id should not change, but include it for safety
+        'owner_id': subscription.ownerId,
+      };
 
       print('   📤 Sending updated data to Supabase');
 
       final response = await _client
           .from('subscriptions')
-          .update(jsonData)
+          .update(updateData)
           .eq('id', subscription.id)
           .select()
           .single();
@@ -551,6 +604,316 @@ class SubscriptionRemoteDataSourceImpl
       print('❌ [SubscriptionRemoteDS] Unexpected error: $e');
       throw SubscriptionRemoteException(
         'Failed to remove member: ${e.toString()}',
+      );
+    }
+  }
+
+  @override
+  Future<SubscriptionMemberModel> updateMemberAmount({
+    required String memberId,
+    required double amountToPay,
+    bool? hasPaid,
+  }) async {
+    try {
+      print('🔍 [SubscriptionRemoteDS] Updating member amount: $memberId');
+      print('   Amount: \$$amountToPay');
+      if (hasPaid != null) {
+        print('   Reset payment: $hasPaid');
+      }
+
+      // Build update data conditionally
+      final updateData = <String, dynamic>{
+        'amount_to_pay': amountToPay,
+        if (hasPaid != null) 'has_paid': hasPaid,
+      };
+
+      final response = await _client
+          .from('subscription_members')
+          .update(updateData)
+          .eq('id', memberId)
+          .select()
+          .single();
+
+      print('✅ [SubscriptionRemoteDS] Successfully updated member amount');
+
+      return SubscriptionMemberModel.fromJson(response as Map<String, dynamic>);
+    } on PostgrestException catch (e) {
+      print('❌ [SubscriptionRemoteDS] PostgrestException: ${e.message} (Code: ${e.code})');
+      throw SubscriptionRemoteException(
+        'Database error updating member amount: ${e.message}',
+      );
+    } catch (e) {
+      print('❌ [SubscriptionRemoteDS] Unexpected error: $e');
+      throw SubscriptionRemoteException(
+        'Failed to update member amount: ${e.toString()}',
+      );
+    }
+  }
+
+  @override
+  Future<PaymentHistoryModel> markPaymentAsPaid({
+    required String subscriptionId,
+    required String memberId,
+    required double amount,
+    required DateTime paymentDate,
+    required String markedBy,
+    String? notes,
+  }) async {
+    try {
+      print('🔍 [SubscriptionRemoteDS] Marking payment as paid');
+      print('   Member: $memberId');
+      print('   Amount: \$${amount.toStringAsFixed(2)}');
+      print('   Payment Date: ${paymentDate.toIso8601String()}');
+
+      // Generate UUID for payment history
+      const uuid = Uuid();
+      final historyId = uuid.v4();
+
+      // Step 1: Update member payment status
+      print('   📝 Step 1/2: Updating member payment status...');
+      await _client
+          .from('subscription_members')
+          .update({
+            'has_paid': true,
+            'last_payment_date': paymentDate.toIso8601String(),
+          })
+          .eq('id', memberId);
+
+      print('   ✅ Member updated');
+
+      // Step 2: Insert payment history record
+      print('   📝 Step 2/2: Creating payment history record...');
+      final historyData = {
+        'id': historyId,
+        'subscription_id': subscriptionId,
+        'member_id': memberId,
+        'amount': amount,
+        'payment_date': paymentDate.toIso8601String(),
+        'marked_by': markedBy,
+        'action': 'paid',
+        'notes': notes,
+        'created_at': DateTime.now().toIso8601String(),
+      };
+
+      final response = await _client
+          .from('payment_history')
+          .insert(historyData)
+          .select()
+          .single();
+
+      print('✅ [SubscriptionRemoteDS] Payment marked as paid successfully');
+
+      return PaymentHistoryModel.fromJson(response as Map<String, dynamic>);
+    } on PostgrestException catch (e) {
+      print('❌ [SubscriptionRemoteDS] PostgrestException: ${e.message} (Code: ${e.code})');
+      throw SubscriptionRemoteException(
+        'Database error marking payment as paid: ${e.message}',
+      );
+    } catch (e) {
+      print('❌ [SubscriptionRemoteDS] Unexpected error: $e');
+      throw SubscriptionRemoteException(
+        'Failed to mark payment as paid: ${e.toString()}',
+      );
+    }
+  }
+
+  @override
+  Future<int> markAllPaymentsAsPaid({
+    required String subscriptionId,
+    required DateTime paymentDate,
+    required String markedBy,
+    String? notes,
+  }) async {
+    try {
+      print('🔍 [SubscriptionRemoteDS] Marking all payments as paid');
+      print('   Subscription: $subscriptionId');
+      print('   Payment Date: ${paymentDate.toIso8601String()}');
+
+      // Step 1: Get all unpaid members for this subscription
+      print('   📝 Step 1/3: Fetching unpaid members...');
+      final unpaidResponse = await _client
+          .from('subscription_members')
+          .select()
+          .eq('subscription_id', subscriptionId)
+          .eq('has_paid', false);
+
+      final unpaidMembers = (unpaidResponse as List<dynamic>)
+          .map((json) => SubscriptionMemberModel.fromJson(json as Map<String, dynamic>))
+          .toList();
+
+      print('   📊 Found ${unpaidMembers.length} unpaid members');
+
+      if (unpaidMembers.isEmpty) {
+        print('   ℹ️ No unpaid members to update');
+        return 0;
+      }
+
+      const uuid = Uuid();
+
+      // Step 2: Update all members to paid
+      print('   📝 Step 2/3: Updating all members to paid...');
+      await _client
+          .from('subscription_members')
+          .update({
+            'has_paid': true,
+            'last_payment_date': paymentDate.toIso8601String(),
+          })
+          .eq('subscription_id', subscriptionId)
+          .eq('has_paid', false);
+
+      print('   ✅ All members updated');
+
+      // Step 3: Insert payment history records for all members
+      print('   📝 Step 3/3: Creating payment history records...');
+      final historyRecords = unpaidMembers.map((member) {
+        return {
+          'id': uuid.v4(),
+          'subscription_id': subscriptionId,
+          'member_id': member.id,
+          'amount': member.amountToPay,
+          'payment_date': paymentDate.toIso8601String(),
+          'marked_by': markedBy,
+          'action': 'paid',
+          'notes': notes,
+          'created_at': DateTime.now().toIso8601String(),
+        };
+      }).toList();
+
+      await _client.from('payment_history').insert(historyRecords);
+
+      print('✅ [SubscriptionRemoteDS] Marked ${unpaidMembers.length} payments as paid');
+
+      return unpaidMembers.length;
+    } on PostgrestException catch (e) {
+      print('❌ [SubscriptionRemoteDS] PostgrestException: ${e.message} (Code: ${e.code})');
+      throw SubscriptionRemoteException(
+        'Database error marking all payments as paid: ${e.message}',
+      );
+    } catch (e) {
+      print('❌ [SubscriptionRemoteDS] Unexpected error: $e');
+      throw SubscriptionRemoteException(
+        'Failed to mark all payments as paid: ${e.toString()}',
+      );
+    }
+  }
+
+  @override
+  Future<PaymentHistoryModel> unmarkPayment({
+    required String subscriptionId,
+    required String memberId,
+    required double amount,
+    required DateTime paymentDate,
+    required String markedBy,
+    String? notes,
+  }) async {
+    try {
+      print('🔍 [SubscriptionRemoteDS] Unmarking payment (undo)');
+      print('   Member: $memberId');
+      print('   Amount: \$${amount.toStringAsFixed(2)}');
+
+      const uuid = Uuid();
+      final historyId = uuid.v4();
+
+      // Step 1: Update member to unpaid
+      print('   📝 Step 1/2: Updating member to unpaid...');
+      await _client
+          .from('subscription_members')
+          .update({
+            'has_paid': false,
+          })
+          .eq('id', memberId);
+
+      print('   ✅ Member updated');
+
+      // Step 2: Insert payment history record with 'unpaid' action
+      print('   📝 Step 2/2: Creating payment history record...');
+      final historyData = {
+        'id': historyId,
+        'subscription_id': subscriptionId,
+        'member_id': memberId,
+        'amount': amount,
+        'payment_date': paymentDate,
+        'marked_by': markedBy,
+        'action': 'unpaid',
+        'notes': notes,
+        'created_at': DateTime.now().toIso8601String(),
+      };
+
+      final response = await _client
+          .from('payment_history')
+          .insert(historyData)
+          .select()
+          .single();
+
+      print('✅ [SubscriptionRemoteDS] Payment unmarked successfully');
+
+      return PaymentHistoryModel.fromJson(response as Map<String, dynamic>);
+    } on PostgrestException catch (e) {
+      print('❌ [SubscriptionRemoteDS] PostgrestException: ${e.message} (Code: ${e.code})');
+      throw SubscriptionRemoteException(
+        'Database error unmarking payment: ${e.message}',
+      );
+    } catch (e) {
+      print('❌ [SubscriptionRemoteDS] Unexpected error: $e');
+      throw SubscriptionRemoteException(
+        'Failed to unmark payment: ${e.toString()}',
+      );
+    }
+  }
+
+  @override
+  Future<List<PaymentHistoryModel>> getPaymentHistory({
+    required String subscriptionId,
+    String? memberId,
+    int? limit,
+  }) async {
+    try {
+      print('🔍 [SubscriptionRemoteDS] Fetching payment history');
+      print('   Subscription: $subscriptionId');
+      if (memberId != null) {
+        print('   Member filter: $memberId');
+      }
+      if (limit != null) {
+        print('   Limit: $limit');
+      }
+
+      // Build query with filters
+      var query = _client
+          .from('payment_history')
+          .select()
+          .eq('subscription_id', subscriptionId);
+
+      // Apply member filter if provided
+      if (memberId != null) {
+        query = query.eq('member_id', memberId);
+      }
+
+      // Apply ordering
+      final orderedQuery = query.order('created_at', ascending: false);
+
+      // Apply limit if provided
+      final finalQuery = limit != null
+          ? orderedQuery.limit(limit)
+          : orderedQuery;
+
+      final response = await finalQuery;
+
+      final history = (response as List<dynamic>)
+          .map((json) => PaymentHistoryModel.fromJson(json as Map<String, dynamic>))
+          .toList();
+
+      print('✅ [SubscriptionRemoteDS] Fetched ${history.length} payment history records');
+
+      return history;
+    } on PostgrestException catch (e) {
+      print('❌ [SubscriptionRemoteDS] PostgrestException: ${e.message} (Code: ${e.code})');
+      throw SubscriptionRemoteException(
+        'Database error fetching payment history: ${e.message}',
+      );
+    } catch (e) {
+      print('❌ [SubscriptionRemoteDS] Unexpected error: $e');
+      throw SubscriptionRemoteException(
+        'Failed to fetch payment history: ${e.toString()}',
       );
     }
   }

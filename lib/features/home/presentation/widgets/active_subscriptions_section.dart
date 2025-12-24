@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 import '../../../subscriptions/domain/entities/subscription.dart';
@@ -145,8 +146,8 @@ class _SubscriptionCard extends StatelessWidget {
 
     return GestureDetector(
       onTap: () {
-        // TODO: Navigate to subscription details
-        debugPrint('Navigate to subscription: ${subscription.id}');
+        debugPrint('🔍 Opening subscription details: ${subscription.id}');
+        context.push('/subscription/${subscription.id}');
       },
       child: Container(
         decoration: BoxDecoration(

@@ -1,5 +1,6 @@
 // lib/features/subscriptions/domain/entities/subscription_member_input.dart
 
+import 'package:flutter_project_agents/features/subscriptions/domain/entities/subscription_member.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'subscription_member_input.freezed.dart';
@@ -25,6 +26,17 @@ class SubscriptionMemberInput with _$SubscriptionMemberInput {
   }) = _SubscriptionMemberInput;
 
   const SubscriptionMemberInput._();
+
+  /// Create SubscriptionMemberInput from existing SubscriptionMember entity
+  /// Used when loading existing subscription in edit mode
+  factory SubscriptionMemberInput.fromMember(SubscriptionMember member) {
+    return SubscriptionMemberInput(
+      id: member.userId,
+      name: member.userName,
+      email: member.userEmail,
+      avatar: member.userAvatar,
+    );
+  }
 
   /// Validate member input
   String? validate() {

@@ -2,8 +2,10 @@
 
 import 'dart:convert';
 
+import 'package:flutter_project_agents/core/sync/payment_sync_queue.dart';
 import 'package:flutter_project_agents/features/auth/data/models/user_credentials_model.dart';
 import 'package:flutter_project_agents/features/auth/data/models/user_model.dart';
+import 'package:flutter_project_agents/features/subscriptions/data/models/payment_history_model.dart';
 import 'package:flutter_project_agents/features/subscriptions/data/models/subscription_member_model.dart';
 import 'package:flutter_project_agents/features/subscriptions/data/models/subscription_model.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -33,7 +35,9 @@ class HiveService {
       ..registerAdapter(UserModelAdapter())
       ..registerAdapter(UserCredentialsModelAdapter())
       ..registerAdapter(SubscriptionModelAdapter())
-      ..registerAdapter(SubscriptionMemberModelAdapter());
+      ..registerAdapter(SubscriptionMemberModelAdapter())
+      ..registerAdapter(PaymentHistoryModelAdapter())
+      ..registerAdapter(PaymentSyncOperationAdapter());
   }
   
   /// Close all Hive boxes
@@ -138,6 +142,27 @@ class HiveService {
   static Future<void> compactBox(String boxName) async {
     final box = Hive.box(boxName);
     await box.compact();
+  }
+
+  /// Delete a specific box from disk
+  ///
+  /// This completely removes the box file. Useful for:
+  /// - Schema migrations (clear old data structure)
+  /// - Clearing specific cached data
+  /// - Fixing corrupted box data
+  static Future<void> deleteBox(String boxName) async {
+    try {
+      // Close the box if it's open
+      if (Hive.isBoxOpen(boxName)) {
+        await Hive.box(boxName).close();
+      }
+
+      // Delete the box from disk
+      await Hive.deleteBoxFromDisk(boxName);
+    } catch (e) {
+      // Ignore errors if box doesn't exist
+      print('Error deleting box $boxName: $e');
+    }
   }
   
   // Example: Open task box with auto-compaction

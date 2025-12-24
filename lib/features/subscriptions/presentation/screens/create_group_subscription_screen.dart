@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_project_agents/features/subscriptions/presentation/providers/create_group_subscription_form_provider.dart';
+import 'package:flutter_project_agents/features/subscriptions/presentation/providers/subscription_detail_provider.dart';
 import 'package:flutter_project_agents/features/subscriptions/presentation/widgets/billing_cycle_selector.dart';
 import 'package:flutter_project_agents/features/subscriptions/presentation/widgets/members_list_section.dart';
 import 'package:flutter_project_agents/features/subscriptions/presentation/widgets/service_icon_picker.dart';
@@ -10,9 +11,15 @@ import 'package:flutter_project_agents/features/subscriptions/presentation/widge
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-/// Screen for creating a group subscription with split billing
+/// Screen for creating/editing a group subscription with split billing
 class CreateGroupSubscriptionScreen extends ConsumerStatefulWidget {
-  const CreateGroupSubscriptionScreen({super.key});
+  /// Subscription ID - null for create mode, non-null for edit mode
+  final String? subscriptionId;
+
+  const CreateGroupSubscriptionScreen({
+    this.subscriptionId,
+    super.key,
+  });
 
   @override
   ConsumerState<CreateGroupSubscriptionScreen> createState() =>
@@ -28,6 +35,13 @@ class _CreateGroupSubscriptionScreenState
   void initState() {
     super.initState();
 
+    // Load existing subscription in edit mode
+    if (widget.subscriptionId != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _loadExistingSubscription();
+      });
+    }
+
     // Listen for form state changes
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.listenManual(
@@ -37,13 +51,18 @@ class _CreateGroupSubscriptionScreenState
           print('   isSuccess: ${next.isSuccess}');
           print('   errorMessage: ${next.errorMessage}');
 
+          final isEditMode = widget.subscriptionId != null;
+          final successMessage = isEditMode
+              ? 'Subscription updated successfully!'
+              : 'Group subscription created successfully!';
+
           if (next.isSuccess) {
             // Show success message
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Group subscription created successfully!'),
+              SnackBar(
+                content: Text(successMessage),
                 backgroundColor: Colors.green,
-                duration: Duration(seconds: 2),
+                duration: const Duration(seconds: 2),
               ),
             );
 
@@ -67,6 +86,40 @@ class _CreateGroupSubscriptionScreenState
         },
       );
     });
+  }
+
+  /// Load existing subscription data for edit mode
+  Future<void> _loadExistingSubscription() async {
+    final subscriptionId = widget.subscriptionId!;
+
+    try {
+      print('📝 [CreateGroupSubscriptionScreen] Loading subscription: $subscriptionId');
+
+      // Fetch subscription and members
+      final subscription = await ref.read(subscriptionDetailProvider(subscriptionId).future);
+      final members = await ref.read(subscriptionMembersProvider(subscriptionId).future);
+
+      print('✅ [CreateGroupSubscriptionScreen] Loaded: ${subscription.name} with ${members.length} members');
+
+      // Initialize form provider
+      ref.read(createGroupSubscriptionFormProvider.notifier)
+          .initializeWithSubscription(subscription, members);
+
+      // Pre-fill text controllers
+      _serviceNameController.text = subscription.name;
+      _priceController.text = subscription.totalCost.toString();
+    } catch (e) {
+      print('❌ [CreateGroupSubscriptionScreen] Error loading subscription: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error loading subscription: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+        context.pop();
+      }
+    }
   }
 
   /// Show confirmation dialog before removing a member
@@ -127,6 +180,7 @@ class _CreateGroupSubscriptionScreenState
   Widget build(BuildContext context) {
     final formState = ref.watch(createGroupSubscriptionFormProvider);
     final formNotifier = ref.read(createGroupSubscriptionFormProvider.notifier);
+    final isEditMode = widget.subscriptionId != null;
 
     return Scaffold(
       backgroundColor: const Color(0xFF1A1A2E),
@@ -137,9 +191,9 @@ class _CreateGroupSubscriptionScreenState
           icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () => context.pop(),
         ),
-        title: const Text(
-          'Add Subscription',
-          style: TextStyle(
+        title: Text(
+          isEditMode ? 'Edit Subscription' : 'Add Subscription',
+          style: const TextStyle(
             color: Colors.white,
             fontWeight: FontWeight.bold,
           ),
@@ -366,7 +420,7 @@ class _CreateGroupSubscriptionScreenState
         onPressed: formState.isLoading
             ? null
             : () async {
-                await formNotifier.submit();
+                await formNotifier.submit(widget.subscriptionId);
               },
         backgroundColor: const Color(0xFF6C63FF),
         icon: formState.isLoading
@@ -378,9 +432,14 @@ class _CreateGroupSubscriptionScreenState
                   color: Colors.white,
                 ),
               )
-            : const Icon(Icons.check, color: Colors.white),
+            : Icon(
+                isEditMode ? Icons.save : Icons.check,
+                color: Colors.white,
+              ),
         label: Text(
-          formState.isLoading ? 'Creating...' : 'Create Group',
+          formState.isLoading
+              ? (isEditMode ? 'Updating...' : 'Creating...')
+              : (isEditMode ? 'Update Subscription' : 'Create Group'),
           style: const TextStyle(
             color: Colors.white,
             fontWeight: FontWeight.w600,
