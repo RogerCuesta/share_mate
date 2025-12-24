@@ -41,6 +41,9 @@ class SubscriptionModel extends HiveObject {
   @HiveField(10)
   final DateTime createdAt;
 
+  @HiveField(11, defaultValue: null)
+  final DateTime? updatedAt;
+
   SubscriptionModel({
     required this.id,
     required this.name,
@@ -53,6 +56,7 @@ class SubscriptionModel extends HiveObject {
     required this.sharedWith,
     required this.status,
     required this.createdAt,
+    this.updatedAt,
   });
 
   /// Convert to domain entity
@@ -86,6 +90,7 @@ class SubscriptionModel extends HiveObject {
       sharedWith: entity.sharedWith,
       status: _statusToString(entity.status),
       createdAt: entity.createdAt,
+      updatedAt: DateTime.now(), // Will be overwritten by Supabase trigger
     );
   }
 
@@ -105,6 +110,9 @@ class SubscriptionModel extends HiveObject {
           : [],
       status: json['status'] as String? ?? 'active',
       createdAt: DateTime.parse(json['created_at'] as String),
+      updatedAt: json['updated_at'] != null
+          ? DateTime.parse(json['updated_at'] as String)
+          : null,
     );
   }
 

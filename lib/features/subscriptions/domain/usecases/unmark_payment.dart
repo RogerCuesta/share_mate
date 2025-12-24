@@ -4,26 +4,27 @@ import '../entities/payment_history.dart';
 import '../failures/subscription_failure.dart';
 import '../repositories/subscription_repository.dart';
 
-/// Use case to mark a single member's payment as paid
+/// Use case to unmark a payment (undo a paid status)
 ///
-/// Creates a payment history record when a subscription member's payment
-/// is marked as paid. This provides an audit trail for all payment actions.
-class MarkPaymentAsPaid {
+/// Creates a payment history record with unpaid action when a payment
+/// needs to be unmarked. This provides undo functionality and maintains
+/// a complete audit trail of all payment status changes.
+class UnmarkPayment {
   final SubscriptionRepository _repository;
 
-  MarkPaymentAsPaid(this._repository);
+  UnmarkPayment(this._repository);
 
   /// Execute the use case
   ///
   /// [subscriptionId] - ID of the subscription
   /// [memberId] - ID of the subscription member
-  /// [amount] - Amount that was paid
-  /// [paymentDate] - Date when the payment was made (optional, defaults to now)
-  /// [markedBy] - ID of the user marking this payment (usually the owner)
-  /// [notes] - Optional notes about the payment
+  /// [amount] - Amount that was previously marked as paid
+  /// [paymentDate] - Date when the unmark action occurred (optional, defaults to now)
+  /// [markedBy] - ID of the user unmarking this payment (usually the owner)
+  /// [notes] - Optional notes about why the payment is being unmarked
   ///
-  /// Returns created [PaymentHistory] entity if successful.
-  /// Returns [SubscriptionFailure] if validation or creation fails.
+  /// Returns created [PaymentHistory] entity with unpaid action if successful.
+  /// Returns [SubscriptionFailure] if validation or operation fails.
   Future<Either<SubscriptionFailure, PaymentHistory>> call({
     required String subscriptionId,
     required String memberId,
@@ -70,7 +71,7 @@ class MarkPaymentAsPaid {
     }
 
     // Delegate to repository
-    return _repository.markPaymentAsPaid(
+    return _repository.unmarkPayment(
       subscriptionId: subscriptionId,
       memberId: memberId,
       amount: amount,

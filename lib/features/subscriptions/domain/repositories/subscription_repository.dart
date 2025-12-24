@@ -1,6 +1,7 @@
 import 'package:dartz/dartz.dart';
 
 import '../entities/monthly_stats.dart';
+import '../entities/payment_history.dart';
 import '../entities/subscription.dart';
 import '../entities/subscription_member.dart';
 import '../failures/subscription_failure.dart';
@@ -87,12 +88,51 @@ abstract class SubscriptionRepository {
 
   /// Mark a member's payment as paid
   ///
-  /// Updates a [SubscriptionMember] to mark payment as complete.
-  /// Returns the updated member if successful.
+  /// Creates a [PaymentHistory] record and updates the [SubscriptionMember].
+  /// Returns the created payment history if successful.
   /// Returns [SubscriptionFailure] if operation fails.
-  Future<Either<SubscriptionFailure, SubscriptionMember>> markPaymentAsPaid({
+  Future<Either<SubscriptionFailure, PaymentHistory>> markPaymentAsPaid({
+    required String subscriptionId,
     required String memberId,
+    required double amount,
     required DateTime paymentDate,
+    required String markedBy,
+    String? notes,
+  });
+
+  /// Mark all pending payments as paid for a subscription
+  ///
+  /// Creates [PaymentHistory] records for all unpaid members in a subscription.
+  /// Returns the count of payments marked if successful.
+  /// Returns [SubscriptionFailure] if operation fails.
+  Future<Either<SubscriptionFailure, int>> markAllPaymentsAsPaid({
+    required String subscriptionId,
+    required DateTime paymentDate,
+    required String markedBy,
+    String? notes,
+  });
+
+  /// Unmark a payment (undo a paid status)
+  ///
+  /// Creates a new [PaymentHistory] record with unpaid action and updates the member.
+  /// Returns the created payment history if successful.
+  /// Returns [SubscriptionFailure] if operation fails.
+  Future<Either<SubscriptionFailure, PaymentHistory>> unmarkPayment({
+    required String subscriptionId,
+    required String memberId,
+    required double amount,
+    required DateTime paymentDate,
+    required String markedBy,
+    String? notes,
+  });
+
+  /// Get payment history for a subscription
+  ///
+  /// Returns a list of [PaymentHistory] records for the subscription.
+  /// Returns [SubscriptionFailure] if operation fails.
+  Future<Either<SubscriptionFailure, List<PaymentHistory>>> getPaymentHistory({
+    required String subscriptionId,
+    String? memberId,
   });
 
   /// Add a member to a subscription
@@ -116,4 +156,16 @@ abstract class SubscriptionRepository {
   Future<Either<SubscriptionFailure, Unit>> removeMemberFromSubscription(
     String memberId,
   );
+
+  /// Update member amount and optionally reset payment status
+  ///
+  /// Updates a [SubscriptionMember]'s amount to pay and optionally resets payment status.
+  /// Used when editing subscriptions to recalculate splits.
+  /// Returns the updated member if successful.
+  /// Returns [SubscriptionFailure] if operation fails.
+  Future<Either<SubscriptionFailure, SubscriptionMember>> updateMemberAmount({
+    required String memberId,
+    required double newAmountToPay,
+    bool resetPayment = false,
+  });
 }

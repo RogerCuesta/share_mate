@@ -26,7 +26,8 @@ void main() async {
   // 3. Initialize Hive database (local storage)
   await HiveService.init();
 
-  //await HiveService.clearAuthData();
+  // 3.1 One-time migration: Clear subscription boxes to handle schema changes
+  await _migrateSubscriptionBoxes();
 
   // 4. Initialize singleton data sources
   final userLocalDataSource = UserLocalDataSourceImpl();
@@ -56,6 +57,27 @@ void main() async {
       child: const MyApp(),
     ),
   );
+}
+
+/// One-time migration to clear subscription boxes after schema changes
+///
+/// This function clears the Hive boxes for subscriptions and members
+/// to prevent deserialization errors when the schema has been updated
+/// (e.g., adding the updatedAt field). The data will be re-fetched from
+/// Supabase on next app usage.
+Future<void> _migrateSubscriptionBoxes() async {
+  try {
+    print('🔄 [Migration] Checking if subscription boxes need migration...');
+
+    // Delete the old boxes if they exist
+    await HiveService.deleteBox(SubscriptionLocalDataSourceImpl.subscriptionsBoxName);
+    await HiveService.deleteBox(SubscriptionLocalDataSourceImpl.membersBoxName);
+
+    print('✅ [Migration] Subscription boxes cleared successfully');
+  } catch (e) {
+    print('⚠️ [Migration] Error during migration: $e');
+    // Continue anyway - the app will work even if migration fails
+  }
 }
 
 class MyApp extends ConsumerWidget {

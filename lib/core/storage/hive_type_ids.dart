@@ -36,7 +36,9 @@ class HiveTypeIds {
   static const int subscription = 30;
   static const int subscriptionMember = 31;
   static const int monthlyStats = 32;
-  // Reserve 33-39 for future subscription-related models
+  static const int paymentHistory = 33;
+  static const int paymentSyncQueue = 34;
+  // Reserve 35-39 for future subscription-related models
 
   // Add new feature ranges here (40-49, 50-59, etc.)
   // Example:
@@ -50,7 +52,7 @@ class HiveTypeIds {
       task, taskCategory, taskAttachment,
       user, userProfile, authToken,
       appSettings, themeSettings, notificationSettings,
-      subscription, subscriptionMember, monthlyStats,
+      subscription, subscriptionMember, monthlyStats, paymentHistory, paymentSyncQueue,
     ];
 
     return !usedIds.contains(typeId);
@@ -61,6 +63,6 @@ class HiveTypeIds {
     task, taskCategory, taskAttachment,
     user, userProfile, authToken,
     appSettings, themeSettings, notificationSettings,
-    subscription, subscriptionMember, monthlyStats,
+    subscription, subscriptionMember, monthlyStats, paymentHistory, paymentSyncQueue,
   ];
 }

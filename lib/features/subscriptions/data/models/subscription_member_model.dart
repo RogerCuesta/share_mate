@@ -41,6 +41,9 @@ class SubscriptionMemberModel extends HiveObject {
   @HiveField(10)
   final DateTime createdAt;
 
+  @HiveField(11, defaultValue: null)
+  final DateTime? updatedAt;
+
   SubscriptionMemberModel({
     required this.id,
     required this.subscriptionId,
@@ -53,6 +56,7 @@ class SubscriptionMemberModel extends HiveObject {
     this.lastPaymentDate,
     required this.dueDate,
     required this.createdAt,
+    this.updatedAt,
   });
 
   /// Convert to domain entity
@@ -86,6 +90,7 @@ class SubscriptionMemberModel extends HiveObject {
       lastPaymentDate: entity.lastPaymentDate,
       dueDate: entity.dueDate,
       createdAt: entity.createdAt,
+      updatedAt: DateTime.now(), // Will be overwritten by Supabase trigger
     );
   }
 
@@ -105,6 +110,9 @@ class SubscriptionMemberModel extends HiveObject {
           : null,
       dueDate: DateTime.parse(json['due_date'] as String),
       createdAt: DateTime.parse(json['created_at'] as String),
+      updatedAt: json['updated_at'] != null
+          ? DateTime.parse(json['updated_at'] as String)
+          : null,
     );
   }
 

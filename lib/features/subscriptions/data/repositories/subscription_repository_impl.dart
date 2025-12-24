@@ -1,12 +1,16 @@
 import 'package:dartz/dartz.dart';
+import 'package:uuid/uuid.dart';
 
+import '../../../../core/sync/payment_sync_queue.dart';
 import '../../domain/entities/monthly_stats.dart';
+import '../../domain/entities/payment_history.dart';
 import '../../domain/entities/subscription.dart';
 import '../../domain/entities/subscription_member.dart';
 import '../../domain/failures/subscription_failure.dart';
 import '../../domain/repositories/subscription_repository.dart';
 import '../datasources/subscription_local_datasource.dart';
 import '../datasources/subscription_remote_datasource.dart';
+import '../models/payment_history_model.dart';
 import '../models/subscription_member_model.dart';
 import '../models/subscription_model.dart';
 
@@ -312,26 +316,322 @@ class SubscriptionRepositoryImpl implements SubscriptionRepository {
   }
 
   @override
-  Future<Either<SubscriptionFailure, SubscriptionMember>> markPaymentAsPaid({
+  Future<Either<SubscriptionFailure, PaymentHistory>> markPaymentAsPaid({
+    required String subscriptionId,
     required String memberId,
+    required double amount,
     required DateTime paymentDate,
+    required String markedBy,
+    String? notes,
   }) async {
     try {
-      // Update remote first
-      final updated = await _remoteDataSource.updatePaymentStatus(
+      print('🔍 [SubscriptionRepository] Marking payment as paid');
+      print('   Member: $memberId, Amount: \$${amount.toStringAsFixed(2)}');
+
+      // Phase 1: Optimistic update in local cache
+      final cachedMember = await _localDataSource.getMemberById(memberId);
+      if (cachedMember != null) {
+        final updatedMember = SubscriptionMemberModel(
+          id: cachedMember.id,
+          subscriptionId: cachedMember.subscriptionId,
+          userId: cachedMember.userId,
+          userName: cachedMember.userName,
+          userEmail: cachedMember.userEmail,
+          userAvatar: cachedMember.userAvatar,
+          amountToPay: cachedMember.amountToPay,
+          hasPaid: true,
+          lastPaymentDate: paymentDate,
+          dueDate: cachedMember.dueDate,
+          createdAt: cachedMember.createdAt,
+          updatedAt: DateTime.now(),
+        );
+        await _localDataSource.updateMember(updatedMember);
+        print('   ✅ Local cache updated optimistically');
+      }
+
+      // Phase 2: Try remote update
+      try {
+        final remoteHistory = await _remoteDataSource.markPaymentAsPaid(
+          subscriptionId: subscriptionId,
+          memberId: memberId,
+          amount: amount,
+          paymentDate: paymentDate,
+          markedBy: markedBy,
+          notes: notes,
+        );
+
+        // Phase 3a: Success → cache confirmed data
+        await _localDataSource.cachePaymentHistory(remoteHistory);
+        print('   ✅ Remote update successful, history cached');
+
+        return Right(remoteHistory.toEntity());
+      } on SubscriptionRemoteException catch (e) {
+        // Phase 3b: Remote failed → queue for sync
+        print('   ⚠️ Remote update failed: $e');
+        await _queuePaymentOperation(
+          subscriptionId: subscriptionId,
+          memberId: memberId,
+          amount: amount,
+          markedBy: markedBy,
+          action: 'paid',
+          notes: notes,
+        );
+
+        // Return optimistic result with generated ID
+        const uuid = Uuid();
+        final optimisticHistory = PaymentHistory(
+          id: uuid.v4(),
+          subscriptionId: subscriptionId,
+          memberId: memberId,
+          amount: amount,
+          paymentDate: paymentDate,
+          markedBy: markedBy,
+          action: PaymentAction.paid,
+          notes: notes,
+          createdAt: DateTime.now(),
+        );
+
+        print('   📤 Operation queued for sync, returning optimistic result');
+        return Right(optimisticHistory);
+      }
+    } catch (e) {
+      print('   ❌ Unexpected error: $e');
+      return Left(SubscriptionFailure.paymentError(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<SubscriptionFailure, int>> markAllPaymentsAsPaid({
+    required String subscriptionId,
+    required DateTime paymentDate,
+    required String markedBy,
+    String? notes,
+  }) async {
+    try {
+      print('🔍 [SubscriptionRepository] Marking all payments as paid');
+      print('   Subscription: $subscriptionId');
+
+      // Phase 1: Optimistic update in local cache
+      final cachedMembers = await _localDataSource
+          .getMembersBySubscriptionId(subscriptionId);
+      final unpaidMembers = cachedMembers.where((m) => !m.hasPaid).toList();
+
+      print('   📊 Found ${unpaidMembers.length} unpaid members in cache');
+
+      // Update all unpaid members locally
+      for (final member in unpaidMembers) {
+        final updatedMember = SubscriptionMemberModel(
+          id: member.id,
+          subscriptionId: member.subscriptionId,
+          userId: member.userId,
+          userName: member.userName,
+          userEmail: member.userEmail,
+          userAvatar: member.userAvatar,
+          amountToPay: member.amountToPay,
+          hasPaid: true,
+          lastPaymentDate: paymentDate,
+          dueDate: member.dueDate,
+          createdAt: member.createdAt,
+          updatedAt: DateTime.now(),
+        );
+        await _localDataSource.updateMember(updatedMember);
+      }
+      print('   ✅ Local cache updated optimistically');
+
+      // Phase 2: Try remote update
+      try {
+        final count = await _remoteDataSource.markAllPaymentsAsPaid(
+          subscriptionId: subscriptionId,
+          paymentDate: paymentDate,
+          markedBy: markedBy,
+          notes: notes,
+        );
+
+        print('   ✅ Remote update successful: $count payments marked');
+        return Right(count);
+      } on SubscriptionRemoteException catch (e) {
+        // Phase 3b: Remote failed → queue operations for sync
+        print('   ⚠️ Remote update failed: $e');
+
+        for (final member in unpaidMembers) {
+          await _queuePaymentOperation(
+            subscriptionId: subscriptionId,
+            memberId: member.id,
+            amount: member.amountToPay,
+            markedBy: markedBy,
+            action: 'paid',
+            notes: notes,
+          );
+        }
+
+        print('   📤 ${unpaidMembers.length} operations queued for sync');
+        return Right(unpaidMembers.length);
+      }
+    } catch (e) {
+      print('   ❌ Unexpected error: $e');
+      return Left(SubscriptionFailure.paymentError(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<SubscriptionFailure, PaymentHistory>> unmarkPayment({
+    required String subscriptionId,
+    required String memberId,
+    required double amount,
+    required DateTime paymentDate,
+    required String markedBy,
+    String? notes,
+  }) async {
+    try {
+      print('🔍 [SubscriptionRepository] Unmarking payment');
+      print('   Member: $memberId');
+
+      // Phase 1: Optimistic update in local cache
+      final cachedMember = await _localDataSource.getMemberById(memberId);
+      if (cachedMember != null) {
+        final updatedMember = SubscriptionMemberModel(
+          id: cachedMember.id,
+          subscriptionId: cachedMember.subscriptionId,
+          userId: cachedMember.userId,
+          userName: cachedMember.userName,
+          userEmail: cachedMember.userEmail,
+          userAvatar: cachedMember.userAvatar,
+          amountToPay: cachedMember.amountToPay,
+          hasPaid: false,
+          lastPaymentDate: cachedMember.lastPaymentDate,
+          dueDate: cachedMember.dueDate,
+          createdAt: cachedMember.createdAt,
+          updatedAt: DateTime.now(),
+        );
+        await _localDataSource.updateMember(updatedMember);
+        print('   ✅ Local cache updated optimistically');
+      }
+
+      // Phase 2: Try remote update
+      try {
+        final remoteHistory = await _remoteDataSource.unmarkPayment(
+          subscriptionId: subscriptionId,
+          memberId: memberId,
+          amount: amount,
+          paymentDate: paymentDate,
+          markedBy: markedBy,
+          notes: notes,
+        );
+
+        // Phase 3a: Success → cache confirmed data
+        await _localDataSource.cachePaymentHistory(remoteHistory);
+        print('   ✅ Remote update successful, history cached');
+
+        return Right(remoteHistory.toEntity());
+      } on SubscriptionRemoteException catch (e) {
+        // Phase 3b: Remote failed → queue for sync
+        print('   ⚠️ Remote update failed: $e');
+        await _queuePaymentOperation(
+          subscriptionId: subscriptionId,
+          memberId: memberId,
+          amount: amount,
+          markedBy: markedBy,
+          action: 'unpaid',
+          notes: notes,
+        );
+
+        // Return optimistic result
+        const uuid = Uuid();
+        final optimisticHistory = PaymentHistory(
+          id: uuid.v4(),
+          subscriptionId: subscriptionId,
+          memberId: memberId,
+          amount: amount,
+          paymentDate: paymentDate,
+          markedBy: markedBy,
+          action: PaymentAction.unpaid,
+          notes: notes,
+          createdAt: DateTime.now(),
+        );
+
+        print('   📤 Operation queued for sync, returning optimistic result');
+        return Right(optimisticHistory);
+      }
+    } catch (e) {
+      print('   ❌ Unexpected error: $e');
+      return Left(SubscriptionFailure.paymentError(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<SubscriptionFailure, List<PaymentHistory>>> getPaymentHistory({
+    required String subscriptionId,
+    String? memberId,
+  }) async {
+    try {
+      print('🔍 [SubscriptionRepository] Fetching payment history');
+      print('   Subscription: $subscriptionId');
+
+      // Try remote first
+      final remoteHistory = await _remoteDataSource.getPaymentHistory(
+        subscriptionId: subscriptionId,
         memberId: memberId,
-        hasPaid: true,
-        paymentDate: paymentDate,
       );
 
-      // Update local cache
-      await _localDataSource.updateMember(updated);
+      // Cache in Hive
+      await _localDataSource.cachePaymentHistories(remoteHistory);
 
-      return Right(updated.toEntity());
+      print('   ✅ Fetched ${remoteHistory.length} records from remote');
+
+      return Right(remoteHistory.map((h) => h.toEntity()).toList());
     } on SubscriptionRemoteException {
-      return Left(SubscriptionFailure.networkError());
+      // Fallback to local cache
+      try {
+        print('   ⚠️ Remote fetch failed, falling back to cache');
+        final cachedHistory = memberId != null
+            ? await _localDataSource.getPaymentHistoryByMemberId(memberId)
+            : await _localDataSource.getPaymentHistoryBySubscriptionId(
+                subscriptionId,
+              );
+
+        print('   📦 Fetched ${cachedHistory.length} records from cache');
+
+        return Right(cachedHistory.map((h) => h.toEntity()).toList());
+      } catch (localError) {
+        return Left(SubscriptionFailure.cacheError(localError.toString()));
+      }
     } catch (e) {
-      return Left(SubscriptionFailure.paymentError(e.toString()));
+      print('   ❌ Unexpected error: $e');
+      return Left(SubscriptionFailure.serverError(e.toString()));
+    }
+  }
+
+  // ========== Helper Methods ==========
+
+  /// Queue a payment operation for offline sync
+  Future<void> _queuePaymentOperation({
+    required String subscriptionId,
+    required String memberId,
+    required double amount,
+    required String markedBy,
+    required String action,
+    String? notes,
+  }) async {
+    try {
+      const uuid = Uuid();
+      final syncQueue = PaymentSyncQueueService();
+      await syncQueue.init();
+
+      final operation = PaymentSyncOperation(
+        id: uuid.v4(),
+        memberId: memberId,
+        subscriptionId: subscriptionId,
+        amount: amount,
+        markedBy: markedBy,
+        action: action,
+        notes: notes,
+        createdAt: DateTime.now(),
+      );
+
+      await syncQueue.enqueue(operation);
+      print('   📤 Queued sync operation: ${operation.id}');
+    } catch (e) {
+      print('   ⚠️ Failed to queue sync operation: $e');
     }
   }
 
@@ -396,6 +696,31 @@ class SubscriptionRepositoryImpl implements SubscriptionRepository {
       await _remoteDataSource.removeMember(memberId);
 
       return const Right(unit);
+    } on SubscriptionRemoteException {
+      return Left(SubscriptionFailure.networkError());
+    } catch (e) {
+      return Left(SubscriptionFailure.memberError(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<SubscriptionFailure, SubscriptionMember>> updateMemberAmount({
+    required String memberId,
+    required double newAmountToPay,
+    bool resetPayment = false,
+  }) async {
+    try {
+      // Update in remote first
+      final updatedModel = await _remoteDataSource.updateMemberAmount(
+        memberId: memberId,
+        amountToPay: newAmountToPay,
+        hasPaid: resetPayment ? false : null, // null = don't update has_paid
+      );
+
+      // Update local cache
+      await _localDataSource.updateMember(updatedModel);
+
+      return Right(updatedModel.toEntity());
     } on SubscriptionRemoteException {
       return Left(SubscriptionFailure.networkError());
     } catch (e) {

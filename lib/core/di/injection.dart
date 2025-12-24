@@ -21,7 +21,9 @@ import 'package:flutter_project_agents/features/subscriptions/domain/usecases/ge
 import 'package:flutter_project_agents/features/subscriptions/domain/usecases/get_monthly_stats.dart';
 import 'package:flutter_project_agents/features/subscriptions/domain/usecases/get_pending_payments.dart';
 import 'package:flutter_project_agents/features/subscriptions/domain/usecases/get_subscription_details.dart';
+import 'package:flutter_project_agents/features/subscriptions/domain/usecases/mark_all_payments_as_paid.dart';
 import 'package:flutter_project_agents/features/subscriptions/domain/usecases/mark_payment_as_paid.dart';
+import 'package:flutter_project_agents/features/subscriptions/domain/usecases/unmark_payment.dart';
 import 'package:flutter_project_agents/features/subscriptions/domain/usecases/update_subscription.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -238,4 +240,16 @@ DeleteSubscription deleteSubscription(Ref ref) {
 @riverpod
 MarkPaymentAsPaid markPaymentAsPaid(Ref ref) {
   return MarkPaymentAsPaid(ref.watch(subscriptionRepositoryProvider));
+}
+
+/// Use case: Mark all payments as paid
+@riverpod
+MarkAllPaymentsAsPaid markAllPaymentsAsPaid(Ref ref) {
+  return MarkAllPaymentsAsPaid(ref.watch(subscriptionRepositoryProvider));
+}
+
+/// Use case: Unmark payment
+@riverpod
+UnmarkPayment unmarkPayment(Ref ref) {
+  return UnmarkPayment(ref.watch(subscriptionRepositoryProvider));
 }

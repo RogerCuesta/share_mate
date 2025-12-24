@@ -4,7 +4,9 @@ import 'package:flutter_project_agents/core/di/injection.dart';
 import 'package:flutter_project_agents/features/auth/presentation/providers/auth_provider.dart';
 import 'package:flutter_project_agents/features/subscriptions/domain/entities/predefined_services.dart';
 import 'package:flutter_project_agents/features/subscriptions/domain/entities/subscription.dart';
+import 'package:flutter_project_agents/features/subscriptions/domain/entities/subscription_member.dart';
 import 'package:flutter_project_agents/features/subscriptions/domain/entities/subscription_member_input.dart';
+import 'package:flutter_project_agents/features/subscriptions/presentation/providers/subscription_detail_provider.dart';
 import 'package:flutter_project_agents/features/subscriptions/presentation/providers/subscriptions_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:uuid/uuid.dart';
@@ -169,6 +171,11 @@ class CreateGroupSubscriptionFormState {
 /// Provider for create group subscription form state
 @riverpod
 class CreateGroupSubscriptionForm extends _$CreateGroupSubscriptionForm {
+  // Edit mode tracking fields
+  String? _originalSubscriptionId;
+  Subscription? _originalSubscription;
+  List<SubscriptionMember> _originalMembers = [];
+
   @override
   CreateGroupSubscriptionFormState build() {
     print('🏗️ [CreateGroupSubscriptionForm] Initializing with empty members list');
@@ -284,9 +291,55 @@ class CreateGroupSubscriptionForm extends _$CreateGroupSubscriptionForm {
     state = CreateGroupSubscriptionFormState();
   }
 
-  /// Submit the form and create the group subscription
-  Future<void> submit() async {
-    print('📤 [CreateGroupSubscriptionForm] Submitting form...');
+  /// Initialize form with existing subscription data (Edit Mode)
+  void initializeWithSubscription(
+    Subscription subscription,
+    List<SubscriptionMember> members,
+  ) {
+    print('📝 [CreateGroupSubscriptionForm] Initializing with existing subscription');
+    print('   ID: ${subscription.id}');
+    print('   Name: ${subscription.name}');
+    print('   Members: ${members.length}');
+
+    _originalSubscriptionId = subscription.id;
+    _originalSubscription = subscription;
+    _originalMembers = members;
+
+    // Extract service icon from subscription (if matches predefined)
+    String? selectedIcon;
+    for (final service in PredefinedServices.services) {
+      if (service.name.toLowerCase() == subscription.name.toLowerCase()) {
+        selectedIcon = service.name;
+        break;
+      }
+    }
+
+    state = CreateGroupSubscriptionFormState(
+      serviceName: subscription.name,
+      selectedServiceIcon: selectedIcon,
+      totalPrice: subscription.totalCost.toString(),
+      billingCycle: subscription.billingCycle,
+      renewalDate: subscription.dueDate,
+      members: members.map((m) => SubscriptionMemberInput.fromMember(m)).toList(),
+    );
+
+    print('✅ [CreateGroupSubscriptionForm] Initialized with ${state.members.length} members');
+  }
+
+  /// Submit the form (create or update depending on subscriptionId)
+  Future<void> submit([String? subscriptionId]) async {
+    if (subscriptionId == null) {
+      // CREATE mode
+      await _createSubscription();
+    } else {
+      // EDIT mode
+      await _updateSubscription(subscriptionId);
+    }
+  }
+
+  /// Create new subscription (original logic)
+  Future<void> _createSubscription() async {
+    print('📤 [CreateGroupSubscriptionForm] Creating new subscription...');
     print('   Service: ${state.serviceName}');
     print('   Price: \$${state.totalPrice}');
     print('   Members: ${state.members.length}');
@@ -426,5 +479,206 @@ class CreateGroupSubscriptionForm extends _$CreateGroupSubscriptionForm {
         errorMessage: 'Unexpected error: ${e.toString()}',
       );
     }
+  }
+
+  /// Update existing subscription (Edit Mode)
+  Future<void> _updateSubscription(String subscriptionId) async {
+    print('📝 [CreateGroupSubscriptionForm] Updating subscription: $subscriptionId');
+
+    // Validate form
+    final validationError = state.validate();
+    if (validationError != null) {
+      print('❌ [CreateGroupSubscriptionForm] Validation failed: $validationError');
+      state = state.copyWith(errorMessage: validationError);
+      return;
+    }
+
+    // Detect changes
+    final priceChanged = _originalSubscription!.totalCost != double.parse(state.totalPrice);
+    final membersChanges = _detectMembersChanges();
+    final membersChanged = membersChanges.added || membersChanges.removed;
+
+    print('   Price changed: $priceChanged');
+    print('   Members changed: $membersChanged (added: ${membersChanges.added}, removed: ${membersChanges.removed})');
+
+    // Check if there are any changes
+    if (!_hasChanges()) {
+      print('⚠️ [CreateGroupSubscriptionForm] No changes detected');
+      state = state.copyWith(errorMessage: 'No changes detected');
+      return;
+    }
+
+    state = state.copyWith(isLoading: true, clearError: true);
+
+    try {
+      // Get current user
+      final authState = ref.read(authProvider);
+      final currentUser = authState.maybeWhen(
+        authenticated: (user) => user,
+        orElse: () => null,
+      );
+
+      if (currentUser == null) {
+        state = state.copyWith(isLoading: false, errorMessage: 'User not authenticated');
+        return;
+      }
+
+      // Update subscription entity
+      final updatedSubscription = _originalSubscription!.copyWith(
+        name: state.serviceName.trim(),
+        color: state.subscriptionColor,
+        totalCost: double.parse(state.totalPrice),
+        billingCycle: state.billingCycle,
+        dueDate: state.renewalDate,
+      );
+
+      print('🔄 [CreateGroupSubscriptionForm] Updating subscription...');
+      final updateSubscription = ref.read(updateSubscriptionProvider);
+      final updateResult = await updateSubscription(updatedSubscription);
+
+      await updateResult.fold(
+        (failure) async {
+          print('❌ [CreateGroupSubscriptionForm] Failed to update: $failure');
+          final errorMsg = failure.maybeWhen(
+            serverError: (message) => message,
+            networkError: () => 'Network error. Please check your connection.',
+            invalidData: (message) => message,
+            orElse: () => 'An error occurred',
+          );
+          state = state.copyWith(isLoading: false, errorMessage: errorMsg);
+        },
+        (updated) async {
+          print('✅ [CreateGroupSubscriptionForm] Subscription updated');
+
+          // Handle members updates if price or members changed
+          if (priceChanged || membersChanged) {
+            await _handleMembersUpdate(
+              subscriptionId: subscriptionId,
+              priceChanged: priceChanged,
+              membersChanged: membersChanged,
+            );
+          }
+
+          // Invalidate providers to refresh data
+          print('🔄 [CreateGroupSubscriptionForm] Invalidating providers...');
+          ref.invalidate(subscriptionDetailProvider(subscriptionId));
+          ref.invalidate(subscriptionMembersProvider(subscriptionId));
+          ref.invalidate(monthlyStatsProvider);
+          ref.invalidate(activeSubscriptionsProvider);
+
+          state = state.copyWith(isLoading: false, isSuccess: true, clearError: true);
+          print('✅ [CreateGroupSubscriptionForm] Update completed successfully!');
+        },
+      );
+    } catch (e, stackTrace) {
+      print('❌ [CreateGroupSubscriptionForm] Unexpected error: $e');
+      print('Stack trace: $stackTrace');
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: 'Unexpected error: ${e.toString()}',
+      );
+    }
+  }
+
+  /// Detect changes in members (added/removed)
+  ({bool added, bool removed}) _detectMembersChanges() {
+    final currentEmails = state.members.map((m) => m.email.toLowerCase()).toSet();
+    final originalEmails = _originalMembers.map((m) => m.userEmail.toLowerCase()).toSet();
+
+    return (
+      added: currentEmails.difference(originalEmails).isNotEmpty,
+      removed: originalEmails.difference(currentEmails).isNotEmpty,
+    );
+  }
+
+  /// Check if there are any changes from original
+  bool _hasChanges() {
+    if (_originalSubscription == null) return true; // Create mode
+
+    final metadataChanged =
+        _originalSubscription!.name != state.serviceName ||
+        _originalSubscription!.color != state.subscriptionColor ||
+        _originalSubscription!.totalCost != double.tryParse(state.totalPrice) ||
+        _originalSubscription!.billingCycle != state.billingCycle ||
+        _originalSubscription!.dueDate != state.renewalDate;
+
+    final membersChanges = _detectMembersChanges();
+    return metadataChanged || membersChanges.added || membersChanges.removed;
+  }
+
+  /// Handle members update (add/remove/recalculate)
+  Future<void> _handleMembersUpdate({
+    required String subscriptionId,
+    required bool priceChanged,
+    required bool membersChanged,
+  }) async {
+    print('👥 [CreateGroupSubscriptionForm] Handling members update...');
+    final repository = ref.read(subscriptionRepositoryProvider);
+
+    // Calculate new split
+    final totalPrice = double.parse(state.totalPrice);
+    final totalMembers = state.members.length + 1; // +1 for owner
+    final splitAmount = totalPrice / totalMembers;
+    final floorAmount = (splitAmount * 100).floor() / 100;
+
+    print('   New split: \$${floorAmount.toStringAsFixed(2)} per person');
+
+    if (membersChanged) {
+      print('   Members changed - recalculating all...');
+
+      // Remove deleted members
+      final removedMembers = _originalMembers.where(
+        (om) => !state.members.any((sm) => sm.email.toLowerCase() == om.userEmail.toLowerCase()),
+      );
+
+      for (final member in removedMembers) {
+        print('   ➖ Removing member: ${member.userName}');
+        await repository.removeMemberFromSubscription(member.id);
+      }
+
+      // Add new members
+      final addedMembers = state.members.where(
+        (sm) => !_originalMembers.any((om) => om.userEmail.toLowerCase() == sm.email.toLowerCase()),
+      );
+
+      for (final member in addedMembers) {
+        print('   ➕ Adding member: ${member.name}');
+        await repository.addMemberToSubscription(
+          subscriptionId: subscriptionId,
+          userId: member.id,
+          userName: member.name,
+          userEmail: member.email,
+          userAvatar: member.avatar,
+        );
+      }
+
+      // Update existing members with new amount and reset payment
+      final remainingMembers = _originalMembers.where(
+        (om) => state.members.any((sm) => sm.email.toLowerCase() == om.userEmail.toLowerCase()),
+      );
+
+      for (final member in remainingMembers) {
+        print('   🔄 Updating member: ${member.userName} (reset payment)');
+        await repository.updateMemberAmount(
+          memberId: member.id,
+          newAmountToPay: floorAmount,
+          resetPayment: true, // Reset has_paid to false
+        );
+      }
+    } else if (priceChanged) {
+      print('   Only price changed - updating amounts...');
+
+      // Update all existing members with new amount (keep has_paid)
+      for (final member in _originalMembers) {
+        print('   🔄 Updating member: ${member.userName} (keep payment status)');
+        await repository.updateMemberAmount(
+          memberId: member.id,
+          newAmountToPay: floorAmount,
+          resetPayment: false, // Keep has_paid as is
+        );
+      }
+    }
+
+    print('✅ [CreateGroupSubscriptionForm] Members update completed');
   }
 }

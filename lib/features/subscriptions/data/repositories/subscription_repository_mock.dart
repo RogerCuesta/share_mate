@@ -3,10 +3,12 @@
 import 'package:dartz/dartz.dart';
 import 'package:flutter_project_agents/features/subscriptions/data/datasources/subscription_seed_data.dart';
 import 'package:flutter_project_agents/features/subscriptions/domain/entities/monthly_stats.dart';
+import 'package:flutter_project_agents/features/subscriptions/domain/entities/payment_history.dart';
 import 'package:flutter_project_agents/features/subscriptions/domain/entities/subscription.dart';
 import 'package:flutter_project_agents/features/subscriptions/domain/entities/subscription_member.dart';
 import 'package:flutter_project_agents/features/subscriptions/domain/failures/subscription_failure.dart';
 import 'package:flutter_project_agents/features/subscriptions/domain/repositories/subscription_repository.dart';
+import 'package:uuid/uuid.dart';
 
 /// Mock implementation of SubscriptionRepository for UI testing
 ///
@@ -32,6 +34,7 @@ class SubscriptionRepositoryMock implements SubscriptionRepository {
   // In-memory storage for simulated state changes
   List<Subscription>? _cachedSubscriptions;
   List<SubscriptionMember>? _cachedMembers;
+  List<PaymentHistory>? _cachedPaymentHistory;
   MonthlyStats? _cachedStats;
 
   /// Simulate network delay for realistic testing
@@ -220,14 +223,19 @@ class SubscriptionRepositoryMock implements SubscriptionRepository {
   }
 
   @override
-  Future<Either<SubscriptionFailure, SubscriptionMember>> markPaymentAsPaid({
+  Future<Either<SubscriptionFailure, PaymentHistory>> markPaymentAsPaid({
+    required String subscriptionId,
     required String memberId,
+    required double amount,
     required DateTime paymentDate,
+    required String markedBy,
+    String? notes,
   }) async {
     await _simulateDelay();
 
     try {
       _cachedMembers ??= SubscriptionSeedData.getMockPendingPayments();
+      _cachedPaymentHistory ??= [];
 
       final index =
           _cachedMembers!.indexWhere((member) => member.id == memberId);
@@ -244,12 +252,171 @@ class SubscriptionRepositoryMock implements SubscriptionRepository {
 
       _cachedMembers![index] = updatedMember;
 
+      // Create payment history record
+      const uuid = Uuid();
+      final history = PaymentHistory(
+        id: uuid.v4(),
+        subscriptionId: subscriptionId,
+        memberId: memberId,
+        amount: amount,
+        paymentDate: paymentDate,
+        markedBy: markedBy,
+        action: PaymentAction.paid,
+        notes: notes,
+        createdAt: DateTime.now(),
+      );
+
+      _cachedPaymentHistory!.add(history);
+
       // Recalculate stats
       _recalculateStats();
 
-      return Right(updatedMember);
+      return Right(history);
     } catch (e) {
       return Left(SubscriptionFailure.paymentError(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<SubscriptionFailure, int>> markAllPaymentsAsPaid({
+    required String subscriptionId,
+    required DateTime paymentDate,
+    required String markedBy,
+    String? notes,
+  }) async {
+    await _simulateDelay();
+
+    try {
+      _cachedMembers ??= SubscriptionSeedData.getMockPendingPayments();
+      _cachedPaymentHistory ??= [];
+
+      // Find all unpaid members for this subscription
+      final unpaidMembers = _cachedMembers!
+          .where((m) => m.subscriptionId == subscriptionId && !m.hasPaid)
+          .toList();
+
+      if (unpaidMembers.isEmpty) {
+        return const Right(0);
+      }
+
+      const uuid = Uuid();
+
+      // Update all members and create history records
+      for (final member in unpaidMembers) {
+        final index = _cachedMembers!.indexWhere((m) => m.id == member.id);
+
+        if (index != -1) {
+          // Update member
+          final updatedMember = _cachedMembers![index].copyWith(
+            hasPaid: true,
+            lastPaymentDate: paymentDate,
+          );
+          _cachedMembers![index] = updatedMember;
+
+          // Create history record
+          final history = PaymentHistory(
+            id: uuid.v4(),
+            subscriptionId: subscriptionId,
+            memberId: member.id,
+            amount: member.amountToPay,
+            paymentDate: paymentDate,
+            markedBy: markedBy,
+            action: PaymentAction.paid,
+            notes: notes,
+            createdAt: DateTime.now(),
+          );
+          _cachedPaymentHistory!.add(history);
+        }
+      }
+
+      // Recalculate stats
+      _recalculateStats();
+
+      return Right(unpaidMembers.length);
+    } catch (e) {
+      return Left(SubscriptionFailure.paymentError(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<SubscriptionFailure, PaymentHistory>> unmarkPayment({
+    required String subscriptionId,
+    required String memberId,
+    required double amount,
+    required DateTime paymentDate,
+    required String markedBy,
+    String? notes,
+  }) async {
+    await _simulateDelay();
+
+    try {
+      _cachedMembers ??= SubscriptionSeedData.getMockPendingPayments();
+      _cachedPaymentHistory ??= [];
+
+      final index =
+          _cachedMembers!.indexWhere((member) => member.id == memberId);
+
+      if (index == -1) {
+        return const Left(SubscriptionFailure.notFound());
+      }
+
+      // Update member to unpaid
+      final updatedMember = _cachedMembers![index].copyWith(
+        hasPaid: false,
+      );
+
+      _cachedMembers![index] = updatedMember;
+
+      // Create payment history record with unpaid action
+      const uuid = Uuid();
+      final history = PaymentHistory(
+        id: uuid.v4(),
+        subscriptionId: subscriptionId,
+        memberId: memberId,
+        amount: amount,
+        paymentDate: paymentDate,
+        markedBy: markedBy,
+        action: PaymentAction.unpaid,
+        notes: notes,
+        createdAt: DateTime.now(),
+      );
+
+      _cachedPaymentHistory!.add(history);
+
+      // Recalculate stats
+      _recalculateStats();
+
+      return Right(history);
+    } catch (e) {
+      return Left(SubscriptionFailure.paymentError(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<SubscriptionFailure, List<PaymentHistory>>> getPaymentHistory({
+    required String subscriptionId,
+    String? memberId,
+  }) async {
+    await _simulateDelay();
+
+    try {
+      _cachedPaymentHistory ??= [];
+
+      // Filter by subscription and optionally by member
+      var history = _cachedPaymentHistory!
+          .where((h) => h.subscriptionId == subscriptionId)
+          .toList();
+
+      if (memberId != null) {
+        history = history.where((h) => h.memberId == memberId).toList();
+      }
+
+      // Sort by most recent first
+      history.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+
+      return Right(history);
+    } catch (e) {
+      return Left(SubscriptionFailure.serverError(e.toString()));
     }
   }
 
@@ -316,6 +483,41 @@ class SubscriptionRepositoryMock implements SubscriptionRepository {
       _recalculateStats();
 
       return const Right(unit);
+    } catch (e) {
+      return Left(SubscriptionFailure.memberError(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<SubscriptionFailure, SubscriptionMember>> updateMemberAmount({
+    required String memberId,
+    required double newAmountToPay,
+    bool resetPayment = false,
+  }) async {
+    await _simulateDelay();
+
+    try {
+      _cachedMembers ??= SubscriptionSeedData.getMockPendingPayments();
+
+      final index =
+          _cachedMembers!.indexWhere((member) => member.id == memberId);
+
+      if (index == -1) {
+        return const Left(SubscriptionFailure.notFound());
+      }
+
+      // Update member amount and optionally reset payment
+      final updatedMember = _cachedMembers![index].copyWith(
+        amountToPay: newAmountToPay,
+        hasPaid: !resetPayment && _cachedMembers![index].hasPaid,
+      );
+
+      _cachedMembers![index] = updatedMember;
+
+      // Recalculate stats
+      _recalculateStats();
+
+      return Right(updatedMember);
     } catch (e) {
       return Left(SubscriptionFailure.memberError(e.toString()));
     }

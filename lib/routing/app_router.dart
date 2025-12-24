@@ -7,6 +7,7 @@ import 'package:flutter_project_agents/features/auth/presentation/screens/login_
 import 'package:flutter_project_agents/features/auth/presentation/screens/register_screen.dart';
 import 'package:flutter_project_agents/features/subscriptions/presentation/screens/create_subscription_screen.dart';
 import 'package:flutter_project_agents/features/subscriptions/presentation/screens/create_group_subscription_screen.dart';
+import 'package:flutter_project_agents/features/subscriptions/presentation/screens/subscription_detail_screen.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -103,6 +104,22 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: AppRoutes.createGroupSubscription,
         name: 'create-group-subscription',
         builder: (context, state) => const CreateGroupSubscriptionScreen(),
+      ),
+      GoRoute(
+        path: '/subscription/:id',
+        name: 'subscription-detail',
+        builder: (context, state) {
+          final subscriptionId = state.pathParameters['id']!;
+          return SubscriptionDetailScreen(subscriptionId: subscriptionId);
+        },
+      ),
+      GoRoute(
+        path: '/subscription/:id/edit',
+        name: 'edit-subscription',
+        builder: (context, state) {
+          final subscriptionId = state.pathParameters['id']!;
+          return CreateGroupSubscriptionScreen(subscriptionId: subscriptionId);
+        },
       ),
     ],
     errorBuilder: (context, state) => Scaffold(

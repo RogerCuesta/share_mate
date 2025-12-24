@@ -1,5 +1,6 @@
 import 'package:hive/hive.dart';
 
+import '../models/payment_history_model.dart';
 import '../models/subscription_member_model.dart';
 import '../models/subscription_model.dart';
 
@@ -69,18 +70,44 @@ abstract class SubscriptionLocalDataSource {
 
   /// Clear all cached members
   Future<void> clearMembers();
+
+  /// Get all cached payment history
+  Future<List<PaymentHistoryModel>> getAllPaymentHistory();
+
+  /// Get payment history for a subscription
+  Future<List<PaymentHistoryModel>> getPaymentHistoryBySubscriptionId(
+    String subscriptionId,
+  );
+
+  /// Get payment history for a specific member
+  Future<List<PaymentHistoryModel>> getPaymentHistoryByMemberId(
+    String memberId,
+  );
+
+  /// Cache a payment history record
+  Future<void> cachePaymentHistory(PaymentHistoryModel history);
+
+  /// Cache multiple payment history records
+  Future<void> cachePaymentHistories(List<PaymentHistoryModel> histories);
+
+  /// Clear all cached payment history
+  Future<void> clearPaymentHistory();
 }
 
 /// Implementation of SubscriptionLocalDataSource using Hive
 class SubscriptionLocalDataSourceImpl implements SubscriptionLocalDataSource {
   static const String subscriptionsBoxName = 'subscriptions';
   static const String membersBoxName = 'subscription_members';
+  static const String paymentHistoryBoxName = 'payment_history';
 
   Box<SubscriptionModel> get _subscriptionsBox =>
       Hive.box<SubscriptionModel>(subscriptionsBoxName);
 
   Box<SubscriptionMemberModel> get _membersBox =>
       Hive.box<SubscriptionMemberModel>(membersBoxName);
+
+  Box<PaymentHistoryModel> get _paymentHistoryBox =>
+      Hive.box<PaymentHistoryModel>(paymentHistoryBoxName);
 
   // ========== Subscriptions ==========
 
@@ -308,6 +335,87 @@ class SubscriptionLocalDataSourceImpl implements SubscriptionLocalDataSource {
     } catch (e) {
       throw SubscriptionLocalException(
         'Failed to clear members: ${e.toString()}',
+      );
+    }
+  }
+
+  // ========== Payment History ==========
+
+  @override
+  Future<List<PaymentHistoryModel>> getAllPaymentHistory() async {
+    try {
+      return _paymentHistoryBox.values.toList();
+    } catch (e) {
+      throw SubscriptionLocalException(
+        'Failed to get all payment history: ${e.toString()}',
+      );
+    }
+  }
+
+  @override
+  Future<List<PaymentHistoryModel>> getPaymentHistoryBySubscriptionId(
+    String subscriptionId,
+  ) async {
+    try {
+      return _paymentHistoryBox.values
+          .where((history) => history.subscriptionId == subscriptionId)
+          .toList();
+    } catch (e) {
+      throw SubscriptionLocalException(
+        'Failed to get payment history by subscription ID: ${e.toString()}',
+      );
+    }
+  }
+
+  @override
+  Future<List<PaymentHistoryModel>> getPaymentHistoryByMemberId(
+    String memberId,
+  ) async {
+    try {
+      return _paymentHistoryBox.values
+          .where((history) => history.memberId == memberId)
+          .toList();
+    } catch (e) {
+      throw SubscriptionLocalException(
+        'Failed to get payment history by member ID: ${e.toString()}',
+      );
+    }
+  }
+
+  @override
+  Future<void> cachePaymentHistory(PaymentHistoryModel history) async {
+    try {
+      await _paymentHistoryBox.put(history.id, history);
+    } catch (e) {
+      throw SubscriptionLocalException(
+        'Failed to cache payment history: ${e.toString()}',
+      );
+    }
+  }
+
+  @override
+  Future<void> cachePaymentHistories(
+    List<PaymentHistoryModel> histories,
+  ) async {
+    try {
+      final Map<String, PaymentHistoryModel> entries = {
+        for (var history in histories) history.id: history,
+      };
+      await _paymentHistoryBox.putAll(entries);
+    } catch (e) {
+      throw SubscriptionLocalException(
+        'Failed to cache payment histories: ${e.toString()}',
+      );
+    }
+  }
+
+  @override
+  Future<void> clearPaymentHistory() async {
+    try {
+      await _paymentHistoryBox.clear();
+    } catch (e) {
+      throw SubscriptionLocalException(
+        'Failed to clear payment history: ${e.toString()}',
       );
     }
   }
