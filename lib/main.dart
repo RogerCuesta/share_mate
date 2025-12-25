@@ -8,6 +8,7 @@ import 'package:flutter_project_agents/core/supabase/supabase_service.dart';
 import 'package:flutter_project_agents/features/auth/data/datasources/auth_local_datasource.dart';
 import 'package:flutter_project_agents/features/auth/data/datasources/user_local_datasource.dart';
 import 'package:flutter_project_agents/features/subscriptions/data/datasources/subscription_local_datasource.dart';
+import 'package:flutter_project_agents/features/subscriptions/data/models/payment_history_model.dart';
 import 'package:flutter_project_agents/features/subscriptions/data/models/subscription_member_model.dart';
 import 'package:flutter_project_agents/features/subscriptions/data/models/subscription_model.dart';
 import 'package:flutter_project_agents/routing/app_router.dart';
@@ -41,6 +42,9 @@ void main() async {
   );
   await HiveService.openBox<SubscriptionMemberModel>(
     SubscriptionLocalDataSourceImpl.membersBoxName,
+  );
+  await HiveService.openBox<PaymentHistoryModel>(
+    SubscriptionLocalDataSourceImpl.paymentHistoryBoxName,
   );
 
   final subscriptionLocalDataSource = SubscriptionLocalDataSourceImpl();
