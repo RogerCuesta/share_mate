@@ -185,7 +185,7 @@ class SubscriptionRemoteDataSourceImpl
 
       print('📦 [SubscriptionRemoteDS] Found subscription: ${response['name']}');
 
-      final json = response as Map<String, dynamic>;
+      final json = response;
 
       // Fetch members for this subscription
       try {
@@ -400,7 +400,7 @@ class SubscriptionRemoteDataSourceImpl
 
       print('📦 [SubscriptionRemoteDS] Supabase response: ${response['id']}');
 
-      final json = response as Map<String, dynamic>;
+      final json = response;
       json['shared_with'] = <String>[]; // New subscription has no members yet
 
       print('✅ [SubscriptionRemoteDS] Successfully created subscription');
@@ -449,7 +449,7 @@ class SubscriptionRemoteDataSourceImpl
 
       print('📦 [SubscriptionRemoteDS] Supabase response received');
 
-      final json = response as Map<String, dynamic>;
+      final json = response;
 
       // Fetch current members
       try {
@@ -536,7 +536,7 @@ class SubscriptionRemoteDataSourceImpl
 
       print('📦 [SubscriptionRemoteDS] Supabase response received');
 
-      final member = SubscriptionMemberModel.fromJson(response as Map<String, dynamic>);
+      final member = SubscriptionMemberModel.fromJson(response);
 
       print('✅ [SubscriptionRemoteDS] Successfully updated payment status');
       return member;
@@ -570,7 +570,7 @@ class SubscriptionRemoteDataSourceImpl
 
       print('📦 [SubscriptionRemoteDS] Supabase response: ${response['id']}');
 
-      final addedMember = SubscriptionMemberModel.fromJson(response as Map<String, dynamic>);
+      final addedMember = SubscriptionMemberModel.fromJson(response);
 
       print('✅ [SubscriptionRemoteDS] Successfully added member');
       return addedMember;
@@ -636,7 +636,7 @@ class SubscriptionRemoteDataSourceImpl
 
       print('✅ [SubscriptionRemoteDS] Successfully updated member amount');
 
-      return SubscriptionMemberModel.fromJson(response as Map<String, dynamic>);
+      return SubscriptionMemberModel.fromJson(response);
     } on PostgrestException catch (e) {
       print('❌ [SubscriptionRemoteDS] PostgrestException: ${e.message} (Code: ${e.code})');
       throw SubscriptionRemoteException(
@@ -703,7 +703,7 @@ class SubscriptionRemoteDataSourceImpl
 
       print('✅ [SubscriptionRemoteDS] Payment marked as paid successfully');
 
-      return PaymentHistoryModel.fromJson(response as Map<String, dynamic>);
+      return PaymentHistoryModel.fromJson(response);
     } on PostgrestException catch (e) {
       print('❌ [SubscriptionRemoteDS] PostgrestException: ${e.message} (Code: ${e.code})');
       throw SubscriptionRemoteException(
@@ -847,7 +847,7 @@ class SubscriptionRemoteDataSourceImpl
 
       print('✅ [SubscriptionRemoteDS] Payment unmarked successfully');
 
-      return PaymentHistoryModel.fromJson(response as Map<String, dynamic>);
+      return PaymentHistoryModel.fromJson(response);
     } on PostgrestException catch (e) {
       print('❌ [SubscriptionRemoteDS] PostgrestException: ${e.message} (Code: ${e.code})');
       throw SubscriptionRemoteException(

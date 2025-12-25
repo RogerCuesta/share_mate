@@ -10,7 +10,6 @@ import '../../domain/failures/subscription_failure.dart';
 import '../../domain/repositories/subscription_repository.dart';
 import '../datasources/subscription_local_datasource.dart';
 import '../datasources/subscription_remote_datasource.dart';
-import '../models/payment_history_model.dart';
 import '../models/subscription_member_model.dart';
 import '../models/subscription_model.dart';
 

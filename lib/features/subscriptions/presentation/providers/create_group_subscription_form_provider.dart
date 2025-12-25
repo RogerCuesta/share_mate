@@ -172,7 +172,6 @@ class CreateGroupSubscriptionFormState {
 @riverpod
 class CreateGroupSubscriptionForm extends _$CreateGroupSubscriptionForm {
   // Edit mode tracking fields
-  String? _originalSubscriptionId;
   Subscription? _originalSubscription;
   List<SubscriptionMember> _originalMembers = [];
 
@@ -301,7 +300,6 @@ class CreateGroupSubscriptionForm extends _$CreateGroupSubscriptionForm {
     print('   Name: ${subscription.name}');
     print('   Members: ${members.length}');
 
-    _originalSubscriptionId = subscription.id;
     _originalSubscription = subscription;
     _originalMembers = members;
 

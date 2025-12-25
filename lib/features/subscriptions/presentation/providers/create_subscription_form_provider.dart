@@ -1,8 +1,6 @@
 import 'package:flutter_project_agents/features/auth/presentation/providers/auth_provider.dart';
 import 'package:flutter_project_agents/features/subscriptions/domain/entities/subscription.dart';
 import 'package:flutter_project_agents/features/subscriptions/domain/entities/subscription_member_input.dart';
-import 'package:flutter_project_agents/features/subscriptions/domain/failures/subscription_failure.dart';
-import 'package:flutter_project_agents/features/subscriptions/domain/usecases/create_subscription.dart';
 import 'package:flutter_project_agents/features/subscriptions/presentation/providers/subscriptions_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:flutter_project_agents/core/di/injection.dart';
