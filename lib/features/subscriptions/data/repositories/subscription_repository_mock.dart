@@ -4,6 +4,7 @@ import 'package:dartz/dartz.dart';
 import 'package:flutter_project_agents/features/subscriptions/data/datasources/subscription_seed_data.dart';
 import 'package:flutter_project_agents/features/subscriptions/domain/entities/monthly_stats.dart';
 import 'package:flutter_project_agents/features/subscriptions/domain/entities/payment_history.dart';
+import 'package:flutter_project_agents/features/subscriptions/domain/entities/payment_stats.dart';
 import 'package:flutter_project_agents/features/subscriptions/domain/entities/subscription.dart';
 import 'package:flutter_project_agents/features/subscriptions/domain/entities/subscription_member.dart';
 import 'package:flutter_project_agents/features/subscriptions/domain/failures/subscription_failure.dart';
@@ -252,12 +253,21 @@ class SubscriptionRepositoryMock implements SubscriptionRepository {
 
       _cachedMembers![index] = updatedMember;
 
+      // Get subscription for denormalization
+      _cachedSubscriptions ??= SubscriptionSeedData.getMockSubscriptions('current-user');
+      final subscription = _cachedSubscriptions!.firstWhere(
+        (s) => s.id == subscriptionId,
+        orElse: () => _cachedSubscriptions!.first,
+      );
+
       // Create payment history record
       const uuid = Uuid();
       final history = PaymentHistory(
         id: uuid.v4(),
         subscriptionId: subscriptionId,
         memberId: memberId,
+        memberName: updatedMember.userName,
+        subscriptionName: subscription.name,
         amount: amount,
         paymentDate: paymentDate,
         markedBy: markedBy,
@@ -301,6 +311,13 @@ class SubscriptionRepositoryMock implements SubscriptionRepository {
 
       const uuid = Uuid();
 
+      // Get subscription for denormalization
+      _cachedSubscriptions ??= SubscriptionSeedData.getMockSubscriptions('current-user');
+      final subscription = _cachedSubscriptions!.firstWhere(
+        (s) => s.id == subscriptionId,
+        orElse: () => _cachedSubscriptions!.first,
+      );
+
       // Update all members and create history records
       for (final member in unpaidMembers) {
         final index = _cachedMembers!.indexWhere((m) => m.id == member.id);
@@ -318,6 +335,8 @@ class SubscriptionRepositoryMock implements SubscriptionRepository {
             id: uuid.v4(),
             subscriptionId: subscriptionId,
             memberId: member.id,
+            memberName: updatedMember.userName,
+            subscriptionName: subscription.name,
             amount: member.amountToPay,
             paymentDate: paymentDate,
             markedBy: markedBy,
@@ -367,12 +386,21 @@ class SubscriptionRepositoryMock implements SubscriptionRepository {
 
       _cachedMembers![index] = updatedMember;
 
+      // Get subscription for denormalization
+      _cachedSubscriptions ??= SubscriptionSeedData.getMockSubscriptions('current-user');
+      final subscription = _cachedSubscriptions!.firstWhere(
+        (s) => s.id == subscriptionId,
+        orElse: () => _cachedSubscriptions!.first,
+      );
+
       // Create payment history record with unpaid action
       const uuid = Uuid();
       final history = PaymentHistory(
         id: uuid.v4(),
         subscriptionId: subscriptionId,
         memberId: memberId,
+        memberName: updatedMember.userName,
+        subscriptionName: subscription.name,
         amount: amount,
         paymentDate: paymentDate,
         markedBy: markedBy,
@@ -565,10 +593,93 @@ class SubscriptionRepositoryMock implements SubscriptionRepository {
     );
   }
 
+  @override
+  Future<Either<SubscriptionFailure, PaymentStats>> getPaymentStats({
+    required String subscriptionId,
+    DateTime? startDate,
+    DateTime? endDate,
+  }) async {
+    await _simulateDelay();
+
+    try {
+      _cachedPaymentHistory ??= [];
+
+      // Filter by subscription and date range
+      var history = _cachedPaymentHistory!
+          .where((h) => h.subscriptionId == subscriptionId)
+          .toList();
+
+      if (startDate != null) {
+        history = history
+            .where((h) => h.paymentDate.isAfter(startDate) || h.paymentDate.isAtSameMomentAs(startDate))
+            .toList();
+      }
+
+      if (endDate != null) {
+        history = history
+            .where((h) => h.paymentDate.isBefore(endDate) || h.paymentDate.isAtSameMomentAs(endDate))
+            .toList();
+      }
+
+      // Calculate stats
+      final paidHistory = history.where((h) => h.action == PaymentAction.paid).toList();
+      final unpaidHistory = history.where((h) => h.action == PaymentAction.unpaid).toList();
+
+      final totalPayments = paidHistory.length;
+      final totalAmountPaid = paidHistory.fold<double>(0.0, (sum, h) => sum + h.amount);
+      final totalAmountUnpaid = unpaidHistory.fold<double>(0.0, (sum, h) => sum + h.amount);
+      final uniquePayers = paidHistory.map((h) => h.memberId).toSet().length;
+
+      // Calculate payment methods breakdown
+      final paymentMethods = <String, int>{};
+      for (final payment in paidHistory) {
+        final method = payment.paymentMethod ?? 'cash';
+        paymentMethods[method] = (paymentMethods[method] ?? 0) + 1;
+      }
+
+      final stats = PaymentStats(
+        totalPayments: totalPayments,
+        totalAmountPaid: totalAmountPaid,
+        totalAmountUnpaid: totalAmountUnpaid,
+        uniquePayers: uniquePayers,
+        paymentMethods: paymentMethods,
+      );
+
+      return Right(stats);
+    } catch (e) {
+      return Left(SubscriptionFailure.serverError(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<SubscriptionFailure, String>> exportPaymentHistoryPdf({
+    required String subscriptionId,
+    required String subscriptionName,
+    required List<PaymentHistory> history,
+  }) async {
+    await _simulateDelay();
+
+    // Mock: Return fake file path
+    return const Right('/mock/path/payment_history.pdf');
+  }
+
+  @override
+  Future<Either<SubscriptionFailure, String>> exportPaymentHistoryCsv({
+    required String subscriptionId,
+    required String subscriptionName,
+    required List<PaymentHistory> history,
+  }) async {
+    await _simulateDelay();
+
+    // Mock: Return fake file path
+    return const Right('/mock/path/payment_history.csv');
+  }
+
   /// Reset all cached data (useful for testing)
   void resetMockData() {
     _cachedSubscriptions = null;
     _cachedMembers = null;
     _cachedStats = null;
+    _cachedPaymentHistory = null;
   }
 }

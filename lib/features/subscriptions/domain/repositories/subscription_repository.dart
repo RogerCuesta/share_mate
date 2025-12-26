@@ -2,6 +2,7 @@ import 'package:dartz/dartz.dart';
 
 import '../entities/monthly_stats.dart';
 import '../entities/payment_history.dart';
+import '../entities/payment_stats.dart';
 import '../entities/subscription.dart';
 import '../entities/subscription_member.dart';
 import '../failures/subscription_failure.dart';
@@ -167,5 +168,48 @@ abstract class SubscriptionRepository {
     required String memberId,
     required double newAmountToPay,
     bool resetPayment = false,
+  });
+
+  // ==========================================
+  // Payment History Analytics & Export
+  // ==========================================
+
+  /// Get payment history statistics for a subscription
+  ///
+  /// Retrieves aggregated analytics including:
+  /// - Total payment count
+  /// - Total amounts (paid vs unpaid)
+  /// - Unique payer count
+  /// - Payment method breakdown
+  ///
+  /// Optional date range filters can be applied.
+  /// Returns [PaymentStats] if successful.
+  /// Returns [SubscriptionFailure] if operation fails.
+  Future<Either<SubscriptionFailure, PaymentStats>> getPaymentStats({
+    required String subscriptionId,
+    DateTime? startDate,
+    DateTime? endDate,
+  });
+
+  /// Export payment history as PDF
+  ///
+  /// Generates a PDF document with payment history table.
+  /// Returns the file path of the generated PDF if successful.
+  /// Returns [SubscriptionFailure] if operation fails.
+  Future<Either<SubscriptionFailure, String>> exportPaymentHistoryPdf({
+    required String subscriptionId,
+    required String subscriptionName,
+    required List<PaymentHistory> history,
+  });
+
+  /// Export payment history as CSV
+  ///
+  /// Generates a CSV file with payment history data.
+  /// Returns the file path of the generated CSV if successful.
+  /// Returns [SubscriptionFailure] if operation fails.
+  Future<Either<SubscriptionFailure, String>> exportPaymentHistoryCsv({
+    required String subscriptionId,
+    required String subscriptionName,
+    required List<PaymentHistory> history,
   });
 }

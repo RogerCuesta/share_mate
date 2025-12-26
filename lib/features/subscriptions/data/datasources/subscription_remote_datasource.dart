@@ -2,6 +2,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../../../core/supabase/supabase_service.dart';
+import '../../domain/entities/payment_stats.dart';
 import '../models/monthly_stats_model.dart';
 import '../models/payment_history_model.dart';
 import '../models/subscription_member_model.dart';
@@ -97,6 +98,13 @@ abstract class SubscriptionRemoteDataSource {
     required String subscriptionId,
     String? memberId,
     int? limit,
+  });
+
+  /// Get payment statistics using RPC function
+  Future<PaymentStats> getPaymentStats({
+    required String subscriptionId,
+    DateTime? startDate,
+    DateTime? endDate,
   });
 }
 
@@ -660,31 +668,36 @@ class SubscriptionRemoteDataSourceImpl
     String? notes,
   }) async {
     try {
-      print('🔍 [SubscriptionRemoteDS] Marking payment as paid');
+      print('🔍 [SubscriptionRemoteDS] Marking payment as paid (ATOMIC)');
       print('   Member: $memberId');
       print('   Amount: \$${amount.toStringAsFixed(2)}');
       print('   Payment Date: ${paymentDate.toIso8601String()}');
 
-      // Generate UUID for payment history
-      const uuid = Uuid();
-      final historyId = uuid.v4();
+      // Call atomic RPC function (single transaction)
+      print('   ⚛️  Calling mark_payment_as_paid_atomic RPC...');
+      final response = await _client.rpc('mark_payment_as_paid_atomic', params: {
+        'p_subscription_id': subscriptionId,
+        'p_member_id': memberId,
+        'p_amount': amount,
+        'p_payment_date': paymentDate.toIso8601String(),
+        'p_marked_by': markedBy,
+        'p_notes': notes,
+        'p_payment_method': 'cash', // Default payment method
+      }).select().single();
 
-      // Step 1: Update member payment status
-      print('   📝 Step 1/2: Updating member payment status...');
-      await _client
-          .from('subscription_members')
-          .update({
-            'has_paid': true,
-            'last_payment_date': paymentDate.toIso8601String(),
-          })
-          .eq('id', memberId);
+      print('   ✅ RPC completed successfully');
 
-      print('   ✅ Member updated');
+      // RPC returns denormalized data
+      final paymentHistoryId = response['payment_history_id'] as String;
+      final memberName = response['member_name'] as String;
+      final subscriptionName = response['subscription_name'] as String;
 
-      // Step 2: Insert payment history record
-      print('   📝 Step 2/2: Creating payment history record...');
-      final historyData = {
-        'id': historyId,
+      print('✅ [SubscriptionRemoteDS] Payment marked as paid (atomically)');
+
+      // Construct PaymentHistoryModel (temporarily using fromJson pattern until model is updated)
+      // TODO: Update to use new constructor with denormalized fields after FASE 2/3
+      return PaymentHistoryModel.fromJson({
+        'id': paymentHistoryId,
         'subscription_id': subscriptionId,
         'member_id': memberId,
         'amount': amount,
@@ -693,17 +706,11 @@ class SubscriptionRemoteDataSourceImpl
         'action': 'paid',
         'notes': notes,
         'created_at': DateTime.now().toIso8601String(),
-      };
-
-      final response = await _client
-          .from('payment_history')
-          .insert(historyData)
-          .select()
-          .single();
-
-      print('✅ [SubscriptionRemoteDS] Payment marked as paid successfully');
-
-      return PaymentHistoryModel.fromJson(response);
+        // New denormalized fields (will be ignored for now)
+        'member_name': memberName,
+        'subscription_name': subscriptionName,
+        'payment_method': 'cash',
+      });
     } on PostgrestException catch (e) {
       print('❌ [SubscriptionRemoteDS] PostgrestException: ${e.message} (Code: ${e.code})');
       throw SubscriptionRemoteException(
@@ -807,47 +814,56 @@ class SubscriptionRemoteDataSourceImpl
     String? notes,
   }) async {
     try {
-      print('🔍 [SubscriptionRemoteDS] Unmarking payment (undo)');
+      print('🔍 [SubscriptionRemoteDS] Unmarking payment (ATOMIC undo)');
       print('   Member: $memberId');
       print('   Amount: \$${amount.toStringAsFixed(2)}');
 
-      const uuid = Uuid();
-      final historyId = uuid.v4();
+      // Call atomic RPC function (single transaction)
+      print('   ⚛️  Calling unmark_payment_atomic RPC...');
+      final paymentHistoryId = await _client.rpc('unmark_payment_atomic', params: {
+        'p_subscription_id': subscriptionId,
+        'p_member_id': memberId,
+        'p_amount': amount,
+        'p_payment_date': paymentDate.toIso8601String(),
+        'p_marked_by': markedBy,
+        'p_notes': notes,
+      }) as String;
 
-      // Step 1: Update member to unpaid
-      print('   📝 Step 1/2: Updating member to unpaid...');
-      await _client
+      print('   ✅ RPC completed successfully');
+      print('   Payment History ID: $paymentHistoryId');
+
+      // Fetch denormalized names for the response
+      // (RPC should ideally return these, but for now we fetch them)
+      final memberData = await _client
           .from('subscription_members')
-          .update({
-            'has_paid': false,
-          })
-          .eq('id', memberId);
+          .select('user_name')
+          .eq('id', memberId)
+          .single();
 
-      print('   ✅ Member updated');
+      final subscriptionData = await _client
+          .from('subscriptions')
+          .select('name')
+          .eq('id', subscriptionId)
+          .single();
 
-      // Step 2: Insert payment history record with 'unpaid' action
-      print('   📝 Step 2/2: Creating payment history record...');
-      final historyData = {
-        'id': historyId,
+      print('✅ [SubscriptionRemoteDS] Payment unmarked successfully (atomically)');
+
+      // Construct PaymentHistoryModel (temporarily using fromJson pattern until model is updated)
+      // TODO: Update to use new constructor with denormalized fields after FASE 2/3
+      return PaymentHistoryModel.fromJson({
+        'id': paymentHistoryId,
         'subscription_id': subscriptionId,
         'member_id': memberId,
         'amount': amount,
-        'payment_date': paymentDate,
+        'payment_date': paymentDate.toIso8601String(),
         'marked_by': markedBy,
         'action': 'unpaid',
         'notes': notes,
         'created_at': DateTime.now().toIso8601String(),
-      };
-
-      final response = await _client
-          .from('payment_history')
-          .insert(historyData)
-          .select()
-          .single();
-
-      print('✅ [SubscriptionRemoteDS] Payment unmarked successfully');
-
-      return PaymentHistoryModel.fromJson(response);
+        // New denormalized fields (will be ignored for now)
+        'member_name': memberData['user_name'] as String,
+        'subscription_name': subscriptionData['name'] as String,
+      });
     } on PostgrestException catch (e) {
       print('❌ [SubscriptionRemoteDS] PostgrestException: ${e.message} (Code: ${e.code})');
       throw SubscriptionRemoteException(
@@ -915,6 +931,78 @@ class SubscriptionRemoteDataSourceImpl
       throw SubscriptionRemoteException(
         'Failed to fetch payment history: ${e.toString()}',
       );
+    }
+  }
+
+  /// Get payment statistics using RPC function
+  ///
+  /// Calls the `get_payment_history_stats` RPC function to retrieve
+  /// aggregated payment statistics for a subscription.
+  @override
+  Future<PaymentStats> getPaymentStats({
+    required String subscriptionId,
+    DateTime? startDate,
+    DateTime? endDate,
+  }) async {
+    try {
+      print('🔍 [SubscriptionRemoteDS] Fetching payment stats');
+      print('   Subscription: $subscriptionId');
+      if (startDate != null) print('   Start Date: ${startDate.toIso8601String()}');
+      if (endDate != null) print('   End Date: ${endDate.toIso8601String()}');
+
+      // Call RPC function for aggregated stats
+      print('   📊 Calling get_payment_history_stats RPC...');
+      final response = await _client.rpc('get_payment_history_stats', params: {
+        'p_subscription_id': subscriptionId,
+        'p_start_date': startDate?.toIso8601String(),
+        'p_end_date': endDate?.toIso8601String(),
+      }).single();
+
+      print('   ✅ RPC completed successfully');
+
+      // Parse response from RPC
+      final totalPayments = response['total_payments'] as int? ?? 0;
+      final totalAmountPaid = (response['total_amount_paid'] as num?)?.toDouble() ?? 0.0;
+      final totalAmountUnpaid = (response['total_amount_unpaid'] as num?)?.toDouble() ?? 0.0;
+      final uniquePayers = response['unique_payers'] as int? ?? 0;
+
+      // Parse payment methods JSONB
+      final paymentMethodsJson = response['payment_methods'] as Map<String, dynamic>?;
+      final paymentMethods = <String, int>{};
+
+      if (paymentMethodsJson != null) {
+        paymentMethodsJson.forEach((key, value) {
+          if (value != null) {
+            paymentMethods[key] = (value as num).toInt();
+          }
+        });
+      }
+
+      final stats = PaymentStats(
+        totalPayments: totalPayments,
+        totalAmountPaid: totalAmountPaid,
+        totalAmountUnpaid: totalAmountUnpaid,
+        uniquePayers: uniquePayers,
+        paymentMethods: paymentMethods,
+      );
+
+      print('✅ [SubscriptionRemoteDS] Payment stats fetched successfully');
+      print('   Total Payments: $totalPayments');
+      print('   Total Amount Paid: \$${totalAmountPaid.toStringAsFixed(2)}');
+
+      return stats;
+    } on PostgrestException catch (e) {
+      print('❌ [SubscriptionRemoteDS] PostgrestException: ${e.message} (Code: ${e.code})');
+
+      // Return empty stats on error instead of throwing
+      print('⚠️  Returning empty stats due to error');
+      return PaymentStats.empty();
+    } catch (e) {
+      print('❌ [SubscriptionRemoteDS] Unexpected error: $e');
+
+      // Return empty stats on error instead of throwing
+      print('⚠️  Returning empty stats due to error');
+      return PaymentStats.empty();
     }
   }
 }

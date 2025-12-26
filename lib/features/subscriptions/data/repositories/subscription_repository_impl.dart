@@ -4,6 +4,7 @@ import 'package:uuid/uuid.dart';
 import '../../../../core/sync/payment_sync_queue.dart';
 import '../../domain/entities/monthly_stats.dart';
 import '../../domain/entities/payment_history.dart';
+import '../../domain/entities/payment_stats.dart';
 import '../../domain/entities/subscription.dart';
 import '../../domain/entities/subscription_member.dart';
 import '../../domain/failures/subscription_failure.dart';
@@ -329,6 +330,12 @@ class SubscriptionRepositoryImpl implements SubscriptionRepository {
 
       // Phase 1: Optimistic update in local cache
       final cachedMember = await _localDataSource.getMemberById(memberId);
+      final cachedSubscription = await _localDataSource.getSubscriptionById(subscriptionId);
+
+      // Get member and subscription names for denormalization
+      final memberName = cachedMember?.userName ?? 'Unknown Member';
+      final subscriptionName = cachedSubscription?.name ?? 'Unknown Subscription';
+
       if (cachedMember != null) {
         final updatedMember = SubscriptionMemberModel(
           id: cachedMember.id,
@@ -382,6 +389,8 @@ class SubscriptionRepositoryImpl implements SubscriptionRepository {
           id: uuid.v4(),
           subscriptionId: subscriptionId,
           memberId: memberId,
+          memberName: memberName,
+          subscriptionName: subscriptionName,
           amount: amount,
           paymentDate: paymentDate,
           markedBy: markedBy,
@@ -487,6 +496,12 @@ class SubscriptionRepositoryImpl implements SubscriptionRepository {
 
       // Phase 1: Optimistic update in local cache
       final cachedMember = await _localDataSource.getMemberById(memberId);
+      final cachedSubscription = await _localDataSource.getSubscriptionById(subscriptionId);
+
+      // Get member and subscription names for denormalization
+      final memberName = cachedMember?.userName ?? 'Unknown Member';
+      final subscriptionName = cachedSubscription?.name ?? 'Unknown Subscription';
+
       if (cachedMember != null) {
         final updatedMember = SubscriptionMemberModel(
           id: cachedMember.id,
@@ -540,6 +555,8 @@ class SubscriptionRepositoryImpl implements SubscriptionRepository {
           id: uuid.v4(),
           subscriptionId: subscriptionId,
           memberId: memberId,
+          memberName: memberName,
+          subscriptionName: subscriptionName,
           amount: amount,
           paymentDate: paymentDate,
           markedBy: markedBy,
@@ -725,5 +742,47 @@ class SubscriptionRepositoryImpl implements SubscriptionRepository {
     } catch (e) {
       return Left(SubscriptionFailure.memberError(e.toString()));
     }
+  }
+
+  @override
+  Future<Either<SubscriptionFailure, PaymentStats>> getPaymentStats({
+    required String subscriptionId,
+    DateTime? startDate,
+    DateTime? endDate,
+  }) async {
+    try {
+      // Get stats from remote (calls RPC function)
+      final stats = await _remoteDataSource.getPaymentStats(
+        subscriptionId: subscriptionId,
+        startDate: startDate,
+        endDate: endDate,
+      );
+
+      return Right(stats);
+    } on SubscriptionRemoteException {
+      return Left(SubscriptionFailure.networkError());
+    } catch (e) {
+      return Left(SubscriptionFailure.serverError(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<SubscriptionFailure, String>> exportPaymentHistoryPdf({
+    required String subscriptionId,
+    required String subscriptionName,
+    required List<PaymentHistory> history,
+  }) async {
+    // TODO: Implement after creating PdfGenerator service
+    return Left(SubscriptionFailure.serverError('PDF export not yet implemented'));
+  }
+
+  @override
+  Future<Either<SubscriptionFailure, String>> exportPaymentHistoryCsv({
+    required String subscriptionId,
+    required String subscriptionName,
+    required List<PaymentHistory> history,
+  }) async {
+    // TODO: Implement after creating CsvGenerator service
+    return Left(SubscriptionFailure.serverError('CSV export not yet implemented'));
   }
 }
