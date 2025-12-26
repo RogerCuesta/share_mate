@@ -7,6 +7,7 @@ import 'package:flutter_project_agents/features/subscriptions/domain/entities/su
 import 'package:flutter_project_agents/features/subscriptions/presentation/providers/subscription_detail_provider.dart';
 import 'package:flutter_project_agents/features/subscriptions/presentation/providers/subscriptions_provider.dart';
 import 'package:flutter_project_agents/features/subscriptions/presentation/widgets/payment_action_buttons.dart';
+import 'package:flutter_project_agents/features/subscriptions/presentation/widgets/payment_stats_card.dart';
 import 'package:flutter_project_agents/features/subscriptions/presentation/widgets/payment_status_toggle.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -177,6 +178,11 @@ class SubscriptionDetailScreen extends ConsumerWidget {
                   ),
                 ),
               const SizedBox(height: 24),
+            ],
+            // Payment Analytics Card
+            if (members.isNotEmpty) ...[
+              PaymentStatsCard(subscriptionId: subscriptionId),
+              const SizedBox(height: 16),
             ],
             _ActionButtons(
               subscriptionId: subscriptionId,
