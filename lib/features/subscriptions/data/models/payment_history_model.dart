@@ -20,10 +20,10 @@ class PaymentHistoryModel extends HiveObject {
   @HiveField(2)
   final String memberId;
 
-  @HiveField(9)
+  @HiveField(9, defaultValue: 'Unknown Member')
   final String memberName;
 
-  @HiveField(10)
+  @HiveField(10, defaultValue: 'Unknown Subscription')
   final String subscriptionName;
 
   @HiveField(3)
