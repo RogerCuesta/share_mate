@@ -200,15 +200,27 @@ SECURITY DEFINER
 AS $$
 BEGIN
   RETURN QUERY
+  WITH payment_method_counts AS (
+    SELECT
+      payment_method,
+      COUNT(*) as method_count
+    FROM payment_history
+    WHERE subscription_id = p_subscription_id
+      AND action = 'paid'
+      AND payment_method IS NOT NULL
+      AND (p_start_date IS NULL OR payment_date >= p_start_date)
+      AND (p_end_date IS NULL OR payment_date <= p_end_date)
+    GROUP BY payment_method
+  )
   SELECT
     COUNT(*) FILTER (WHERE action = 'paid') AS total_payments,
     COALESCE(SUM(amount) FILTER (WHERE action = 'paid'), 0) AS total_amount_paid,
     COALESCE(SUM(amount) FILTER (WHERE action = 'unpaid'), 0) AS total_amount_unpaid,
     COUNT(DISTINCT member_id) FILTER (WHERE action = 'paid') AS unique_payers,
-    jsonb_object_agg(
-      payment_method,
-      COUNT(*) FILTER (WHERE action = 'paid')
-    ) FILTER (WHERE payment_method IS NOT NULL) AS payment_methods
+    COALESCE(
+      (SELECT jsonb_object_agg(payment_method, method_count) FROM payment_method_counts),
+      '{}'::jsonb
+    ) AS payment_methods
   FROM payment_history
   WHERE subscription_id = p_subscription_id
     AND (p_start_date IS NULL OR payment_date >= p_start_date)
