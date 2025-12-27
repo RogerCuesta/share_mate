@@ -11,6 +11,11 @@ import 'package:flutter_project_agents/features/subscriptions/data/datasources/s
 import 'package:flutter_project_agents/features/subscriptions/data/models/payment_history_model.dart';
 import 'package:flutter_project_agents/features/subscriptions/data/models/subscription_member_model.dart';
 import 'package:flutter_project_agents/features/subscriptions/data/models/subscription_model.dart';
+import 'package:flutter_project_agents/features/friends/data/datasources/friendship_local_datasource.dart';
+import 'package:flutter_project_agents/features/friends/data/models/friend_model.dart';
+import 'package:flutter_project_agents/features/friends/data/models/friendship_model.dart';
+import 'package:flutter_project_agents/features/friends/data/models/profile_model.dart';
+import 'package:flutter_project_agents/core/sync/friend_request_sync_queue.dart';
 import 'package:flutter_project_agents/routing/app_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -49,6 +54,14 @@ void main() async {
 
   final subscriptionLocalDataSource = SubscriptionLocalDataSourceImpl();
 
+  // 6. Initialize friendship local data source
+  final friendshipLocalDataSource = FriendshipLocalDataSourceImpl();
+  await friendshipLocalDataSource.init();
+
+  // 7. Initialize friend request sync queue
+  final friendRequestSyncQueue = FriendRequestSyncQueueService();
+  await friendRequestSyncQueue.init();
+
   // Run the app with Riverpod and provider overrides
   runApp(
     ProviderScope(
@@ -57,6 +70,7 @@ void main() async {
         userLocalDataSourceProvider.overrideWithValue(userLocalDataSource),
         authLocalDataSourceProvider.overrideWithValue(authLocalDataSource),
         subscriptionLocalDataSourceProvider.overrideWithValue(subscriptionLocalDataSource),
+        friendshipLocalDataSourceProvider.overrideWithValue(friendshipLocalDataSource),
       ],
       child: const MyApp(),
     ),

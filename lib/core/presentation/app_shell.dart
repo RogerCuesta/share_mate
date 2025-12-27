@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_project_agents/core/widgets/custom_bottom_nav_bar.dart';
 import 'package:flutter_project_agents/features/home/presentation/screens/home_screen.dart';
+import 'package:flutter_project_agents/features/friends/presentation/screens/friends_screen.dart';
 import 'package:flutter_project_agents/features/subscriptions/presentation/providers/subscriptions_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -33,7 +34,7 @@ class AppShell extends ConsumerWidget {
         index: selectedIndex,
         children: const [
           HomeScreen(),
-          _FriendsScreen(),
+          FriendsScreen(),
           _AnalyticsScreen(),
           _SettingsScreen(),
         ],

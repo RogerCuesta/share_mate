@@ -26,6 +26,17 @@ import 'package:flutter_project_agents/features/subscriptions/domain/usecases/ma
 import 'package:flutter_project_agents/features/subscriptions/domain/usecases/mark_payment_as_paid.dart';
 import 'package:flutter_project_agents/features/subscriptions/domain/usecases/unmark_payment.dart';
 import 'package:flutter_project_agents/features/subscriptions/domain/usecases/update_subscription.dart';
+import 'package:flutter_project_agents/features/friends/data/datasources/friendship_local_datasource.dart';
+import 'package:flutter_project_agents/features/friends/data/datasources/friendship_remote_datasource.dart';
+import 'package:flutter_project_agents/features/friends/data/repositories/friendship_repository_impl.dart';
+import 'package:flutter_project_agents/features/friends/domain/repositories/friendship_repository.dart';
+import 'package:flutter_project_agents/features/friends/domain/usecases/accept_friend_request.dart';
+import 'package:flutter_project_agents/features/friends/domain/usecases/get_friends.dart';
+import 'package:flutter_project_agents/features/friends/domain/usecases/get_pending_requests.dart';
+import 'package:flutter_project_agents/features/friends/domain/usecases/reject_friend_request.dart';
+import 'package:flutter_project_agents/features/friends/domain/usecases/remove_friend.dart';
+import 'package:flutter_project_agents/features/friends/domain/usecases/search_users.dart';
+import 'package:flutter_project_agents/features/friends/domain/usecases/send_friend_request.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -259,4 +270,96 @@ MarkAllPaymentsAsPaid markAllPaymentsAsPaid(Ref ref) {
 @riverpod
 UnmarkPayment unmarkPayment(Ref ref) {
   return UnmarkPayment(ref.watch(subscriptionRepositoryProvider));
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// FRIENDS FEATURE - DATA SOURCES
+// ═══════════════════════════════════════════════════════════════════════════
+
+/// Provider for FriendshipLocalDataSource (Hive)
+///
+/// This data source manages friendship and profile data in Hive cache.
+/// It MUST be initialized before use via initFriendsDependencies().
+///
+/// Note: This is a singleton that persists across provider rebuilds.
+@Riverpod(keepAlive: true)
+FriendshipLocalDataSource friendshipLocalDataSource(Ref ref) {
+  throw UnimplementedError(
+    'friendshipLocalDataSource provider must be overridden in main.dart with the initialized instance',
+  );
+}
+
+/// Provider for FriendshipRemoteDataSource (Supabase)
+///
+/// This data source manages friendship operations with Supabase backend.
+/// Requires SupabaseService to be initialized.
+@riverpod
+FriendshipRemoteDataSource friendshipRemoteDataSource(Ref ref) {
+  final client = ref.watch(supabaseClientProvider);
+  return FriendshipRemoteDataSourceImpl(client: client);
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// FRIENDS FEATURE - REPOSITORY
+// ═══════════════════════════════════════════════════════════════════════════
+
+/// Provider for FriendshipRepository implementation
+///
+/// The implementation coordinates between:
+/// - FriendshipRemoteDataSource (Supabase) for remote operations
+/// - FriendshipLocalDataSource (Hive) for local cache
+///
+/// Implements offline-first strategy: tries Supabase first, falls back to cache.
+@riverpod
+FriendshipRepository friendshipRepository(Ref ref) {
+  return FriendshipRepositoryImpl(
+    remoteDataSource: ref.watch(friendshipRemoteDataSourceProvider),
+    localDataSource: ref.watch(friendshipLocalDataSourceProvider),
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// FRIENDS FEATURE - USE CASES
+// ═══════════════════════════════════════════════════════════════════════════
+
+/// Use case: Send friend request
+@riverpod
+SendFriendRequest sendFriendRequest(Ref ref) {
+  return SendFriendRequest(ref.watch(friendshipRepositoryProvider));
+}
+
+/// Use case: Accept friend request
+@riverpod
+AcceptFriendRequest acceptFriendRequest(Ref ref) {
+  return AcceptFriendRequest(ref.watch(friendshipRepositoryProvider));
+}
+
+/// Use case: Reject friend request
+@riverpod
+RejectFriendRequest rejectFriendRequest(Ref ref) {
+  return RejectFriendRequest(ref.watch(friendshipRepositoryProvider));
+}
+
+/// Use case: Remove friend
+@riverpod
+RemoveFriend removeFriend(Ref ref) {
+  return RemoveFriend(ref.watch(friendshipRepositoryProvider));
+}
+
+/// Use case: Get friends list
+@riverpod
+GetFriends getFriends(Ref ref) {
+  return GetFriends(ref.watch(friendshipRepositoryProvider));
+}
+
+/// Use case: Get pending friend requests
+@riverpod
+GetPendingRequests getPendingRequests(Ref ref) {
+  return GetPendingRequests(ref.watch(friendshipRepositoryProvider));
+}
+
+/// Use case: Search users by email
+@riverpod
+SearchUsers searchUsers(Ref ref) {
+  return SearchUsers(ref.watch(friendshipRepositoryProvider));
 }
