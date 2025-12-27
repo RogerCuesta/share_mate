@@ -95,9 +95,9 @@ class SubscriptionStats extends _$SubscriptionStats {
         .where((m) => m.hasPaid)
         .fold(0.0, (sum, m) => sum + m.amountToPay);
 
-    final remainingAmount = members
-        .where((m) => !m.hasPaid)
-        .fold(0.0, (sum, m) => sum + m.amountToPay);
+    // Remaining = total cost - collected amount
+    // This includes both unpaid members AND owner's share (since owner hasn't "paid" themselves)
+    final remainingAmount = subscription.totalCost - collectedAmount;
 
     // Calculate owner's share (with proper rounding)
     final splitAmount = subscription.totalCost / totalMembers;
