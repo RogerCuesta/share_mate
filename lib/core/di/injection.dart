@@ -18,6 +18,7 @@ import 'package:flutter_project_agents/features/subscriptions/domain/repositorie
 import 'package:flutter_project_agents/features/subscriptions/domain/usecases/create_subscription.dart';
 import 'package:flutter_project_agents/features/subscriptions/domain/usecases/delete_subscription.dart';
 import 'package:flutter_project_agents/features/subscriptions/domain/usecases/get_active_subscriptions.dart';
+import 'package:flutter_project_agents/features/subscriptions/domain/usecases/get_analytics_data.dart';
 import 'package:flutter_project_agents/features/subscriptions/domain/usecases/get_monthly_stats.dart';
 import 'package:flutter_project_agents/features/subscriptions/domain/usecases/get_payment_stats.dart';
 import 'package:flutter_project_agents/features/subscriptions/domain/usecases/get_pending_payments.dart';
@@ -270,6 +271,12 @@ MarkAllPaymentsAsPaid markAllPaymentsAsPaid(Ref ref) {
 @riverpod
 UnmarkPayment unmarkPayment(Ref ref) {
   return UnmarkPayment(ref.watch(subscriptionRepositoryProvider));
+}
+
+/// Use case: Get analytics data
+@riverpod
+GetAnalyticsData getAnalyticsData(Ref ref) {
+  return GetAnalyticsData(ref.watch(subscriptionRepositoryProvider));
 }
 
 // ═══════════════════════════════════════════════════════════════════════════

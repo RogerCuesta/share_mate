@@ -3,10 +3,16 @@ import 'package:uuid/uuid.dart';
 
 import '../../../../core/supabase/supabase_service.dart';
 import '../../domain/entities/payment_stats.dart';
+import '../../domain/entities/time_range.dart';
+import '../models/analytics_data_model.dart';
+import '../models/analytics_overview_model.dart';
+import '../models/monthly_spending_model.dart';
 import '../models/monthly_stats_model.dart';
+import '../models/payment_analytics_model.dart';
 import '../models/payment_history_model.dart';
 import '../models/subscription_member_model.dart';
 import '../models/subscription_model.dart';
+import '../models/subscription_spending_model.dart';
 
 /// Exception thrown when subscription remote operations fail
 class SubscriptionRemoteException implements Exception {
@@ -105,6 +111,12 @@ abstract class SubscriptionRemoteDataSource {
     required String subscriptionId,
     DateTime? startDate,
     DateTime? endDate,
+  });
+
+  /// Get analytics data (overview + spending trends + payment analytics)
+  Future<AnalyticsDataModel> getAnalyticsData({
+    required String userId,
+    required TimeRange timeRange,
   });
 }
 
@@ -1005,4 +1017,346 @@ class SubscriptionRemoteDataSourceImpl
       return PaymentStats.empty();
     }
   }
+
+  @override
+  Future<AnalyticsDataModel> getAnalyticsData({
+    required String userId,
+    required TimeRange timeRange,
+  }) async {
+    try {
+      print('🔍 [SubscriptionRemoteDS] Fetching analytics data');
+      print('   User: $userId');
+      print('   Time Range: ${timeRange.displayName}');
+
+      // Get start date based on time range
+      final startDate = timeRange.getStartDate();
+      print('   Start Date: ${startDate?.toIso8601String() ?? "All time"}');
+
+      // Parallel queries for better performance
+      final results = await Future.wait([
+        _getAnalyticsOverview(userId),
+        _getSpendingTrends(userId, startDate),
+        _getSubscriptionSpending(userId, startDate),
+        _getPaymentAnalytics(userId, startDate),
+      ]);
+
+      final overview = results[0] as AnalyticsOverviewModel;
+      final spendingTrends = results[1] as List<MonthlySpendingModel>;
+      final subscriptionSpending = results[2] as List<SubscriptionSpendingModel>;
+      final paymentAnalytics = results[3] as PaymentAnalyticsModel;
+
+      final analyticsData = AnalyticsDataModel(
+        overview: overview,
+        spendingTrends: spendingTrends,
+        subscriptionSpending: subscriptionSpending,
+        paymentAnalytics: paymentAnalytics,
+      );
+
+      print('✅ [SubscriptionRemoteDS] Analytics data fetched successfully');
+      return analyticsData;
+    } on PostgrestException catch (e) {
+      print('❌ [SubscriptionRemoteDS] PostgrestException: ${e.message} (Code: ${e.code})');
+      throw SubscriptionRemoteException(
+        'Database error fetching analytics: ${e.message}',
+      );
+    } catch (e) {
+      print('❌ [SubscriptionRemoteDS] Unexpected error: $e');
+      throw SubscriptionRemoteException(
+        'Failed to fetch analytics: ${e.toString()}',
+      );
+    }
+  }
+
+  /// Get analytics overview (total monthly cost, active subscriptions, members, avg cost)
+  Future<AnalyticsOverviewModel> _getAnalyticsOverview(String userId) async {
+    // Fetch subscriptions and members
+    final subscriptions = await getSubscriptions(userId);
+    final members = await getMembers(userId);
+
+    // Calculate overview stats
+    final activeSubscriptions =
+        subscriptions.where((s) => s.status == 'active').toList();
+
+    final totalMonthlyCost = activeSubscriptions.fold<double>(
+      0.0,
+      (sum, sub) {
+        final monthlyCost = sub.billingCycle == 'yearly'
+            ? sub.totalCost / 12
+            : sub.totalCost;
+        return sum + monthlyCost;
+      },
+    );
+
+    final totalMembers = members.length;
+
+    final averageCostPerSubscription = activeSubscriptions.isEmpty
+        ? 0.0
+        : totalMonthlyCost / activeSubscriptions.length;
+
+    return AnalyticsOverviewModel(
+      totalMonthlyCost: totalMonthlyCost,
+      totalActiveSubscriptions: activeSubscriptions.length,
+      totalMembers: totalMembers,
+      averageCostPerSubscription: averageCostPerSubscription,
+    );
+  }
+
+  /// Get spending trends grouped by month from payment_history
+  Future<List<MonthlySpendingModel>> _getSpendingTrends(
+    String userId,
+    DateTime? startDate,
+  ) async {
+    // Query payment_history for paid payments
+    var queryBuilder = _client
+        .from('payment_history')
+        .select('payment_date, amount')
+        .eq('action', 'paid');
+
+    if (startDate != null) {
+      queryBuilder =
+          queryBuilder.gte('payment_date', startDate.toIso8601String());
+    }
+
+    final data = await queryBuilder;
+
+    // Group by month in Flutter
+    final Map<DateTime, _MonthlySpendingAccumulator> monthlyMap = {};
+
+    for (var record in data) {
+      final paymentDate = DateTime.parse(record['payment_date'] as String);
+      final amount = (record['amount'] as num).toDouble();
+
+      // Create month key (first day of month)
+      final monthKey = DateTime(paymentDate.year, paymentDate.month);
+
+      if (monthlyMap.containsKey(monthKey)) {
+        monthlyMap[monthKey]!.amountPaid += amount;
+        monthlyMap[monthKey]!.paymentCount++;
+      } else {
+        monthlyMap[monthKey] = _MonthlySpendingAccumulator(
+          month: monthKey,
+          amountPaid: amount,
+          paymentCount: 1,
+        );
+      }
+    }
+
+    // Convert to models and sort by date
+    final spendingTrends = monthlyMap.values
+        .map((acc) => MonthlySpendingModel(
+              month: acc.month,
+              amountPaid: acc.amountPaid,
+              paymentCount: acc.paymentCount,
+            ))
+        .toList()
+      ..sort((a, b) => a.month.compareTo(b.month));
+
+    return spendingTrends;
+  }
+
+  /// Get subscription spending (total amount paid per subscription)
+  Future<List<SubscriptionSpendingModel>> _getSubscriptionSpending(
+    String userId,
+    DateTime? startDate,
+  ) async {
+    // Get user's subscriptions first to get subscription details
+    final subscriptions = await getSubscriptions(userId);
+    final subscriptionMap = {for (var s in subscriptions) s.id: s};
+
+    // Query payment_history for paid payments
+    var queryBuilder = _client
+        .from('payment_history')
+        .select('subscription_id, subscription_name, amount')
+        .eq('action', 'paid');
+
+    if (startDate != null) {
+      queryBuilder =
+          queryBuilder.gte('payment_date', startDate.toIso8601String());
+    }
+
+    final data = await queryBuilder;
+
+    // Group by subscription_id
+    final Map<String, _SubscriptionSpendingAccumulator> subscriptionSpendingMap = {};
+
+    for (var record in data) {
+      final subscriptionId = record['subscription_id'] as String;
+      final subscriptionName = record['subscription_name'] as String? ?? 'Unknown';
+      final amount = (record['amount'] as num).toDouble();
+
+      if (subscriptionSpendingMap.containsKey(subscriptionId)) {
+        subscriptionSpendingMap[subscriptionId]!.totalAmountPaid += amount;
+        subscriptionSpendingMap[subscriptionId]!.paymentCount++;
+      } else {
+        // Get color from subscription if available
+        final subscription = subscriptionMap[subscriptionId];
+        final color = subscription?.color ?? '#6C63FF'; // Default purple
+
+        subscriptionSpendingMap[subscriptionId] =
+            _SubscriptionSpendingAccumulator(
+          subscriptionId: subscriptionId,
+          subscriptionName: subscriptionName,
+          totalAmountPaid: amount,
+          paymentCount: 1,
+          color: color,
+        );
+      }
+    }
+
+    // Convert to models, sort by amount (descending), and take top 10
+    final subscriptionSpending = subscriptionSpendingMap.values
+        .map((acc) => SubscriptionSpendingModel(
+              subscriptionId: acc.subscriptionId,
+              subscriptionName: acc.subscriptionName,
+              totalAmountPaid: acc.totalAmountPaid,
+              paymentCount: acc.paymentCount,
+              color: acc.color,
+            ))
+        .toList()
+      ..sort((a, b) => b.totalAmountPaid.compareTo(a.totalAmountPaid));
+
+    // Return top 10 subscriptions
+    return subscriptionSpending.take(10).toList();
+  }
+
+  /// Get payment analytics (on-time rate, avg days, top payers, overdue)
+  Future<PaymentAnalyticsModel> _getPaymentAnalytics(
+    String userId,
+    DateTime? startDate,
+  ) async {
+    // Get all members to calculate overdue amount
+    final members = await getMembers(userId);
+
+    // Query payment_history with join to subscription_members for due_date
+    var queryBuilder = _client
+        .from('payment_history')
+        .select('payment_date, member_id, member_name, amount, subscription_members!inner(due_date)')
+        .eq('action', 'paid');
+
+    if (startDate != null) {
+      queryBuilder =
+          queryBuilder.gte('payment_date', startDate.toIso8601String());
+    }
+
+    final historyData = await queryBuilder;
+
+    if (historyData.isEmpty) {
+      // No payment history - calculate only overdue amount
+      final now = DateTime.now();
+      final overdueAmount = members
+          .where((m) => !m.hasPaid && m.dueDate.isBefore(now))
+          .fold<double>(0.0, (sum, m) => sum + m.amountToPay);
+
+      return PaymentAnalyticsModel(
+        onTimePaymentRate: 0.0,
+        averageDaysToPayment: 0.0,
+        topPayers: [],
+        overdueAmount: overdueAmount,
+      );
+    }
+
+    // Calculate on-time payment rate and average days to payment
+    int onTimeCount = 0;
+    double totalDaysToPayment = 0.0;
+    final Map<String, _TopPayerAccumulator> payerMap = {};
+
+    for (var record in historyData) {
+      final paymentDate = DateTime.parse(record['payment_date'] as String);
+      final memberData = record['subscription_members'] as Map<String, dynamic>;
+      final dueDate = DateTime.parse(memberData['due_date'] as String);
+      final memberId = record['member_id'] as String;
+      final memberName = record['member_name'] as String? ?? 'Unknown';
+      final amount = (record['amount'] as num).toDouble();
+
+      // Calculate days to payment (negative = early, positive = late)
+      final daysToPayment = paymentDate.difference(dueDate).inDays;
+      totalDaysToPayment += daysToPayment;
+
+      if (daysToPayment <= 0) {
+        onTimeCount++;
+      }
+
+      // Track top payers
+      if (payerMap.containsKey(memberId)) {
+        payerMap[memberId]!.paymentCount++;
+        payerMap[memberId]!.totalPaid += amount;
+      } else {
+        payerMap[memberId] = _TopPayerAccumulator(
+          memberName: memberName,
+          paymentCount: 1,
+          totalPaid: amount,
+        );
+      }
+    }
+
+    final onTimeRate = (onTimeCount / historyData.length) * 100;
+    final avgDays = totalDaysToPayment / historyData.length;
+
+    // Get top 3 payers
+    final topPayersList = payerMap.values
+        .map((acc) => TopPayerModel(
+              memberName: acc.memberName,
+              paymentCount: acc.paymentCount,
+              totalPaid: acc.totalPaid,
+            ))
+        .toList()
+      ..sort((a, b) => b.paymentCount.compareTo(a.paymentCount));
+
+    final topPayers = topPayersList.take(3).toList();
+
+    // Calculate overdue amount from members
+    final now = DateTime.now();
+    final overdueAmount = members
+        .where((m) => !m.hasPaid && m.dueDate.isBefore(now))
+        .fold<double>(0.0, (sum, m) => sum + m.amountToPay);
+
+    return PaymentAnalyticsModel(
+      onTimePaymentRate: onTimeRate,
+      averageDaysToPayment: avgDays,
+      topPayers: topPayers,
+      overdueAmount: overdueAmount,
+    );
+  }
+}
+
+// ========== Helper Classes for Accumulation ==========
+
+class _MonthlySpendingAccumulator {
+  final DateTime month;
+  double amountPaid;
+  int paymentCount;
+
+  _MonthlySpendingAccumulator({
+    required this.month,
+    required this.amountPaid,
+    required this.paymentCount,
+  });
+}
+
+class _SubscriptionSpendingAccumulator {
+  final String subscriptionId;
+  final String subscriptionName;
+  double totalAmountPaid;
+  int paymentCount;
+  final String color;
+
+  _SubscriptionSpendingAccumulator({
+    required this.subscriptionId,
+    required this.subscriptionName,
+    required this.totalAmountPaid,
+    required this.paymentCount,
+    required this.color,
+  });
+}
+
+class _TopPayerAccumulator {
+  final String memberName;
+  int paymentCount;
+  double totalPaid;
+
+  _TopPayerAccumulator({
+    required this.memberName,
+    required this.paymentCount,
+    required this.totalPaid,
+  });
 }

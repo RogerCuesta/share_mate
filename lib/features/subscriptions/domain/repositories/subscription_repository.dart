@@ -1,10 +1,12 @@
 import 'package:dartz/dartz.dart';
 
+import '../entities/analytics_data.dart';
 import '../entities/monthly_stats.dart';
 import '../entities/payment_history.dart';
 import '../entities/payment_stats.dart';
 import '../entities/subscription.dart';
 import '../entities/subscription_member.dart';
+import '../entities/time_range.dart';
 import '../failures/subscription_failure.dart';
 
 /// Repository interface for subscription operations
@@ -211,5 +213,25 @@ abstract class SubscriptionRepository {
     required String subscriptionId,
     required String subscriptionName,
     required List<PaymentHistory> history,
+  });
+
+  // ==========================================
+  // Analytics Dashboard
+  // ==========================================
+
+  /// Get comprehensive analytics data for dashboard
+  ///
+  /// Retrieves all analytics data including:
+  /// - Overview stats (total monthly cost, subscription count, members, average)
+  /// - Spending trends by month (from payment_history)
+  /// - Spending by subscription (from payment_history)
+  /// - Payment analytics (on-time rate, average days, top payers, overdue amount)
+  ///
+  /// Data is filtered by the provided time range.
+  /// Returns [AnalyticsData] if successful.
+  /// Returns [SubscriptionFailure] if operation fails.
+  Future<Either<SubscriptionFailure, AnalyticsData>> getAnalyticsData({
+    required String userId,
+    required TimeRange timeRange,
   });
 }

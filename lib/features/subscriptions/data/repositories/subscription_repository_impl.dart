@@ -2,15 +2,20 @@ import 'package:dartz/dartz.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../../../core/sync/payment_sync_queue.dart';
+import '../../domain/entities/analytics_data.dart';
+import '../../domain/entities/analytics_overview.dart';
 import '../../domain/entities/monthly_stats.dart';
+import '../../domain/entities/payment_analytics.dart';
 import '../../domain/entities/payment_history.dart';
 import '../../domain/entities/payment_stats.dart';
 import '../../domain/entities/subscription.dart';
 import '../../domain/entities/subscription_member.dart';
+import '../../domain/entities/time_range.dart';
 import '../../domain/failures/subscription_failure.dart';
 import '../../domain/repositories/subscription_repository.dart';
 import '../datasources/subscription_local_datasource.dart';
 import '../datasources/subscription_remote_datasource.dart';
+import '../models/analytics_data_model.dart';
 import '../models/subscription_member_model.dart';
 import '../models/subscription_model.dart';
 
@@ -784,5 +789,93 @@ class SubscriptionRepositoryImpl implements SubscriptionRepository {
   }) async {
     // TODO: Implement after creating CsvGenerator service
     return Left(SubscriptionFailure.serverError('CSV export not yet implemented'));
+  }
+
+  @override
+  Future<Either<SubscriptionFailure, AnalyticsData>> getAnalyticsData({
+    required String userId,
+    required TimeRange timeRange,
+  }) async {
+    try {
+      print('🔍 [SubscriptionRepository] Fetching analytics data');
+      print('   User: $userId');
+      print('   Time Range: ${timeRange.displayName}');
+
+      // Try remote first
+      final analyticsModel = await _remoteDataSource.getAnalyticsData(
+        userId: userId,
+        timeRange: timeRange,
+      );
+
+      // Optional: Cache analytics data locally
+      // await _localDataSource.cacheAnalyticsData(analyticsModel);
+
+      print('✅ [SubscriptionRepository] Analytics data fetched successfully');
+      return Right(analyticsModel.toEntity());
+    } on SubscriptionRemoteException catch (e) {
+      // Fallback: Calculate from cache
+      print('   ⚠️ Remote fetch failed: $e');
+      print('   📦 Calculating analytics from local cache...');
+
+      try {
+        final cachedAnalytics = await _calculateAnalyticsFromCache(
+          userId,
+          timeRange,
+        );
+        print('   ✅ Analytics calculated from cache');
+        return Right(cachedAnalytics);
+      } catch (localError) {
+        print('   ❌ Cache calculation failed: $localError');
+        return Left(SubscriptionFailure.cacheError(localError.toString()));
+      }
+    } catch (e) {
+      print('   ❌ Unexpected error: $e');
+      return Left(SubscriptionFailure.serverError(e.toString()));
+    }
+  }
+
+  /// Calculate analytics from local cache (offline fallback)
+  Future<AnalyticsData> _calculateAnalyticsFromCache(
+    String userId,
+    TimeRange timeRange,
+  ) async {
+    // Get cached subscriptions and members
+    final subscriptions =
+        await _localDataSource.getSubscriptionsByOwnerId(userId);
+    final members = await _localDataSource.getMembersByOwnerId(userId);
+
+    // Calculate overview from cached data
+    final activeSubscriptions =
+        subscriptions.where((s) => s.status == 'active').toList();
+
+    final totalMonthlyCost = activeSubscriptions.fold<double>(
+      0.0,
+      (sum, sub) {
+        final monthlyCost = sub.billingCycle == 'yearly'
+            ? sub.totalCost / 12
+            : sub.totalCost;
+        return sum + monthlyCost;
+      },
+    );
+
+    final totalMembers = members.length;
+
+    final averageCostPerSubscription = activeSubscriptions.isEmpty
+        ? 0.0
+        : totalMonthlyCost / activeSubscriptions.length;
+
+    // For offline mode, we can't calculate payment history analytics
+    // So we return empty/default values
+    return AnalyticsData(
+      overview: AnalyticsOverview(
+        totalMonthlyCost: totalMonthlyCost,
+        totalActiveSubscriptions: activeSubscriptions.length,
+        totalMembers: totalMembers,
+        averageCostPerSubscription: averageCostPerSubscription,
+      ),
+      spendingTrends: [], // Can't calculate without payment history
+      subscriptionSpending: [], // Can't calculate without payment history
+      paymentAnalytics: PaymentAnalytics.empty(),
+    );
   }
 }

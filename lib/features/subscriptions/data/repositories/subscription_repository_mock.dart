@@ -2,11 +2,15 @@
 
 import 'package:dartz/dartz.dart';
 import 'package:flutter_project_agents/features/subscriptions/data/datasources/subscription_seed_data.dart';
+import 'package:flutter_project_agents/features/subscriptions/domain/entities/analytics_data.dart';
+import 'package:flutter_project_agents/features/subscriptions/domain/entities/analytics_overview.dart';
 import 'package:flutter_project_agents/features/subscriptions/domain/entities/monthly_stats.dart';
+import 'package:flutter_project_agents/features/subscriptions/domain/entities/payment_analytics.dart';
 import 'package:flutter_project_agents/features/subscriptions/domain/entities/payment_history.dart';
 import 'package:flutter_project_agents/features/subscriptions/domain/entities/payment_stats.dart';
 import 'package:flutter_project_agents/features/subscriptions/domain/entities/subscription.dart';
 import 'package:flutter_project_agents/features/subscriptions/domain/entities/subscription_member.dart';
+import 'package:flutter_project_agents/features/subscriptions/domain/entities/time_range.dart';
 import 'package:flutter_project_agents/features/subscriptions/domain/failures/subscription_failure.dart';
 import 'package:flutter_project_agents/features/subscriptions/domain/repositories/subscription_repository.dart';
 import 'package:uuid/uuid.dart';
@@ -673,6 +677,60 @@ class SubscriptionRepositoryMock implements SubscriptionRepository {
 
     // Mock: Return fake file path
     return const Right('/mock/path/payment_history.csv');
+  }
+
+  @override
+  Future<Either<SubscriptionFailure, AnalyticsData>> getAnalyticsData({
+    required String userId,
+    required TimeRange timeRange,
+  }) async {
+    await _simulateDelay();
+
+    try {
+      // Get mock data
+      _cachedSubscriptions ??=
+          SubscriptionSeedData.getMockSubscriptions(userId);
+      _cachedMembers ??= SubscriptionSeedData.getMockPendingPayments();
+
+      // Calculate overview
+      final activeSubscriptions = _cachedSubscriptions!
+          .where((sub) => sub.status == SubscriptionStatus.active)
+          .toList();
+
+      final totalMonthlyCost = activeSubscriptions.fold<double>(
+        0,
+        (sum, sub) {
+          final monthlyCost = sub.billingCycle == BillingCycle.yearly
+              ? sub.totalCost / 12
+              : sub.totalCost;
+          return sum + monthlyCost;
+        },
+      );
+
+      final totalMembers = _cachedMembers!.length;
+      final averageCostPerSubscription = activeSubscriptions.isEmpty
+          ? 0.0
+          : totalMonthlyCost / activeSubscriptions.length;
+
+      final overview = AnalyticsOverview(
+        totalMonthlyCost: totalMonthlyCost,
+        totalActiveSubscriptions: activeSubscriptions.length,
+        totalMembers: totalMembers,
+        averageCostPerSubscription: averageCostPerSubscription,
+      );
+
+      // Mock analytics data with empty lists (no payment history in seed data)
+      final analyticsData = AnalyticsData(
+        overview: overview,
+        spendingTrends: [], // Empty for mock
+        subscriptionSpending: [], // Empty for mock
+        paymentAnalytics: PaymentAnalytics.empty(),
+      );
+
+      return Right(analyticsData);
+    } catch (e) {
+      return Left(SubscriptionFailure.serverError(e.toString()));
+    }
   }
 
   /// Reset all cached data (useful for testing)
