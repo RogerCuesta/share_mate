@@ -62,3 +62,94 @@ claude_files
 
 # Environment Variables
 .env
+
+# iOS/macOS Build Files
+ios/build/
+ios/Pods/
+ios/.symlinks/
+ios/Flutter/Flutter.framework
+ios/Flutter/Flutter.podspec
+ios/Runner.xcworkspace/xcuserdata/
+ios/Runner.xcodeproj/xcuserdata/
+ios/Runner.xcodeproj/project.xcworkspace/xcuserdata/
+macos/build/
+macos/Pods/
+macos/.symlinks/
+
+# Xcode
+*.pbxuser
+*.mode1v3
+*.mode2v3
+*.perspectivev3
+*.xccheckout
+*.moved-aside
+*.xcuserstate
+*.xcscmblueprint
+*.xcworkspace
+!default.xcworkspace
+xcuserdata/
+DerivedData/
+*.hmap
+*.ipa
+*.dSYM.zip
+*.dSYM
+
+# Android Build Files (additional)
+/android/.gradle/
+/android/captures/
+/android/local.properties
+/android/.externalNativeBuild/
+/android/.cxx/
+*.jks
+*.keystore
+
+# Web Build
+/web/build/
+
+# Windows Build
+/windows/build/
+
+# Linux Build
+/linux/build/
+
+# Temporary Files
+*.tmp
+*.temp
+*.cache
+.fvm/
+
+# Flutter Version Management
+.fvm/flutter_sdk
+
+# Firebase (if used)
+firebase_options.dart
+google-services.json
+GoogleService-Info.plist
+
+# Platform-specific files
+.flutter-plugins-dependencies
+.flutter-plugins
+.metadata
+
+# IDEs
+.vscode/launch.json
+.vscode/settings.json
+*.code-workspace
+
+# Test Coverage
+test/.test_coverage.dart
+coverage/lcov.info
+
+# Build artifacts
+*.app
+*.aab
+*.apk
+*.aar
+*.xcarchive
+
+# Logs
+logs/
+*.log.*
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
