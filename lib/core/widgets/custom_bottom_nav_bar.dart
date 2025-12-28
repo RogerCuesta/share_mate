@@ -28,60 +28,50 @@ class CustomBottomNavBar extends ConsumerWidget {
       child: ClipRRect(
         child: BackdropFilter(
           filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-          child: Container(
-            decoration: BoxDecoration(
-              border: Border(
-                top: BorderSide(
-                  color: Colors.white.withValues(alpha: 0.1),
-                  width: 1,
+          child: SizedBox(
+            height: 70,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                _NavBarItem(
+                  icon: Icons.home_outlined,
+                  activeIcon: Icons.home,
+                  label: 'Home',
+                  isActive: selectedIndex == 0,
+                  onTap: () => ref
+                      .read(selectedBottomNavIndexProvider.notifier)
+                      .setIndex(0),
                 ),
-              ),
-            ),
-            child: SizedBox(
-              height: 70,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  _NavBarItem(
-                    icon: Icons.home_outlined,
-                    activeIcon: Icons.home,
-                    label: 'Home',
-                    isActive: selectedIndex == 0,
-                    onTap: () => ref
-                        .read(selectedBottomNavIndexProvider.notifier)
-                        .setIndex(0),
-                  ),
-                  _NavBarItem(
-                    icon: Icons.people_outline,
-                    activeIcon: Icons.people,
-                    label: 'Friends',
-                    isActive: selectedIndex == 1,
-                    onTap: () => ref
-                        .read(selectedBottomNavIndexProvider.notifier)
-                        .setIndex(1),
-                  ),
-                  // Spacer for the notch/FAB
-                  const SizedBox(width: 48),
-                  _NavBarItem(
-                    icon: Icons.analytics_outlined,
-                    activeIcon: Icons.analytics,
-                    label: 'Analytics',
-                    isActive: selectedIndex == 2,
-                    onTap: () => ref
-                        .read(selectedBottomNavIndexProvider.notifier)
-                        .setIndex(2),
-                  ),
-                  _NavBarItem(
-                    icon: Icons.settings_outlined,
-                    activeIcon: Icons.settings,
-                    label: 'Settings',
-                    isActive: selectedIndex == 3,
-                    onTap: () => ref
-                        .read(selectedBottomNavIndexProvider.notifier)
-                        .setIndex(3),
-                  ),
-                ],
-              ),
+                _NavBarItem(
+                  icon: Icons.people_outline,
+                  activeIcon: Icons.people,
+                  label: 'Friends',
+                  isActive: selectedIndex == 1,
+                  onTap: () => ref
+                      .read(selectedBottomNavIndexProvider.notifier)
+                      .setIndex(1),
+                ),
+                // Spacer for the notch/FAB
+                const SizedBox(width: 48),
+                _NavBarItem(
+                  icon: Icons.analytics_outlined,
+                  activeIcon: Icons.analytics,
+                  label: 'Analytics',
+                  isActive: selectedIndex == 2,
+                  onTap: () => ref
+                      .read(selectedBottomNavIndexProvider.notifier)
+                      .setIndex(2),
+                ),
+                _NavBarItem(
+                  icon: Icons.settings_outlined,
+                  activeIcon: Icons.settings,
+                  label: 'Settings',
+                  isActive: selectedIndex == 3,
+                  onTap: () => ref
+                      .read(selectedBottomNavIndexProvider.notifier)
+                      .setIndex(3),
+                ),
+              ],
             ),
           ),
         ),
