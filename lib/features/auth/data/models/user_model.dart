@@ -2,7 +2,7 @@
 
 import 'package:flutter_project_agents/core/storage/hive_type_ids.dart';
 import 'package:flutter_project_agents/features/auth/domain/entities/user.dart';
-import 'package:hive/hive.dart';
+import 'package:hive_ce/hive.dart';
 
 part 'user_model.g.dart';
 

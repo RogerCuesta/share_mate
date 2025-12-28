@@ -1,6 +1,6 @@
 // lib/core/sync/friend_request_sync_queue.dart
 
-import 'package:hive/hive.dart';
+import 'package:hive_ce/hive.dart';
 
 import '../storage/hive_type_ids.dart';
 

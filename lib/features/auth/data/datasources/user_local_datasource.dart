@@ -6,7 +6,7 @@ import 'package:crypto/crypto.dart';
 import 'package:flutter_project_agents/core/storage/hive_service.dart';
 import 'package:flutter_project_agents/features/auth/data/models/user_credentials_model.dart';
 import 'package:flutter_project_agents/features/auth/data/models/user_model.dart';
-import 'package:hive/hive.dart';
+import 'package:hive_ce/hive.dart';
 
 /// Local data source for user data using Hive
 ///

@@ -15,7 +15,7 @@ import 'package:flutter_project_agents/features/subscriptions/data/models/paymen
 import 'package:flutter_project_agents/features/subscriptions/data/models/subscription_member_model.dart';
 import 'package:flutter_project_agents/features/subscriptions/data/models/subscription_model.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:hive_flutter/hive_flutter.dart';
+import 'package:hive_ce_flutter/hive_flutter.dart';
 
 /// HiveService manages Hive database initialization, box opening, and cleanup
 /// 

@@ -1,6 +1,6 @@
 // lib/features/friends/data/models/friendship_model.dart
 
-import 'package:hive/hive.dart';
+import 'package:hive_ce/hive.dart';
 
 import '../../../../core/storage/hive_type_ids.dart';
 import '../../domain/entities/friendship.dart';

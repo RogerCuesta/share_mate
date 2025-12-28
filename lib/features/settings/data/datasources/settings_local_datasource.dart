@@ -1,7 +1,7 @@
 // lib/features/settings/data/datasources/settings_local_datasource.dart
 
 import 'package:flutter_project_agents/core/storage/hive_service.dart';
-import 'package:hive/hive.dart';
+import 'package:hive_ce/hive.dart';
 
 import '../models/app_settings_model.dart';
 

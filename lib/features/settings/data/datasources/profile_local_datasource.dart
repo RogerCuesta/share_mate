@@ -1,7 +1,7 @@
 // lib/features/settings/data/datasources/profile_local_datasource.dart
 
 import 'package:flutter_project_agents/core/storage/hive_service.dart';
-import 'package:hive/hive.dart';
+import 'package:hive_ce/hive.dart';
 
 import '../models/user_profile_model.dart';
 

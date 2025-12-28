@@ -1,4 +1,4 @@
-import 'package:hive/hive.dart';
+import 'package:hive_ce/hive.dart';
 
 import '../models/payment_history_model.dart';
 import '../models/subscription_member_model.dart';
