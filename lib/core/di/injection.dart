@@ -38,6 +38,25 @@ import 'package:flutter_project_agents/features/friends/domain/usecases/reject_f
 import 'package:flutter_project_agents/features/friends/domain/usecases/remove_friend.dart';
 import 'package:flutter_project_agents/features/friends/domain/usecases/search_users.dart';
 import 'package:flutter_project_agents/features/friends/domain/usecases/send_friend_request.dart';
+import 'package:flutter_project_agents/features/settings/data/datasources/account_remote_datasource.dart';
+import 'package:flutter_project_agents/features/settings/data/datasources/profile_local_datasource.dart';
+import 'package:flutter_project_agents/features/settings/data/datasources/profile_remote_datasource.dart';
+import 'package:flutter_project_agents/features/settings/data/datasources/settings_local_datasource.dart';
+import 'package:flutter_project_agents/features/settings/data/repositories/account_repository_impl.dart';
+import 'package:flutter_project_agents/features/settings/data/repositories/profile_repository_impl.dart';
+import 'package:flutter_project_agents/features/settings/data/repositories/settings_repository_impl.dart';
+import 'package:flutter_project_agents/features/settings/domain/repositories/account_repository.dart';
+import 'package:flutter_project_agents/features/settings/domain/repositories/profile_repository.dart';
+import 'package:flutter_project_agents/features/settings/domain/repositories/settings_repository.dart';
+import 'package:flutter_project_agents/features/settings/domain/usecases/change_password.dart';
+import 'package:flutter_project_agents/features/settings/domain/usecases/delete_account.dart';
+import 'package:flutter_project_agents/features/settings/domain/usecases/delete_avatar.dart';
+import 'package:flutter_project_agents/features/settings/domain/usecases/get_profile.dart';
+import 'package:flutter_project_agents/features/settings/domain/usecases/get_settings.dart';
+import 'package:flutter_project_agents/features/settings/domain/usecases/save_settings.dart';
+import 'package:flutter_project_agents/features/settings/domain/usecases/send_email_verification.dart';
+import 'package:flutter_project_agents/features/settings/domain/usecases/update_profile.dart';
+import 'package:flutter_project_agents/features/settings/domain/usecases/upload_avatar.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -369,4 +388,153 @@ GetPendingRequests getPendingRequests(Ref ref) {
 @riverpod
 SearchUsers searchUsers(Ref ref) {
   return SearchUsers(ref.watch(friendshipRepositoryProvider));
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// SETTINGS FEATURE - DATA SOURCES
+// ═══════════════════════════════════════════════════════════════════════════
+
+/// Provider for ProfileLocalDataSource (Hive)
+///
+/// This data source manages user profile data in Hive cache.
+/// It MUST be initialized before use via initSettingsDependencies().
+///
+/// Note: This is a singleton that persists across provider rebuilds.
+@Riverpod(keepAlive: true)
+ProfileLocalDataSource profileLocalDataSource(Ref ref) {
+  throw UnimplementedError(
+    'profileLocalDataSource provider must be overridden in main.dart with the initialized instance',
+  );
+}
+
+/// Provider for SettingsLocalDataSource (Hive)
+///
+/// This data source manages app settings data in Hive cache.
+/// It MUST be initialized before use via initSettingsDependencies().
+///
+/// Note: This is a singleton that persists across provider rebuilds.
+@Riverpod(keepAlive: true)
+SettingsLocalDataSource settingsLocalDataSource(Ref ref) {
+  throw UnimplementedError(
+    'settingsLocalDataSource provider must be overridden in main.dart with the initialized instance',
+  );
+}
+
+/// Provider for ProfileRemoteDataSource (Supabase)
+///
+/// This data source manages profile operations with Supabase backend.
+/// Requires SupabaseService to be initialized.
+@riverpod
+ProfileRemoteDataSource profileRemoteDataSource(Ref ref) {
+  final client = ref.watch(supabaseClientProvider);
+  return ProfileRemoteDataSourceImpl(client: client);
+}
+
+/// Provider for AccountRemoteDataSource (Supabase Auth)
+///
+/// This data source manages account operations with Supabase Auth.
+/// Requires SupabaseService to be initialized.
+@riverpod
+AccountRemoteDataSource accountRemoteDataSource(Ref ref) {
+  final client = ref.watch(supabaseClientProvider);
+  return AccountRemoteDataSourceImpl(client: client);
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// SETTINGS FEATURE - REPOSITORIES
+// ═══════════════════════════════════════════════════════════════════════════
+
+/// Provider for ProfileRepository implementation
+///
+/// The implementation coordinates between:
+/// - ProfileRemoteDataSource (Supabase) for remote operations
+/// - ProfileLocalDataSource (Hive) for local cache
+///
+/// Implements offline-first strategy: tries Supabase first, falls back to cache.
+@riverpod
+ProfileRepository profileRepository(Ref ref) {
+  return ProfileRepositoryImpl(
+    remoteDataSource: ref.watch(profileRemoteDataSourceProvider),
+    localDataSource: ref.watch(profileLocalDataSourceProvider),
+  );
+}
+
+/// Provider for SettingsRepository implementation
+///
+/// The implementation manages app settings in local storage only.
+/// Settings are persisted in Hive and do not sync to Supabase.
+@riverpod
+SettingsRepository settingsRepository(Ref ref) {
+  return SettingsRepositoryImpl(
+    localDataSource: ref.watch(settingsLocalDataSourceProvider),
+  );
+}
+
+/// Provider for AccountRepository implementation
+///
+/// The implementation manages account operations via Supabase Auth.
+/// Handles password changes, email verification, and account deletion.
+@riverpod
+AccountRepository accountRepository(Ref ref) {
+  return AccountRepositoryImpl(
+    remoteDataSource: ref.watch(accountRemoteDataSourceProvider),
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// SETTINGS FEATURE - USE CASES
+// ═══════════════════════════════════════════════════════════════════════════
+
+/// Use case: Get user profile
+@riverpod
+GetProfile getProfile(Ref ref) {
+  return GetProfile(ref.watch(profileRepositoryProvider));
+}
+
+/// Use case: Update user profile
+@riverpod
+UpdateProfile updateProfile(Ref ref) {
+  return UpdateProfile(ref.watch(profileRepositoryProvider));
+}
+
+/// Use case: Upload avatar
+@riverpod
+UploadAvatar uploadAvatar(Ref ref) {
+  return UploadAvatar(ref.watch(profileRepositoryProvider));
+}
+
+/// Use case: Delete avatar
+@riverpod
+DeleteAvatar deleteAvatar(Ref ref) {
+  return DeleteAvatar(ref.watch(profileRepositoryProvider));
+}
+
+/// Use case: Get app settings
+@riverpod
+GetSettings getSettings(Ref ref) {
+  return GetSettings(ref.watch(settingsRepositoryProvider));
+}
+
+/// Use case: Save app settings
+@riverpod
+SaveSettings saveSettings(Ref ref) {
+  return SaveSettings(ref.watch(settingsRepositoryProvider));
+}
+
+/// Use case: Change password
+@riverpod
+ChangePassword changePassword(Ref ref) {
+  return ChangePassword(ref.watch(accountRepositoryProvider));
+}
+
+/// Use case: Send email verification
+@riverpod
+SendEmailVerification sendEmailVerification(Ref ref) {
+  return SendEmailVerification(ref.watch(accountRepositoryProvider));
+}
+
+/// Use case: Delete account
+@riverpod
+DeleteAccount deleteAccount(Ref ref) {
+  return DeleteAccount(ref.watch(accountRepositoryProvider));
 }

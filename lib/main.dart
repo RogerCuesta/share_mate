@@ -16,6 +16,12 @@ import 'package:flutter_project_agents/features/friends/data/models/friend_model
 import 'package:flutter_project_agents/features/friends/data/models/friendship_model.dart';
 import 'package:flutter_project_agents/features/friends/data/models/profile_model.dart';
 import 'package:flutter_project_agents/core/sync/friend_request_sync_queue.dart';
+import 'package:flutter_project_agents/features/settings/data/datasources/profile_local_datasource.dart';
+import 'package:flutter_project_agents/features/settings/data/datasources/settings_local_datasource.dart';
+import 'package:flutter_project_agents/features/settings/data/models/app_settings_model.dart';
+import 'package:flutter_project_agents/features/settings/data/models/user_profile_model.dart';
+import 'package:flutter_project_agents/features/settings/presentation/providers/theme_provider.dart';
+import 'package:flutter_project_agents/core/theme/app_theme.dart';
 import 'package:flutter_project_agents/routing/app_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -62,6 +68,13 @@ void main() async {
   final friendRequestSyncQueue = FriendRequestSyncQueueService();
   await friendRequestSyncQueue.init();
 
+  // 8. Initialize Settings data sources
+  final profileLocalDataSource = ProfileLocalDataSourceImpl();
+  await profileLocalDataSource.init();
+
+  final settingsLocalDataSource = SettingsLocalDataSourceImpl();
+  await settingsLocalDataSource.init();
+
   // Run the app with Riverpod and provider overrides
   runApp(
     ProviderScope(
@@ -71,6 +84,8 @@ void main() async {
         authLocalDataSourceProvider.overrideWithValue(authLocalDataSource),
         subscriptionLocalDataSourceProvider.overrideWithValue(subscriptionLocalDataSource),
         friendshipLocalDataSourceProvider.overrideWithValue(friendshipLocalDataSource),
+        profileLocalDataSourceProvider.overrideWithValue(profileLocalDataSource),
+        settingsLocalDataSourceProvider.overrideWithValue(settingsLocalDataSource),
       ],
       child: const MyApp(),
     ),
@@ -104,21 +119,14 @@ class MyApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final router = ref.watch(routerProvider);
+    final themeMode = ref.watch(themeProvider.notifier).flutterThemeMode;
 
     return MaterialApp.router(
       title: 'SubMate',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
-      ),
-      darkTheme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.deepPurple,
-          brightness: Brightness.dark,
-        ),
-        useMaterial3: true,
-      ),
+      themeMode: themeMode,
+      theme: AppTheme.lightTheme,
+      darkTheme: AppTheme.darkTheme,
       routerConfig: router,
     );
   }
