@@ -52,6 +52,17 @@ dependencies:
   # Internationalization and Formatting
   intl: ^0.19.0
 
+  # Image handling
+  image_picker: ^1.0.7
+  image: ^4.1.7
+  cached_network_image: ^3.3.1
+
+  # App info
+  package_info_plus: ^9.0.0
+
+  # URL launcher
+  url_launcher: ^6.2.4
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

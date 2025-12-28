@@ -7,6 +7,7 @@ import '../../domain/entities/analytics_data.dart';
 import '../../domain/entities/time_range.dart';
 import '../providers/analytics_provider.dart';
 import '../widgets/analytics/overview_cards_section.dart';
+import '../widgets/analytics/spending_distribution_chart.dart';
 
 /// Analytics Dashboard Screen
 ///
@@ -95,7 +96,13 @@ class AnalyticsScreen extends ConsumerWidget {
           child: SizedBox(height: 16),
         ),
 
-        // TODO: Payment Distribution Chart
+        // Payment Distribution Chart
+        SliverToBoxAdapter(
+          child: SpendingDistributionChart(
+            data: analytics.subscriptionSpending,
+          ),
+        ),
+
         const SliverToBoxAdapter(
           child: SizedBox(height: 16),
         ),

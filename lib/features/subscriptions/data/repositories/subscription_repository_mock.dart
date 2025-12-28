@@ -10,6 +10,7 @@ import 'package:flutter_project_agents/features/subscriptions/domain/entities/pa
 import 'package:flutter_project_agents/features/subscriptions/domain/entities/payment_stats.dart';
 import 'package:flutter_project_agents/features/subscriptions/domain/entities/subscription.dart';
 import 'package:flutter_project_agents/features/subscriptions/domain/entities/subscription_member.dart';
+import 'package:flutter_project_agents/features/subscriptions/domain/entities/subscription_spending.dart';
 import 'package:flutter_project_agents/features/subscriptions/domain/entities/time_range.dart';
 import 'package:flutter_project_agents/features/subscriptions/domain/failures/subscription_failure.dart';
 import 'package:flutter_project_agents/features/subscriptions/domain/repositories/subscription_repository.dart';
@@ -719,11 +720,30 @@ class SubscriptionRepositoryMock implements SubscriptionRepository {
         averageCostPerSubscription: averageCostPerSubscription,
       );
 
-      // Mock analytics data with empty lists (no payment history in seed data)
+      // Generate mock subscription spending data from active subscriptions
+      final subscriptionSpending = activeSubscriptions.map((sub) {
+        // Calculate monthly cost (normalize yearly to monthly)
+        final monthlyCost = sub.billingCycle == BillingCycle.yearly
+            ? sub.totalCost / 12
+            : sub.totalCost;
+
+        // Mock payment count (simulate 1-6 payments per subscription)
+        final paymentCount = (monthlyCost * 0.5).round() + 1;
+
+        return SubscriptionSpending(
+          subscriptionId: sub.id,
+          subscriptionName: sub.name,
+          totalAmountPaid: monthlyCost,
+          paymentCount: paymentCount,
+          color: sub.color,
+        );
+      }).toList();
+
+      // Mock analytics data with generated subscription spending
       final analyticsData = AnalyticsData(
         overview: overview,
-        spendingTrends: [], // Empty for mock
-        subscriptionSpending: [], // Empty for mock
+        spendingTrends: [], // Empty for mock (no payment history)
+        subscriptionSpending: subscriptionSpending,
         paymentAnalytics: PaymentAnalytics.empty(),
       );
 

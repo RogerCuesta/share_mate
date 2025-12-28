@@ -5,6 +5,8 @@ import 'dart:convert';
 import 'package:flutter_project_agents/core/sync/payment_sync_queue.dart';
 import 'package:flutter_project_agents/features/auth/data/models/user_credentials_model.dart';
 import 'package:flutter_project_agents/features/auth/data/models/user_model.dart';
+import 'package:flutter_project_agents/features/settings/data/models/app_settings_model.dart';
+import 'package:flutter_project_agents/features/settings/data/models/user_profile_model.dart';
 import 'package:flutter_project_agents/features/subscriptions/data/models/payment_history_model.dart';
 import 'package:flutter_project_agents/features/subscriptions/data/models/subscription_member_model.dart';
 import 'package:flutter_project_agents/features/subscriptions/data/models/subscription_model.dart';
@@ -34,6 +36,8 @@ class HiveService {
     Hive
       ..registerAdapter(UserModelAdapter())
       ..registerAdapter(UserCredentialsModelAdapter())
+      ..registerAdapter(UserProfileModelAdapter())
+      ..registerAdapter(AppSettingsModelAdapter())
       ..registerAdapter(SubscriptionModelAdapter())
       ..registerAdapter(SubscriptionMemberModelAdapter())
       ..registerAdapter(PaymentHistoryModelAdapter())
