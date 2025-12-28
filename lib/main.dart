@@ -20,6 +20,7 @@ import 'package:flutter_project_agents/features/settings/data/datasources/profil
 import 'package:flutter_project_agents/features/settings/data/datasources/settings_local_datasource.dart';
 import 'package:flutter_project_agents/features/settings/data/models/app_settings_model.dart';
 import 'package:flutter_project_agents/features/settings/data/models/user_profile_model.dart';
+import 'package:flutter_project_agents/features/settings/domain/entities/app_settings.dart';
 import 'package:flutter_project_agents/features/settings/presentation/providers/theme_provider.dart';
 import 'package:flutter_project_agents/core/theme/app_theme.dart';
 import 'package:flutter_project_agents/routing/app_router.dart';
@@ -119,7 +120,13 @@ class MyApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final router = ref.watch(routerProvider);
-    final themeMode = ref.watch(themeProvider.notifier).flutterThemeMode;
+    final currentTheme = ref.watch(themeProvider);
+
+    final themeMode = switch (currentTheme) {
+      AppThemeMode.light => ThemeMode.light,
+      AppThemeMode.dark => ThemeMode.dark,
+      AppThemeMode.system => ThemeMode.system,
+    };
 
     return MaterialApp.router(
       title: 'SubMate',
