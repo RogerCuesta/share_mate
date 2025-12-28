@@ -3,6 +3,7 @@
 import 'dart:convert';
 
 import 'package:crypto/crypto.dart';
+import 'package:flutter_project_agents/core/storage/hive_service.dart';
 import 'package:flutter_project_agents/features/auth/data/models/user_credentials_model.dart';
 import 'package:flutter_project_agents/features/auth/data/models/user_model.dart';
 import 'package:hive/hive.dart';
@@ -52,9 +53,9 @@ class UserLocalDataSourceImpl implements UserLocalDataSource {
 
   /// Initialize boxes (call this after Hive.init)
   Future<void> init() async {
-    _usersBox = await Hive.openBox<UserModel>(_usersBoxName);
-    _credentialsBox = await Hive.openBox<UserCredentialsModel>(_credentialsBoxName);
-    _currentUserIdBox = await Hive.openBox<String>(_currentUserIdBoxName);
+    _usersBox = await HiveService.openBox<UserModel>(_usersBoxName, encrypted: true);
+    _credentialsBox = await HiveService.openBox<UserCredentialsModel>(_credentialsBoxName, encrypted: true);
+    _currentUserIdBox = await HiveService.openBox<String>(_currentUserIdBoxName, encrypted: true);
   }
 
   @override

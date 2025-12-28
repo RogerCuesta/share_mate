@@ -1,5 +1,6 @@
 // lib/features/friends/data/datasources/friendship_local_datasource.dart
 
+import 'package:flutter_project_agents/core/storage/hive_service.dart';
 import 'package:hive/hive.dart';
 
 import '../models/friend_model.dart';
@@ -81,12 +82,12 @@ class FriendshipLocalDataSourceImpl implements FriendshipLocalDataSource {
 
   @override
   Future<void> init() async {
-    _friendsBox = await Hive.openBox<FriendModel>(_friendsBoxName);
-    _pendingRequestsBox = await Hive.openBox<FriendModel>(_pendingRequestsBoxName);
-    _friendshipsBox = await Hive.openBox<FriendshipModel>(_friendshipsBoxName);
-    _profilesBox = await Hive.openBox<ProfileModel>(_profilesBoxName);
-    _myProfileBox = await Hive.openBox<ProfileModel>(_myProfileBoxName);
-    _searchCacheBox = await Hive.openBox<List<dynamic>>(_searchCacheBoxName);
+    _friendsBox = await HiveService.openBox<FriendModel>(_friendsBoxName, encrypted: true);
+    _pendingRequestsBox = await HiveService.openBox<FriendModel>(_pendingRequestsBoxName, encrypted: true);
+    _friendshipsBox = await HiveService.openBox<FriendshipModel>(_friendshipsBoxName, encrypted: true);
+    _profilesBox = await HiveService.openBox<ProfileModel>(_profilesBoxName, encrypted: true);
+    _myProfileBox = await HiveService.openBox<ProfileModel>(_myProfileBoxName, encrypted: true);
+    _searchCacheBox = await HiveService.openBox<List<dynamic>>(_searchCacheBoxName, encrypted: true);
   }
 
   Box<FriendModel> get _ensureFriendsBox {

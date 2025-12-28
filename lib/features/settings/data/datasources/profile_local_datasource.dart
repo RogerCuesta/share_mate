@@ -1,5 +1,6 @@
 // lib/features/settings/data/datasources/profile_local_datasource.dart
 
+import 'package:flutter_project_agents/core/storage/hive_service.dart';
 import 'package:hive/hive.dart';
 
 import '../models/user_profile_model.dart';
@@ -21,7 +22,7 @@ class ProfileLocalDataSourceImpl implements ProfileLocalDataSource {
   @override
   Future<void> init() async {
     if (_box == null || !_box!.isOpen) {
-      _box = await Hive.openBox<UserProfileModel>(_boxName);
+      _box = await HiveService.openBox<UserProfileModel>(_boxName, encrypted: true);
     }
   }
 

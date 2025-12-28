@@ -1,5 +1,6 @@
 // lib/features/settings/data/datasources/settings_local_datasource.dart
 
+import 'package:flutter_project_agents/core/storage/hive_service.dart';
 import 'package:hive/hive.dart';
 
 import '../models/app_settings_model.dart';
@@ -23,7 +24,7 @@ class SettingsLocalDataSourceImpl implements SettingsLocalDataSource {
   @override
   Future<void> init() async {
     if (_box == null || !_box!.isOpen) {
-      _box = await Hive.openBox<AppSettingsModel>(_boxName);
+      _box = await HiveService.openBox<AppSettingsModel>(_boxName, encrypted: true);
     }
   }
 
