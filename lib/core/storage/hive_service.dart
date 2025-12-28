@@ -2,9 +2,13 @@
 
 import 'dart:convert';
 
+import 'package:flutter_project_agents/core/sync/friend_request_sync_queue.dart';
 import 'package:flutter_project_agents/core/sync/payment_sync_queue.dart';
 import 'package:flutter_project_agents/features/auth/data/models/user_credentials_model.dart';
 import 'package:flutter_project_agents/features/auth/data/models/user_model.dart';
+import 'package:flutter_project_agents/features/friends/data/models/friend_model.dart';
+import 'package:flutter_project_agents/features/friends/data/models/friendship_model.dart';
+import 'package:flutter_project_agents/features/friends/data/models/profile_model.dart';
 import 'package:flutter_project_agents/features/settings/data/models/app_settings_model.dart';
 import 'package:flutter_project_agents/features/settings/data/models/user_profile_model.dart';
 import 'package:flutter_project_agents/features/subscriptions/data/models/payment_history_model.dart';
@@ -41,7 +45,11 @@ class HiveService {
       ..registerAdapter(SubscriptionModelAdapter())
       ..registerAdapter(SubscriptionMemberModelAdapter())
       ..registerAdapter(PaymentHistoryModelAdapter())
-      ..registerAdapter(PaymentSyncOperationAdapter());
+      ..registerAdapter(PaymentSyncOperationAdapter())
+      ..registerAdapter(ProfileModelAdapter())
+      ..registerAdapter(FriendshipModelAdapter())
+      ..registerAdapter(FriendModelAdapter())
+      ..registerAdapter(FriendRequestSyncOperationAdapter());
   }
   
   /// Close all Hive boxes
