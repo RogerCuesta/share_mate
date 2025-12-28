@@ -26,7 +26,7 @@ class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
       final response = await client
           .from('profiles')
           .select()
-          .eq('id', userId)
+          .eq('user_id', userId)
           .single();
 
       return UserProfileModel.fromJson(response);
@@ -41,7 +41,7 @@ class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
       final response = await client
           .from('profiles')
           .update(profile.toJson())
-          .eq('id', profile.userId)
+          .eq('user_id', profile.userId)
           .select()
           .single();
 

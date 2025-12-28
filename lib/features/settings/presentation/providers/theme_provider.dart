@@ -12,7 +12,7 @@ part 'theme_provider.g.dart';
 ///
 /// Manages the current theme mode (light/dark/system) and persists
 /// changes to local storage via AppSettings.
-@riverpod
+@Riverpod(keepAlive: true)
 class Theme extends _$Theme {
   @override
   AppThemeMode build() {

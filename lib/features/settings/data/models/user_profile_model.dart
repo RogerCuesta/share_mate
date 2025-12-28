@@ -74,7 +74,7 @@ class UserProfileModel extends HiveObject {
   /// Create model from JSON (Supabase response)
   factory UserProfileModel.fromJson(Map<String, dynamic> json) =>
       UserProfileModel(
-        userId: json['id'] as String,
+        userId: json['user_id'] as String,
         email: json['email'] as String,
         fullName: json['full_name'] as String? ?? '',
         avatarUrl: json['avatar_url'] as String?,
@@ -88,11 +88,10 @@ class UserProfileModel extends HiveObject {
 
   /// Convert model to JSON (for Supabase update)
   Map<String, dynamic> toJson() => {
-        'id': userId,
+        'user_id': userId,
         'email': email,
         'full_name': fullName,
         'avatar_url': avatarUrl,
-        'bio': bio,
         'is_discoverable': isDiscoverable,
       };
 }
