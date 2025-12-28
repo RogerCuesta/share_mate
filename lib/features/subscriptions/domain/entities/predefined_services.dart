@@ -1,18 +1,16 @@
 // lib/features/subscriptions/domain/entities/predefined_services.dart
 
-import 'package:flutter/material.dart';
-
 /// Predefined subscription service with icon and color
 class PredefinedService {
   final String name;
   final String color;
-  final IconData? icon;
+  final String? iconName;
   final String? iconText;
 
   const PredefinedService({
     required this.name,
     required this.color,
-    this.icon,
+    this.iconName,
     this.iconText,
   });
 }
@@ -31,7 +29,7 @@ class PredefinedServices {
     PredefinedService(
       name: 'Spotify',
       color: '#1DB954',
-      icon: Icons.music_note,
+      iconName: 'music_note',
     ),
     PredefinedService(
       name: 'HBO Max',
@@ -46,7 +44,7 @@ class PredefinedServices {
     PredefinedService(
       name: 'Amazon Prime',
       color: '#FF9900',
-      icon: Icons.shopping_bag,
+      iconName: 'shopping_bag',
     ),
     PredefinedService(
       name: 'Hulu',
@@ -61,7 +59,7 @@ class PredefinedServices {
     PredefinedService(
       name: 'Custom',
       color: '#666666',
-      icon: Icons.add_circle_outline,
+      iconName: 'add_circle_outline',
     ),
   ];
 

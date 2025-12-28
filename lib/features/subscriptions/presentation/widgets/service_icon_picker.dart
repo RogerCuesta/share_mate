@@ -130,10 +130,24 @@ class _ServiceIconItem extends StatelessWidget {
 
     // Use icon if no text is provided
     return Icon(
-      service.icon ?? Icons.add_circle_outline,
+      _getIconFromName(service.iconName),
       color: Colors.white,
       size: 32,
     );
+  }
+
+  /// Map icon name string to IconData
+  IconData _getIconFromName(String? iconName) {
+    switch (iconName) {
+      case 'music_note':
+        return Icons.music_note;
+      case 'shopping_bag':
+        return Icons.shopping_bag;
+      case 'add_circle_outline':
+        return Icons.add_circle_outline;
+      default:
+        return Icons.help_outline;
+    }
   }
 
   /// Calculate appropriate font size based on text length
