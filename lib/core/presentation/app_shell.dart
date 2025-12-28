@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_project_agents/core/widgets/custom_bottom_nav_bar.dart';
 import 'package:flutter_project_agents/features/home/presentation/screens/home_screen.dart';
 import 'package:flutter_project_agents/features/friends/presentation/screens/friends_screen.dart';
+import 'package:flutter_project_agents/features/settings/presentation/screens/settings_screen.dart';
 import 'package:flutter_project_agents/features/subscriptions/presentation/providers/subscriptions_provider.dart';
 import 'package:flutter_project_agents/features/subscriptions/presentation/screens/analytics_screen.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -37,7 +38,7 @@ class AppShell extends ConsumerWidget {
           HomeScreen(),
           FriendsScreen(),
           AnalyticsScreen(),
-          _SettingsScreen(),
+          SettingsScreen(),
         ],
       ),
       floatingActionButton: FloatingActionButton(
@@ -179,83 +180,6 @@ class _AnalyticsScreen extends StatelessWidget {
             // Description
             Text(
               'Track your spending and subscription trends',
-              style: TextStyle(
-                color: Colors.grey[400],
-                fontSize: 16,
-              ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 8),
-
-            // Coming soon badge
-            Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 16,
-                vertical: 8,
-              ),
-              decoration: BoxDecoration(
-                color: const Color(0xFF6C63FF).withValues(alpha: 0.2),
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: const Text(
-                'COMING SOON',
-                style: TextStyle(
-                  color: Color(0xFF6C63FF),
-                  fontSize: 12,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 1,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-/// Settings screen placeholder
-///
-/// TODO: Implement user settings and preferences
-class _SettingsScreen extends StatelessWidget {
-  const _SettingsScreen();
-
-  @override
-  Widget build(BuildContext context) {
-    return SafeArea(
-      child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            // Icon
-            Container(
-              padding: const EdgeInsets.all(32),
-              decoration: const BoxDecoration(
-                color: Color(0xFF2A2A3E),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                Icons.settings_outlined,
-                size: 80,
-                color: Colors.grey[400],
-              ),
-            ),
-            const SizedBox(height: 32),
-
-            // Title
-            const Text(
-              'Settings',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 12),
-
-            // Description
-            Text(
-              'Manage your account and preferences',
               style: TextStyle(
                 color: Colors.grey[400],
                 fontSize: 16,
