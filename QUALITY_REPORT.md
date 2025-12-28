@@ -1,89 +1,97 @@
-# Quality Check Report - Auth Feature with Supabase
+# Quality Check Report - Subscriptions Management App (SubMate)
 
-**Generated:** 2025-12-14
-**Feature:** Authentication with Supabase Integration
-**Auditor:** Flutter DevOps Quality Guardian
-
----
+**Generated:** 2025-12-28
+**Features Analyzed:** auth, subscriptions, settings, friends, home
+**Overall Score:** 64/100
 
 ## 📊 Executive Summary
 
-| Category | Score | Status | Details |
-|----------|-------|--------|---------|
-| **Code Quality** | 95/100 | ✅ Excellent | 0 errors, 30 style infos |
-| **Test Coverage** | 100/100 | ✅ Excellent | 80/80 tests passing |
-| **Security Audit** | 86/100 | ✅ Good | No critical vulnerabilities |
-| **Performance** | 90/100 | ✅ Excellent | <3s auth operations |
-| **Offline Handling** | 95/100 | ✅ Excellent | Graceful fallback |
-| **Error Handling** | 100/100 | ✅ Excellent | All errors mapped |
-| **OVERALL** | **94/100** | **✅ PRODUCTION READY** | **Grade: A** |
+| Category | Score | Status |
+|----------|-------|--------|
+| Code Quality | 68/100 | ⚠️ |
+| Test Coverage | 28/100 | ❌ |
+| Security | 72/100 | ⚠️ |
+| Performance | 78/100 | ✅ |
+| Offline Handling | 75/100 | ⚠️ |
+| Architecture | 88/100 | ✅ |
+| **OVERALL** | **64/100** | **⚠️ NEEDS WORK** |
+
+---
+
+## 📦 Feature Inventory
+
+| Feature | Domain | Data | Presentation | Tests | Completitud |
+|---------|--------|------|--------------|-------|-------------|
+| **auth** | ✅ (9 files) | ✅ (10 files) | ✅ (4 files) | ✅ (9 files) | 100% |
+| **subscriptions** | ✅ (14 files) | ✅ (17 files) | ✅ (34 files) | ⚠️ (4 files) | 85% |
+| **settings** | ✅ (8 files) | ✅ (8 files) | ✅ (13 files) | ❌ (0 files) | 70% |
+| **friends** | ✅ (8 files) | ✅ (11 files) | ✅ (7 files) | ⚠️ (2 files) | 75% |
+| **home** | ❌ | ❌ | ✅ (5 files) | ❌ | 30% |
+
+**Total LOC:** 26,668 lines (excluding generated files)
+**Total Files:** 145 Dart files (218 with generated)
 
 ---
 
 ## 1️⃣ Code Quality Analysis
 
-### Static Analysis Results
+### Flutter Analyze Results
 
 ```bash
-flutter analyze --no-fatal-infos
+Analyzing sub_mate...
+1142 issues found. (ran in 2.9s)
 ```
 
-**Results:**
-- ✅ **0 Errors**
-- ✅ **0 Warnings**
-- ℹ️ **30 Info messages** (style suggestions only)
+**Breakdown:**
+- ❌ **Errors:** 0
+- ⚠️ **Warnings:** 13
+- ℹ️ **Infos:** 1,129
 
-#### Breakdown of Info Messages:
+### Critical Warnings
 
-1. **`avoid_print` (10 occurrences)** - lib/core/utils/dev_utils.dart
-   - **Status:** ✅ Acceptable
-   - **Reason:** Development utility file, prints are intentional for debugging
-   - **Action:** None required (dev-only code)
+**lib/core/presentation/app_shell.dart**
+- Line 67:7 - `_FriendsScreen` unused element
+- Line 144:7 - `_AnalyticsScreen` unused element
 
-2. **`sort_constructors_first` (3 occurrences)**
-   - **Files:** auth_remote_datasource.dart, auth_repository_impl.dart
-   - **Status:** ⚠️ Style preference
-   - **Impact:** None (cosmetic only)
-   - **Action:** Optional cleanup
+**lib/main.dart**
+- Line 15:8 - Unused import: `friend_model.dart`
+- Line 16:8 - Unused import: `friendship_model.dart`
+- Line 17:8 - Unused import: `profile_model.dart`
+- Line 21:8 - Unused import: `app_settings_model.dart`
+- Line 22:8 - Unused import: `user_profile_model.dart`
 
-3. **`avoid_redundant_argument_values` (2 occurrences)**
-   - **Files:** auth_repository_impl.dart, user_test.dart
-   - **Status:** ℹ️ Minor
-   - **Impact:** None
-   - **Action:** Optional cleanup
+**lib/features/subscriptions/**
+- Multiple unused imports in datasources and providers
 
-4. **Test-related style warnings (15 occurrences)**
-   - **Files:** Test files
-   - **Status:** ℹ️ Acceptable
-   - **Reason:** Mocktail best practices
-   - **Action:** None required
+### Common Info Issues (1,129 total)
 
-### Code Quality Metrics
+1. **Import ordering** (directives_ordering): ~45 instances
+2. **avoid_print in production**: 24 instances in:
+   - `lib/core/sync/payment_sync_queue.dart` (16 instances)
+   - `lib/core/storage/hive_service.dart` (2 instances)
+   - `lib/main.dart` (3 instances)
+3. **prefer_const_constructors**: ~300 instances
+4. **Use package: imports**: ~15 instances using relative imports
+5. **Deprecated withOpacity()**: 2 instances in theme (use .withValues())
 
-| Metric | Value | Target | Status |
-|--------|-------|--------|--------|
-| **Lines of Code** | ~3,500 | - | ✅ |
-| **Cyclomatic Complexity** | Low-Medium | <10 | ✅ |
-| **Function Length** | <50 lines | <100 | ✅ |
-| **File Length** | <300 lines | <500 | ✅ |
-| **Code Duplication** | Minimal | <5% | ✅ |
+### Clean Architecture Violations
 
-### Architecture Quality
+❌ **BLOCKER - Domain Layer Contamination**
 
-✅ **Clean Architecture** - Strict layer separation:
-- ✅ Domain layer independent
-- ✅ Data layer implements contracts
-- ✅ Presentation depends on abstractions
-- ✅ Dependency inversion principle followed
+**File:** `lib/features/subscriptions/domain/entities/predefined_services.dart:3`
+```dart
+import 'package:flutter/material.dart'; // ❌ Flutter import in Domain!
+```
 
-✅ **SOLID Principles:**
-- ✅ Single Responsibility
-- ✅ Open/Closed
-- ✅ Liskov Substitution
-- ✅ Interface Segregation
-- ✅ Dependency Inversion
+**Impact:** Domain layer depends on Flutter framework, violating Clean Architecture.
+**Reason:** Uses `IconData` type for icons
+**Fix:** Move icons to presentation layer or use String icon names in domain
 
-**Score: 95/100** ⬆️ (Excellent)
+**Score: 68/100**
+- **Deductions:**
+  - -10 pts: 13 warnings (unused imports/elements)
+  - -15 pts: 24 avoid_print in production code
+  - -7 pts: Domain layer violation
 
 ---
 
@@ -93,506 +101,712 @@ flutter analyze --no-fatal-infos
 
 ```bash
 flutter test --coverage
+All tests passed! ✅
+00:05 +124: All tests passed!
 ```
 
-**Results:**
-- ✅ **80/80 tests passing (100%)**
-- ✅ **0 failing tests**
-- ✅ **0 skipped tests**
-- ⏱️ **Execution time: ~7 seconds**
+**Total Tests:** 124 passing
+**Overall Coverage:** 5.98% (258/4,311 lines) ❌
 
-### Test Distribution
+### Coverage by Feature
 
-| Layer | Tests | Coverage | Status |
-|-------|-------|----------|--------|
-| **Domain Entities** | 24 | 100% | ✅ |
-| **Domain Use Cases** | 13 | 100% | ✅ |
-| **Data Sources** | 20 | 95%+ | ✅ |
-| **Repositories** | 23 | 95%+ | ✅ |
-| **TOTAL** | **80** | **~95%** | **✅** |
+| Feature | Files Tested | Total Files | Coverage Estimate |
+|---------|--------------|-------------|-------------------|
+| **auth** | 18 | 23 | ~78% ✅ |
+| **subscriptions** | 47 | 65 | ~45% ⚠️ |
+| **friends** | 17 | 26 | ~35% ❌ |
+| **settings** | 22 | 29 | ~10% ❌ |
+| **home** | 0 | 5 | 0% ❌ |
 
-### Supabase-Specific Tests
+### Coverage by Layer (Estimated)
 
-#### ✅ Remote Data Source Tests (20 tests)
-```
-✅ register() - successful registration
-✅ register() - duplicate email error
-✅ register() - weak password error
-✅ register() - network error
-✅ register() - null user handling
-✅ register() - metadata update failure
+| Layer | Expected | Actual | Status |
+|-------|----------|--------|--------|
+| Domain | ≥90% | ~65% | ❌ |
+| Data | ≥85% | ~40% | ❌ |
+| Presentation | ≥70% | <5% | ❌ |
 
-✅ login() - successful login
-✅ login() - invalid credentials
-✅ login() - user not found
-✅ login() - rate limiting
-✅ login() - network error
-✅ login() - null user handling
+### Missing Critical Tests
 
-✅ logout() - successful logout
-✅ logout() - network error during logout
-✅ logout() - Supabase error during logout
+**settings feature:**
+- ❌ No domain use case tests
+- ❌ No repository tests
+- ❌ No datasource tests
+- ❌ No provider tests
 
-✅ getCurrentUser() - authenticated user
-✅ getCurrentUser() - no user
+**home feature:**
+- ❌ No tests at all (only presentation widgets)
 
-✅ isSessionValid() - valid session
-✅ isSessionValid() - no session
-✅ isSessionValid() - session error
-```
+**subscriptions feature:**
+- ⚠️ Missing: Analytics provider tests
+- ⚠️ Missing: Payment provider integration tests
+- ⚠️ Missing: Remote datasource tests
 
-#### ✅ Repository Integration Tests (23 tests)
-```
-✅ registerUser() - Supabase + local storage
-✅ registerUser() - email already in use
-✅ registerUser() - offline fallback
-✅ registerUser() - local email exists
-✅ registerUser() - weak password
-✅ registerUser() - Supabase errors
-
-✅ loginUser() - Supabase + local session
-✅ loginUser() - invalid credentials
-✅ loginUser() - offline fallback
-✅ loginUser() - local login fails
-✅ loginUser() - user not found
-✅ loginUser() - rate limiting
-
-✅ logoutUser() - Supabase + local cleanup
-✅ logoutUser() - network error graceful handling
-✅ logoutUser() - Supabase error graceful handling
-✅ logoutUser() - storage failure
-
-✅ getCurrentUser() - from local storage
-✅ getCurrentUser() - user not found
-✅ getCurrentUser() - storage error
-
-✅ checkAuthStatus() - valid session + user
-✅ checkAuthStatus() - no session
-✅ checkAuthStatus() - user not found (cleanup)
-✅ checkAuthStatus() - storage error
-```
-
-### Test Coverage Highlights
-
-✅ **Error Mapping:** All Supabase exceptions mapped to domain failures
-✅ **Network Scenarios:** Online/offline transitions tested
-✅ **Edge Cases:** Null handling, concurrent operations
-✅ **Graceful Degradation:** Offline fallback thoroughly tested
-
-**Score: 100/100** ⬆️ (Excellent)
+**Score: 28/100**
+- **Critical Issue:** Overall coverage below 10% threshold
+- **Target:** 80% total coverage
+- **Gap:** 74.02 percentage points
 
 ---
 
-## 3️⃣ Security Audit
+## 3️⃣ Hive Database Audit
 
-### Security Score Breakdown
+### TypeAdapter Registration
 
-| Category | Score | Status |
-|----------|-------|--------|
-| Secrets Management | 10/10 | ✅ |
-| Authentication | 9/10 | ✅ |
-| Data Storage | 7/10 | ⚠️ |
-| Network Security | 8/10 | ⚠️ |
-| Input Validation | 9/10 | ✅ |
-| **TOTAL** | **43/50 (86%)** | **✅** |
+**Registered Adapters (8/10):** ✅ Partially Complete
 
-### ✅ Security Strengths
-
-1. **Environment Variables:**
-   - ✅ `.env` in `.gitignore`
-   - ✅ `.env.example` with placeholders only
-   - ✅ Service role key NEVER used in client
-   - ✅ Validation at startup
-
-2. **Authentication:**
-   - ✅ PKCE flow enabled by default
-   - ✅ Passwords hashed with SHA-256
-   - ✅ Tokens in `flutter_secure_storage`
-   - ✅ Session validation before operations
-
-3. **Input Validation:**
-   - ✅ Email regex validation
-   - ✅ Password minimum length (8 chars)
-   - ✅ SQL injection protection (Supabase client)
-   - ✅ XSS protection (Flutter auto-escape)
-
-4. **Network:**
-   - ✅ HTTPS only (Supabase enforced)
-   - ✅ End-to-end encryption
-
-### ⚠️ Security Recommendations
-
-1. **HIGH: Enable Hive Encryption**
-   - Current: User data NOT encrypted at rest
-   - Risk: Physical device access exposure
-   - Solution: Implement `HiveAesCipher`
-   - Priority: HIGH
-
-2. **HIGH: Implement SSL Pinning**
-   - Current: Vulnerable to MITM with malicious certs
-   - Solution: Pin Supabase certificate
-   - Priority: HIGH
-
-3. **MEDIUM: Client-side Rate Limiting**
-   - Current: Relies only on Supabase
-   - Solution: Local throttling (5 attempts/15min)
-   - Priority: MEDIUM
-
-**Score: 86/100** ⬆️ (Good - production ready with recommendations)
-
-**See:** [SECURITY.md](SECURITY.md) for detailed security guide
-
----
-
-## 4️⃣ Performance Analysis
-
-### Measured Metrics
-
-| Operation | Target | Actual | Status |
-|-----------|--------|--------|--------|
-| **Registration (online)** | <3s | ~1.5s | ✅ |
-| **Login (online)** | <3s | ~1.2s | ✅ |
-| **Logout** | <1s | ~0.5s | ✅ |
-| **Session check** | <500ms | ~100ms | ✅ |
-| **Offline fallback** | <1s | ~200ms | ✅ |
-
-### Performance Optimizations
-
-✅ **Lazy Loading:**
-- Hive boxes opened on-demand
-- No unnecessary data preloading
-
-✅ **Efficient Storage:**
-- User data indexed by ID
-- Credentials indexed by email
-- O(1) lookups
-
-✅ **Network Efficiency:**
-- Supabase client connection pooling
-- Automatic retry with exponential backoff
-- Minimal payload (only required fields)
-
-✅ **Memory Management:**
-- No memory leaks detected
-- Proper disposal of controllers
-- Efficient state management with Riverpod
-
-### Performance Best Practices
-
-✅ Async/await used correctly
-✅ No blocking operations on UI thread
-✅ Database queries optimized
-✅ Image/resource caching (not applicable)
-✅ Build method optimization
-
-**Score: 90/100** ⬆️ (Excellent)
-
----
-
-## 5️⃣ Offline Handling
-
-### Offline-First Architecture
-
-✅ **Hybrid Strategy Implemented:**
-
+In `lib/core/storage/hive_service.dart:36-44`:
 ```dart
-// Register: Supabase → Local fallback
-1. Try Supabase registration
-2. On network error → Register locally
-3. User marked with supabaseId = null (isLocalOnly)
-4. Will sync when online
-
-// Login: Supabase → Local fallback
-1. Try Supabase login
-2. On network error → Verify local credentials
-3. Use cached user data
-4. Local UUID token generated
-
-// Logout: Always succeeds
-1. Try Supabase logout
-2. Ignore network errors
-3. Always clear local session
-4. Never fails
+Hive
+  ..registerAdapter(UserModelAdapter()) // typeId: 10
+  ..registerAdapter(UserCredentialsModelAdapter()) // typeId: 12
+  ..registerAdapter(UserProfileModelAdapter()) // typeId: 11
+  ..registerAdapter(AppSettingsModelAdapter()) // typeId: 20
+  ..registerAdapter(SubscriptionModelAdapter()) // typeId: 30
+  ..registerAdapter(SubscriptionMemberModelAdapter()) // typeId: 31
+  ..registerAdapter(PaymentHistoryModelAdapter()) // typeId: 33
+  ..registerAdapter(PaymentSyncOperationAdapter()); // typeId: 34
 ```
 
-### Offline Capabilities
+❌ **Missing Adapter Registrations:**
 
-| Feature | Online | Offline | Status |
-|---------|--------|---------|--------|
-| **Registration** | Supabase | Local only | ✅ |
-| **Login** | Supabase | Local verify | ✅ |
-| **Logout** | Both | Local | ✅ |
-| **Session check** | Both | Local | ✅ |
-| **User data** | Sync'd | Cached | ✅ |
+1. `ProfileModelAdapter` (typeId: 50) - `lib/features/friends/data/models/profile_model.dart`
+2. `FriendshipModelAdapter` (typeId: 51) - `lib/features/friends/data/models/friendship_model.dart`
+3. `FriendModelAdapter` (typeId: 52) - `lib/features/friends/data/models/friend_model.dart`
+4. `FriendRequestSyncOperationAdapter` (typeId: 53) - `lib/core/sync/friend_request_sync_queue.dart`
 
-### Network Error Handling
+**Impact:** Friends feature will crash when trying to save/load data from Hive.
 
-✅ **Comprehensive Error Detection:**
+### TypeId Conflicts
+
+✅ **No conflicts detected** - All typeIds properly managed via `HiveTypeIds` class
+
+### Box Lifecycle Issues
+
+⚠️ **WARNING - Not using HiveService encryption wrapper**
+
+All datasources open boxes directly instead of using `HiveService.openBox()`:
+
+**Example - lib/features/auth/data/datasources/user_local_datasource.dart:36-38**
 ```dart
-bool _isNetworkError(dynamic error) {
-  final errorString = error.toString().toLowerCase();
-  return errorString.contains('socket') ||
-         errorString.contains('network') ||
-         errorString.contains('connection') ||
-         errorString.contains('timeout') ||
-         errorString.contains('unreachable');
+_usersBox = await Hive.openBox<UserModel>(_usersBoxName); // ❌ Direct access
+_credentialsBox = await Hive.openBox<UserCredentialsModel>(_credentialsBoxName);
+_currentUserIdBox = await Hive.openBox<String>(_currentUserIdBoxName);
+```
+
+**Should be:**
+```dart
+_usersBox = await HiveService.openBox<UserModel>(_usersBoxName, encrypted: true);
+_credentialsBox = await HiveService.openBox<UserCredentialsModel>(_credentialsBoxName, encrypted: true);
+```
+
+**Files with this issue:**
+- `lib/features/auth/data/datasources/user_local_datasource.dart`
+- `lib/features/settings/data/datasources/profile_local_datasource.dart`
+- `lib/features/settings/data/datasources/settings_local_datasource.dart`
+- `lib/features/friends/data/datasources/friendship_local_datasource.dart`
+
+### Security - Encryption
+
+⚠️ **Sensitive Data Not Encrypted**
+
+**HiveService provides encryption:** ✅ Implemented (HiveAES with secure_storage key)
+**Datasources using encryption:** ❌ None
+
+**Sensitive boxes that SHOULD be encrypted:**
+1. `credentials` - Contains auth tokens
+2. `users` - Contains user PII
+3. `current_user_id` - Contains active session
+
+### Performance
+
+✅ **No performance anti-patterns detected:**
+- No `.values.toList()` in hot paths
+- Box compaction strategy documented
+- LazyBox support implemented (not used yet)
+
+**Score: 65/100**
+- -15 pts: Missing 4 adapter registrations (BLOCKER for friends feature)
+- -10 pts: Not using encryption wrapper for sensitive data
+- -10 pts: Box lifecycle not centralized
+
+---
+
+## 4️⃣ Supabase Integration Audit
+
+### Schema Analysis
+
+✅ **Excellent Schema Design**
+
+**Tables:** 5 (subscriptions, subscription_members, payment_history, profiles, friendships)
+
+**Best Practices Followed:**
+- ✅ UUID primary keys (using `uuid_generate_v4()`)
+- ✅ Foreign key constraints with CASCADE
+- ✅ Check constraints for data validation
+- ✅ Timestamp columns (created_at, updated_at)
+- ✅ RLS enabled on ALL tables
+
+**Example - subscriptions table:**
+```sql
+id UUID PRIMARY KEY DEFAULT uuid_generate_v4()
+owner_id UUID REFERENCES auth.users(id)
+CHECK (total_cost > 0)
+CHECK (billing_cycle IN ('monthly', 'yearly'))
+CHECK (color ~ '^#[0-9A-Fa-f]{6}$')
+```
+
+### Row Level Security (RLS)
+
+✅ **RLS Enabled:** All 5 tables
+✅ **Policies Implemented:** 17 total policies
+
+**Policy Coverage:**
+
+| Table | SELECT | INSERT | UPDATE | DELETE |
+|-------|--------|--------|--------|--------|
+| subscriptions | ✅ | ✅ | ✅ | ✅ |
+| subscription_members | ✅ | ✅ | ✅ | ✅ |
+| payment_history | ✅ | ✅ | ❌ | ❌ |
+| profiles | ✅ | ❌ | ✅ | ❌ |
+| friendships | ✅ | ✅ | ✅ | ❌ |
+
+**Examples of well-designed policies:**
+
+1. **Users can view own subscriptions:**
+   ```sql
+   auth.uid() = owner_id
+   ```
+
+2. **Users can view friend profiles:**
+   ```sql
+   user_id IN (
+     SELECT friend_id FROM friendships
+     WHERE user_id = auth.uid() AND status = 'accepted'
+   )
+   ```
+
+### Security Advisors Report
+
+❌ **1 ERROR - Security Definer View**
+
+**Issue:** `public.pending_payments_view` uses SECURITY DEFINER
+**Risk:** View executes with creator's permissions, bypassing RLS
+**Remediation:** https://supabase.com/docs/guides/database/database-linter?lint=0010_security_definer_view
+
+⚠️ **16 WARNINGS - Mutable Search Path**
+
+**Affected Functions:**
+- `update_updated_at_column`
+- `create_profile_for_new_user`
+- `get_monthly_stats`
+- `search_users_by_email`
+- `send_friend_request`
+- `accept_friend_request`
+- `reject_friend_request`
+- `remove_friend`
+- `mark_payment_as_paid_atomic`
+- `unmark_payment_atomic`
+- ... and 6 more
+
+**Risk:** Potential SQL injection via search_path manipulation
+**Fix:** Add `SET search_path = public, pg_temp;` to each function
+**Remediation:** https://supabase.com/docs/guides/database/database-linter?lint=0011_function_search_path_mutable
+
+⚠️ **1 WARNING - Leaked Password Protection**
+
+**Issue:** HaveIBeenPwned integration disabled
+**Fix:** Enable in Supabase Dashboard → Authentication → Password Protection
+
+### RemoteDataSource Implementation
+
+✅ **5 RemoteDataSources implemented:**
+1. `auth_remote_datasource.dart` - ✅ Full CRUD + error handling
+2. `subscription_remote_datasource.dart` - ✅ Full CRUD + PostgrestException handling
+3. `friendship_remote_datasource.dart` - ✅ RPC calls + error handling
+4. `profile_remote_datasource.dart` - ✅ CRUD operations
+5. `account_remote_datasource.dart` - ✅ Profile updates
+
+**Error Handling Example (auth_remote_datasource.dart:67-85):**
+```dart
+} on AuthException catch (e) {
+  if (e.message.contains('already registered')) {
+    throw EmailAlreadyInUseRemoteException();
+  } else if (e.message.contains('weak')) {
+    throw WeakPasswordRemoteException();
+  }
+  throw AuthRemoteException(e.message);
+} on SocketException {
+  throw NetworkException();
 }
 ```
 
-✅ **Graceful Degradation:**
-- ✅ Network errors don't crash app
-- ✅ User sees appropriate error messages
-- ✅ Automatic fallback to local operations
-- ✅ Background sync when connectivity restored (planned)
+✅ **Strengths:**
+- Proper exception mapping
+- Network error handling
+- Null safety checks
 
-### Offline Data Sync
+### Repository Pattern
 
-**Current Implementation:**
-- ✅ Local-first registration (syncs later)
-- ✅ Cached user data always available
-- ✅ Session persistence across restarts
+✅ **Remote-first with local fallback** implemented in:
+- `auth_repository_impl.dart` - Lines 45-78 (login fallback)
+- Offline registration queuing (auth)
 
-**Future Enhancements:**
-- 📋 Background sync when online
-- 📋 Conflict resolution strategy
-- 📋 Optimistic updates
-
-**Score: 95/100** ⬆️ (Excellent)
+**Score: 78/100**
+- -10 pts: Security Definer View (ERROR level)
+- -7 pts: 16 functions without search_path protection
+- -5 pts: Leaked password protection disabled
 
 ---
 
-## 6️⃣ Error Handling
+## 5️⃣ Security Audit
 
-### Error Mapping Coverage
+### Environment Variables
 
-✅ **All Supabase Errors Mapped:**
+✅ **`.env` properly protected:**
+```bash
+$ cat .gitignore
+.env  ✅
+```
 
-| Supabase Error | Domain Failure | Handled |
-|----------------|----------------|---------|
-| Email already registered | EmailAlreadyInUseFailure | ✅ |
-| Invalid credentials | InvalidCredentialsFailure | ✅ |
-| User not found | UserNotFoundFailure | ✅ |
-| Too many requests | TooManyRequestsFailure | ✅ |
-| Weak password | WeakPasswordFailure | ✅ |
-| Network error | NetworkFailure | ✅ |
-| Generic auth error | SupabaseAuthFailure | ✅ |
-| Storage error | StorageFailure | ✅ |
+✅ **No API keys hardcoded in source code**
 
-### Error Handling Best Practices
+**Verified patterns:**
+- AIzaSy (Google)
+- sk_live/pk_live (Stripe)
+- AKIA (AWS)
+- api_key/apiKey
 
-✅ **Comprehensive Try-Catch Blocks:**
+### Encryption
+
+⚠️ **Partial Implementation**
+
+**flutter_secure_storage usage:** 12 instances (mostly in HiveService)
+
+**HiveAES encryption available but NOT used:**
+- `HiveService._getEncryptionKey()` - ✅ Implemented
+- `HiveService.openBox(encrypted: true)` - ✅ Available
+- **Actual usage:** ❌ 0 datasources use it
+
+**Sensitive data stored UNENCRYPTED in Hive:**
+1. User credentials (`credentials` box)
+2. Auth tokens (`current_user_id` box)
+3. User profiles (PII)
+4. Subscription payment data
+
+### Input Validation
+
+⚠️ **Inconsistent validation**
+
+**Backend validation:** ✅ Excellent (Supabase check constraints)
+**Frontend validation:** ⚠️ Partial
+
+**Files with TextFields:** ~21 instances
+**Validation issues found:**
+
+**Example - lib/features/subscriptions/presentation/widgets/add_member_dialog.dart**
 ```dart
-try {
-  // Supabase operation
-} on EmailAlreadyInUseRemoteException {
-  return Left(EmailAlreadyInUseFailure());
-} on NetworkException {
-  // Fallback to local
-} on AuthRemoteException catch (e) {
-  return Left(SupabaseAuthFailure(e.message));
-} catch (e) {
-  return Left(UnknownAuthFailure('$e'));
+TextField(
+  decoration: InputDecoration(labelText: 'Email'),
+  // ⚠️ No email format validation
+  // ⚠️ No duplicate check
+)
+```
+
+**Use Cases with validation:** ✅ Good coverage
+- `RegisterUser` - validates email format, password strength
+- `CreateSubscription` - validates cost > 0, name length
+
+### Authentication Security
+
+✅ **Strengths:**
+- Supabase Auth (industry standard)
+- Session management
+- JWT tokens
+- RLS policies enforce ownership
+
+⚠️ **Weaknesses:**
+- No biometric auth
+- No 2FA support
+- Leaked password protection disabled
+
+### Network Security
+
+❓ **SSL Pinning:** Not detected
+✅ **HTTPS only:** Supabase enforces HTTPS
+
+**Score: 72/100**
+- -15 pts: Sensitive data not encrypted locally
+- -8 pts: No SSL pinning
+- -5 pts: Inconsistent frontend input validation
+
+---
+
+## 6️⃣ Performance Analysis
+
+### Build Performance
+
+✅ **const usage:** 1,446 instances (good optimization awareness)
+⚠️ **Missing const:** ~300 opportunities flagged by analyzer
+
+### State Management
+
+✅ **Riverpod 2.0+ with code generation:**
+- 23 `@riverpod` annotations
+- No legacy Provider/ChangeNotifier
+- Proper AsyncValue handling
+- No setState() misuse
+
+✅ **No over-watching detected:**
+- 52 `.watch()` calls (appropriate)
+- Used in build methods only
+- No redundant listeners
+
+### Database Performance
+
+⚠️ **Hive optimization opportunities:**
+
+**Not using LazyBox for large data:**
+```dart
+// Current: All data loaded in memory
+await Hive.openBox<SubscriptionModel>('subscriptions');
+
+// Should use LazyBox if >100 subscriptions:
+await Hive.openLazyBox<SubscriptionModel>('subscriptions');
+```
+
+**No batch operations detected:**
+```dart
+// Could optimize bulk inserts:
+for (var member in members) {
+  await box.put(member.id, member); // ❌ N queries
 }
+
+// Better:
+await box.putAll(Map.fromEntries(
+  members.map((m) => MapEntry(m.id, m))
+)); // ✅ 1 batch operation
 ```
 
-✅ **User-Friendly Error Messages:**
-- ✅ Technical errors translated to user language
-- ✅ Actionable error messages
-- ✅ No stack traces exposed to users
+### Network Performance
 
-✅ **Error Recovery:**
-- ✅ Automatic retry for network errors
-- ✅ Fallback to cached data
-- ✅ Graceful degradation
+✅ **Supabase pagination:** Implemented in remote datasources
+✅ **Offline-first:** Auth and subscription operations queue when offline
 
-✅ **Logging:**
-- ✅ Errors logged for debugging
-- ✅ No sensitive data in logs
-- ✅ Debug vs production separation
+⚠️ **Missing optimizations:**
+- No image caching strategy
+- No GraphQL (using REST)
+- No response compression
 
-**Score: 100/100** ⬆️ (Excellent)
+### UI Performance
 
----
+✅ **Stateless widgets default**
+✅ **Material 3 components** (efficient rendering)
+⚠️ **Large lists:** No `ListView.builder` optimization detected in analytics
 
-## 7️⃣ Supabase Integration Tests
-
-### ✅ Connection Tests
-
-**Test: App initialization with Supabase**
-```dart
-✅ SupabaseService.init() succeeds
-✅ Environment variables validated
-✅ Client accessible after init
-✅ Throws if .env missing
-✅ Throws if keys invalid
-```
-
-**Status:** All tests passing
-
-### ✅ Network Error Handling
-
-**Test: Network failure scenarios**
-```dart
-✅ Registration fails gracefully
-✅ Login fails gracefully
-✅ Logout always succeeds locally
-✅ Fallback to local operations
-✅ Appropriate error messages
-```
-
-**Status:** All scenarios tested and handled
-
-### ✅ Token Refresh
-
-**Current Implementation:**
-- ✅ Supabase handles refresh automatically
-- ✅ Session stored in secure storage
-- ✅ Token expiry checked before operations
-- ✅ Re-authentication prompted when needed
-
-**Test Coverage:**
-```dart
-✅ isSessionValid() returns false for expired
-✅ getCurrentSession() checks validity
-✅ Auto-refresh on API calls
-```
-
-### ✅ Session Persistence
-
-**Test: App restart scenarios**
-```dart
-✅ Session survives app restart
-✅ User data cached locally
-✅ Auth state restored correctly
-✅ Invalid session handled
-```
-
-**Status:** All tests passing
-
-### Integration Test Checklist
-
-| Test Scenario | Status |
-|---------------|--------|
-| ✅ Supabase initialization | Pass |
-| ✅ Successful registration | Pass |
-| ✅ Registration errors | Pass |
-| ✅ Successful login | Pass |
-| ✅ Login errors | Pass |
-| ✅ Logout | Pass |
-| ✅ Session validation | Pass |
-| ✅ Token refresh | Pass |
-| ✅ Network failure handling | Pass |
-| ✅ Offline fallback | Pass |
-| ✅ Session persistence | Pass |
-| ✅ Error mapping | Pass |
-
-**All Tests:** ✅ **12/12 Passing**
+**Score: 78/100**
+- -10 pts: Missing LazyBox for potentially large datasets
+- -7 pts: No batch operations
+- -5 pts: Missing image caching
 
 ---
 
 ## 📋 Production Readiness Checklist
 
 ### Code Quality
-- [x] ✅ Zero compilation errors
-- [x] ✅ Zero warnings
-- [x] ✅ Style issues documented and acceptable
-- [x] ✅ Clean Architecture followed
-- [x] ✅ SOLID principles applied
+- ✅ Clean Architecture implemented
+- ⚠️ 1 domain layer violation (predefined_services.dart)
+- ⚠️ 13 warnings to resolve (unused imports/elements)
+- ⚠️ 24 print() statements in production code
+- ✅ No critical errors
 
 ### Testing
-- [x] ✅ 80+ tests written
-- [x] ✅ 100% test pass rate
-- [x] ✅ ~95% code coverage
-- [x] ✅ Unit tests comprehensive
-- [x] ✅ Integration tests complete
-- [ ] ⚠️ E2E tests (optional - recommended)
+- ❌ Overall coverage: 5.98% (target: 80%)
+- ✅ Auth feature: well tested (~78%)
+- ❌ Settings feature: 0% coverage
+- ❌ Home feature: 0% coverage
+- ⚠️ Subscriptions feature: partial coverage (~45%)
 
 ### Security
-- [x] ✅ Secrets in environment variables
-- [x] ✅ .env not committed
-- [x] ✅ PKCE flow enabled
-- [x] ✅ Secure token storage
-- [x] ✅ Input validation
-- [ ] ⚠️ Hive encryption (recommended)
-- [ ] ⚠️ SSL pinning (recommended)
+- ✅ .env in .gitignore
+- ✅ No hardcoded API keys
+- ❌ Sensitive Hive data not encrypted
+- ⚠️ 16 database functions vulnerable to search_path attacks
+- ⚠️ Leaked password protection disabled
+- ⚠️ No SSL pinning
 
 ### Performance
-- [x] ✅ Auth operations <3s
-- [x] ✅ Offline fallback <1s
-- [x] ✅ No memory leaks
-- [x] ✅ Efficient database queries
-- [x] ✅ Proper async handling
+- ✅ Riverpod state management
+- ✅ const optimization
+- ✅ Offline-first architecture
+- ⚠️ No LazyBox usage
+- ⚠️ No batch Hive operations
+- ⚠️ No image caching
 
-### Error Handling
-- [x] ✅ All errors mapped
-- [x] ✅ User-friendly messages
-- [x] ✅ Graceful degradation
-- [x] ✅ Network error handling
-- [x] ✅ Offline handling
+### Database
+- ✅ Hive TypeAdapters (8/12 registered)
+- ❌ 4 missing adapter registrations (friends feature BROKEN)
+- ⚠️ Not using HiveService encryption wrapper
+- ✅ Supabase schema well-designed
+- ✅ RLS enabled on all tables
+- ❌ Security Definer View issue
 
-### Documentation
-- [x] ✅ Code well-commented
-- [x] ✅ README updated
-- [x] ✅ SECURITY.md created
-- [x] ✅ TROUBLESHOOTING.md created
-- [x] ✅ API documentation
-
-### DevOps
-- [x] ✅ CI/CD ready (tests automated)
-- [x] ✅ Environment configs documented
-- [x] ✅ Deployment guide available
-- [x] ✅ Rollback strategy defined
+### Architecture
+- ✅ Feature-based structure
+- ✅ Domain/Data/Presentation separation
+- ✅ Repository pattern
+- ✅ Use case pattern
+- ⚠️ Home feature incomplete (no domain/data layers)
 
 ---
 
 ## 🎯 Recommendations
 
-### Immediate Actions (Optional)
-1. ⚠️ **Enable Hive encryption** for enhanced security
-2. ⚠️ **Implement SSL pinning** to prevent MITM attacks
-3. ℹ️ **Configure Supabase RLS policies** (if not done)
+### 🔴 BLOCKERS (Must Fix Before Production)
 
-### Future Enhancements
-1. 📋 Add biometric authentication
-2. 📋 Implement background sync
-3. 📋 Add E2E tests with Patrol
-4. 📋 Client-side rate limiting
+1. **Fix Friends Feature Crash**
+   ```bash
+   flutter pub run build_runner build --delete-conflicting-outputs
+   ```
+   Then register missing adapters in `hive_service.dart:44`:
+   ```dart
+   ..registerAdapter(ProfileModelAdapter())
+   ..registerAdapter(FriendshipModelAdapter())
+   ..registerAdapter(FriendModelAdapter())
+   ..registerAdapter(FriendRequestSyncOperationAdapter());
+   ```
 
-### Performance Monitoring
-1. 📊 Set up Firebase Performance Monitoring
-2. 📊 Track auth operation latency
-3. 📊 Monitor crash-free users rate
-4. 📊 Analyze network error patterns
+2. **Encrypt Sensitive Hive Data**
+
+   Update all datasources to use encryption:
+   ```dart
+   // lib/features/auth/data/datasources/user_local_datasource.dart:36
+   _credentialsBox = await HiveService.openBox<UserCredentialsModel>(
+     _credentialsBoxName,
+     encrypted: true, // ✅ Add this
+   );
+   ```
+
+3. **Increase Test Coverage to Minimum 60%**
+
+   Priority order:
+   - Settings feature: 0% → 70% (add domain + repository tests)
+   - Subscriptions presentation: <5% → 70% (add provider/widget tests)
+   - Friends data layer: 35% → 85%
+
+4. **Fix Supabase Security Definer View**
+
+   Run migration to remove SECURITY DEFINER or replace with SECURITY INVOKER:
+   ```sql
+   CREATE OR REPLACE VIEW pending_payments_view
+   WITH (security_invoker = true) AS ...
+   ```
+
+### ⚠️ CRITICAL (Fix Within 1 Sprint)
+
+5. **Fix Database Function Security**
+
+   Add to all 16 functions:
+   ```sql
+   CREATE OR REPLACE FUNCTION update_updated_at_column()
+   RETURNS TRIGGER
+   LANGUAGE plpgsql
+   SET search_path = public, pg_temp  -- ✅ Add this line
+   AS $$
+   ...
+   ```
+
+6. **Remove Domain Layer Violation**
+
+   **File:** `lib/features/subscriptions/domain/entities/predefined_services.dart:3`
+
+   Replace `IconData` with `String`:
+   ```dart
+   // Before:
+   final IconData? icon;
+
+   // After:
+   final String? iconName; // e.g., 'music_note'
+   ```
+
+   Map to IconData in presentation layer.
+
+7. **Enable Supabase Password Leak Protection**
+
+   Supabase Dashboard → Authentication → Settings → Password Protection → Enable HaveIBeenPwned
+
+8. **Remove Production print() Statements**
+
+   Replace with proper logging:
+   ```dart
+   // Before:
+   print('Error: $e');
+
+   // After:
+   debugPrint('Error: $e'); // Development only
+   // Or use logger package for production
+   ```
+
+   **Files to fix:**
+   - `lib/core/sync/payment_sync_queue.dart` (16 instances)
+   - `lib/main.dart` (3 instances)
+   - `lib/core/storage/hive_service.dart` (2 instances)
+
+### 📋 MAJOR (Fix Within 2 Sprints)
+
+9. **Complete Home Feature Architecture**
+
+   Currently only has presentation layer. Add:
+   - `lib/features/home/domain/` (if needed)
+   - `lib/features/home/data/` (if needed)
+   - Or refactor to be a pure UI feature
+
+10. **Add Frontend Input Validation**
+
+    Example for email fields:
+    ```dart
+    TextFormField(
+      decoration: InputDecoration(labelText: 'Email'),
+      validator: (value) {
+        if (value == null || !value.contains('@')) {
+          return 'Invalid email';
+        }
+        return null;
+      },
+    )
+    ```
+
+11. **Implement Image Caching**
+
+    Add `cached_network_image` package:
+    ```yaml
+    dependencies:
+      cached_network_image: ^3.3.0
+    ```
+
+12. **Use LazyBox for Large Collections**
+
+    ```dart
+    // For subscriptions with >50 items:
+    _subscriptionsBox = await HiveService.openLazyBox<SubscriptionModel>(
+      'subscriptions',
+      encrypted: true,
+    );
+    ```
+
+### ℹ️ MINOR (Nice to Have)
+
+13. **Fix Import Ordering** (~45 instances)
+    ```bash
+    dart fix --apply
+    ```
+
+14. **Add const Constructors** (~300 opportunities)
+    ```bash
+    dart fix --apply
+    ```
+
+15. **Remove Unused Imports** (13 warnings)
+    Clean up files in `lib/main.dart`, `lib/core/presentation/app_shell.dart`
+
+16. **Migrate from .withOpacity() to .withValues()**
+    ```dart
+    // Before:
+    Colors.black.withOpacity(0.1)
+
+    // After:
+    Colors.black.withValues(alpha: 0.1)
+    ```
+
+17. **Add SSL Pinning**
+    ```yaml
+    dependencies:
+      http_certificate_pinning: ^2.0.0
+    ```
+
+18. **Implement Batch Hive Operations**
+    ```dart
+    // Instead of:
+    for (var item in items) {
+      await box.put(item.id, item);
+    }
+
+    // Use:
+    await box.putAll(Map.fromEntries(
+      items.map((i) => MapEntry(i.id, i))
+    ));
+    ```
 
 ---
 
 ## 🏆 Final Verdict
 
-### Overall Score: **94/100 (Grade A)**
+**Overall Score: 64/100 (Grade: C)**
 
-**Status:** ✅ **PRODUCTION READY**
+**Status:** ⚠️ **NEEDS WORK**
 
-### Strengths:
-- ✅ Excellent code quality (0 errors)
-- ✅ Comprehensive test coverage (80 tests, ~95%)
-- ✅ Robust error handling (all scenarios covered)
-- ✅ Strong offline-first architecture
-- ✅ Good security practices (PKCE, secure storage)
-- ✅ Great performance (<3s auth operations)
+### Summary
 
-### Areas for Enhancement:
-- ⚠️ Hive encryption (recommended for production)
-- ⚠️ SSL pinning (recommended for enterprise)
-- 📋 E2E tests (nice to have)
-- 📋 Background sync (future feature)
+SubMate demonstrates **solid architectural foundations** with Clean Architecture, Riverpod 2.0, and a well-designed Supabase backend. However, **critical gaps in testing, security, and Hive integration** prevent production readiness.
 
-### Recommendation:
-**✅ APPROVED FOR PRODUCTION**
+### Strengths ✅
+1. Clean Architecture properly implemented (with 1 minor violation)
+2. Modern stack: Riverpod 2.0, Freezed, GoRouter
+3. Excellent Supabase schema design with RLS
+4. Auth feature well-tested (78% coverage)
+5. Offline-first architecture foundation
+6. Zero critical errors in static analysis
 
-The Auth feature with Supabase integration meets all critical quality standards. The codebase is well-architected, thoroughly tested, and secure. Optional enhancements can be implemented post-launch based on user feedback and requirements.
+### Critical Weaknesses ❌
+1. **Test coverage catastrophically low** (5.98% vs 80% target)
+2. **Friends feature will crash** (missing 4 Hive adapters)
+3. **Sensitive data stored unencrypted** (credentials, tokens)
+4. **Supabase security issues** (1 ERROR + 16 warnings)
+5. **Settings & Home features untested** (0% coverage)
+
+### Next Steps
+
+**Before Production (Sprint 1-2):**
+1. Fix 4 missing Hive adapter registrations (Day 1) 🔴
+2. Encrypt all sensitive Hive boxes (Day 2) 🔴
+3. Increase test coverage to 60% minimum (Sprint 1) 🔴
+4. Fix Supabase Security Definer View (Day 1) 🔴
+5. Add search_path to 16 database functions (Day 3) ⚠️
+6. Remove domain layer Flutter dependency (Day 2) ⚠️
+
+**After Core Fixes (Sprint 3+):**
+7. Reach 80% test coverage target
+8. Implement SSL pinning
+9. Add image caching
+10. Complete Home feature architecture
+11. Code cleanup (imports, const, print statements)
+
+**Estimated Timeline to Production Ready:** 2-3 sprints (4-6 weeks)
 
 ---
 
-**Report Generated:** 2025-12-14
-**Next Review:** After implementing recommended security enhancements
-**Approved By:** Flutter DevOps Quality Guardian
+## 📈 Scoring Methodology
+
+- **Code Quality (68/100):** Based on static analysis errors (0), warnings (13), and architectural violations (1)
+- **Test Coverage (28/100):** 5.98% actual vs 80% target, with penalties for missing critical feature tests
+- **Security (72/100):** Penalized for unencrypted sensitive data (-15), no SSL pinning (-8), Supabase issues (-5)
+- **Performance (78/100):** Good Riverpod usage, but missing optimizations (LazyBox, batch ops, caching)
+- **Offline Handling (75/100):** Foundation exists, but incomplete encryption and sync strategies
+- **Architecture (88/100):** Excellent Clean Architecture adherence with minor violations
+
+**Overall Score:** Weighted average with test coverage having 2x weight due to criticality.
+
+---
+
+**Report Generated:** 2025-12-28 20:35 UTC
+**Approved By:** Flutter DevOps & Quality Guardian Agent
+**Next Review:** After blocker fixes (estimated 1 week)
+
+---
+
+## 📚 References
+
+- [Supabase Linter Docs](https://supabase.com/docs/guides/database/database-linter)
+- [Flutter Test Coverage Guide](https://flutter.dev/docs/testing)
+- [Hive Encryption Best Practices](https://docs.hivedb.dev/#/custom-objects/type_adapters)
+- [Clean Architecture Guidelines](https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html)
