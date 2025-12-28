@@ -2,11 +2,10 @@
 
 import 'dart:typed_data';
 
+import 'package:flutter_project_agents/core/di/injection.dart';
+import 'package:flutter_project_agents/features/auth/presentation/providers/auth_provider.dart';
+import 'package:flutter_project_agents/features/settings/domain/entities/user_profile.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-
-import '../../../../core/di/injection.dart';
-import '../../../auth/presentation/providers/auth_provider.dart';
-import '../../domain/entities/user_profile.dart';
 
 part 'profile_provider.g.dart';
 
@@ -21,11 +20,9 @@ class CurrentUserProfile extends _$CurrentUserProfile {
     // Get current user ID from auth
     final authState = ref.watch(authProvider);
 
-    return authState.when(
+    return authState.maybeWhen(
       authenticated: (user) => _fetchProfile(user.id),
-      unauthenticated: () => Future.value(null),
-      loading: () => Future.value(null),
-      error: (_, __) => Future.value(null),
+      orElse: () => null,
     );
   }
 
@@ -42,8 +39,8 @@ class CurrentUserProfile extends _$CurrentUserProfile {
 
   /// Update user profile
   Future<bool> updateProfile(UserProfile profile) async {
-    final updateProfile = ref.read(updateProfileProvider);
-    final result = await updateProfile(profile);
+    final updateProfileUseCase = ref.read(updateProfileProvider);
+    final result = await updateProfileUseCase.call(profile);
 
     return result.fold(
       (failure) {
@@ -60,8 +57,8 @@ class CurrentUserProfile extends _$CurrentUserProfile {
 
   /// Upload avatar and update profile
   Future<bool> uploadAvatar(String userId, Uint8List imageData) async {
-    final uploadAvatar = ref.read(uploadAvatarProvider);
-    final result = await uploadAvatar(userId, imageData);
+    final uploadAvatarUseCase = ref.read(uploadAvatarProvider);
+    final result = await uploadAvatarUseCase.call(userId, imageData);
 
     return result.fold(
       (failure) => false,
@@ -79,8 +76,8 @@ class CurrentUserProfile extends _$CurrentUserProfile {
 
   /// Delete avatar and update profile
   Future<bool> deleteAvatar(String userId) async {
-    final deleteAvatar = ref.read(deleteAvatarProvider);
-    final result = await deleteAvatar(userId);
+    final deleteAvatarUseCase = ref.read(deleteAvatarProvider);
+    final result = await deleteAvatarUseCase.call(userId);
 
     return result.fold(
       (failure) => false,
@@ -101,11 +98,9 @@ class CurrentUserProfile extends _$CurrentUserProfile {
     state = const AsyncLoading();
     state = await AsyncValue.guard(() async {
       final authState = ref.read(authProvider);
-      return authState.when(
+      return authState.maybeWhen(
         authenticated: (user) => _fetchProfile(user.id),
-        unauthenticated: () => Future.value(null),
-        loading: () => Future.value(null),
-        error: (_, __) => Future.value(null),
+        orElse: () => null,
       );
     });
   }
