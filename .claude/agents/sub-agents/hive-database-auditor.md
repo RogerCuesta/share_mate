@@ -3,6 +3,27 @@
 ## Purpose
 Audit Hive database implementation for performance, security, and best practices compliance.
 
+## Using Context7 MCP for Latest Hive Best Practices
+
+**ALWAYS** verify Hive APIs and best practices with Context7 before auditing.
+
+### Critical Queries for Context7:
+```
+- "Latest Hive package version and API changes"
+- "Current Hive encryption best practices with HiveAES"
+- "Hive TypeAdapter code generation and best practices"
+- "Hive box lifecycle management recommendations"
+- "Hive performance optimization patterns"
+- "LazyBox vs regular Box latest usage guidelines"
+- "Hive compaction strategies and configuration"
+```
+
+### Before Auditing:
+1. Query Context7 for latest Hive package version and changelog
+2. Verify current best practices for encryption and security
+3. Check for any deprecated methods or patterns
+4. Validate performance benchmarks against latest recommendations
+
 ## Audit Checklist
 
 ### 1. TypeAdapter Registration

@@ -3,6 +3,27 @@
 ## Purpose
 Build Material 3 widgets with composition-first approach, keeping business logic separate.
 
+## Using Context7 MCP for Latest Flutter Widgets
+
+**CRITICAL:** Always verify Material 3 widget APIs with Context7 before building UI components.
+
+### Critical Queries for Context7:
+```
+- "Latest Material 3 widgets in Flutter 3.24+ and their properties"
+- "Current Flutter widget composition best practices"
+- "Material 3 Card, FilledButton, NavigationBar latest APIs"
+- "Flutter LayoutBuilder and MediaQuery latest usage patterns"
+- "ConsumerWidget vs Consumer latest Riverpod integration"
+- "Flutter accessibility and Semantics widget best practices"
+- "Latest Flutter animation and transition widgets"
+```
+
+### Before Building UI:
+1. Query Context7 for the specific Material 3 widgets you need
+2. Verify widget properties and constructor parameters
+3. Check for deprecated widgets and their replacements
+4. Validate responsive design patterns and breakpoints
+
 ## Principles
 1. **Composition over Inheritance** - Small, reusable widgets
 2. **Stateless by Default** - Use ConsumerWidget for state

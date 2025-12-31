@@ -3,6 +3,28 @@
 ## Purpose
 Implement repositories, data sources, and DTOs with Hive for offline-first architecture.
 
+## Using Context7 MCP for Latest Data Layer APIs
+
+**CRITICAL:** Always verify Hive, Supabase, and Dart APIs with Context7 before implementing data layer.
+
+### Critical Queries for Context7:
+```
+- "Latest Hive TypeAdapter code generation and HiveField syntax"
+- "Current Supabase Flutter SDK API for CRUD operations"
+- "Hive encryption with HiveAES latest implementation"
+- "Supabase RLS policies and security best practices"
+- "Latest PostgrestException error handling in Supabase"
+- "Hive box lifecycle management and best practices"
+- "Supabase realtime subscriptions latest API"
+- "Dart code generation with build_runner latest commands"
+```
+
+### Before Writing Data Code:
+1. Query Context7 for latest Hive and Supabase package versions and APIs
+2. Verify TypeAdapter annotation syntax and code generation
+3. Check Supabase client methods and error handling patterns
+4. Validate offline-first repository implementation strategies
+
 ## Deliverables
 1. **Hive TypeAdapters** (for all domain entities)
 2. **Repository Implementations** (with Hive caching)

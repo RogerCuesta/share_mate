@@ -3,6 +3,27 @@
 ## Purpose
 Create comprehensive Patrol tests for integration and E2E scenarios.
 
+## Using Context7 MCP for Latest Testing Practices
+
+**ALWAYS** verify Patrol and Flutter testing APIs with Context7 before writing tests.
+
+### Critical Queries for Context7:
+```
+- "Latest Patrol testing API and syntax"
+- "Current Flutter widget testing best practices"
+- "Patrol native interactions and selectors latest patterns"
+- "Flutter integration testing setup and configuration"
+- "Mocktail and testing mocks latest patterns"
+- "Flutter golden test generation and comparison"
+- "Patrol custom finders and matchers latest API"
+```
+
+### Before Writing Tests:
+1. Query Context7 for latest Patrol API and breaking changes
+2. Verify test structure and patrolTest syntax
+3. Check native interaction patterns ($.native.tap)
+4. Validate mocking strategies for Riverpod providers
+
 ## Test Structure
 ```dart
 // integration_test/{feature}_test.dart

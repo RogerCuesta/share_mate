@@ -3,6 +3,26 @@
 ## Purpose
 Create code-generated Riverpod providers with proper async handling and error states.
 
+## Using Context7 MCP for Latest Riverpod APIs
+
+**ALWAYS** consult Context7 MCP before creating providers to ensure you're using the latest Riverpod patterns and APIs.
+
+### Critical Queries for Context7:
+```
+- "Latest Riverpod code generation patterns with @riverpod annotation"
+- "Current AsyncValue error handling best practices in Riverpod 2.5+"
+- "Riverpod family providers syntax and usage examples"
+- "Latest keepAlive and autoDispose patterns in Riverpod"
+- "Riverpod ref.watch vs ref.listen vs ref.read current guidelines"
+- "Riverpod testing patterns and mocking strategies"
+```
+
+### Before Writing Code:
+1. Query Context7 for the specific provider type you need
+2. Verify syntax for @riverpod annotation and code generation
+3. Check for any deprecated patterns or new alternatives
+4. Validate error handling approaches with latest AsyncValue API
+
 ## Provider Types
 1. **@riverpod** for async operations (replaces FutureProvider)
 2. **@riverpod** class-based for complex state (replaces StateNotifier)

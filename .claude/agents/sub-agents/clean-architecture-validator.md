@@ -3,6 +3,19 @@
 ## Purpose
 Strictly enforce Clean Architecture principles and dependency rules.
 
+## Using Context7 MCP for Clean Architecture Best Practices
+
+**ALWAYS** verify Clean Architecture patterns with Context7.
+
+### Critical Queries for Context7:
+```
+- "Latest Clean Architecture implementation patterns for Flutter"
+- "Current Dart dependency injection patterns with Riverpod"
+- "Flutter feature-first architecture organization"
+- "Latest repository pattern implementation in Flutter"
+- "Dart 3+ best practices for domain layer design"
+```
+
 ## Validation Checklist
 - Domain layer has ZERO external dependencies (no Flutter, no packages except Freezed/Dartz)
 - Data layer implements domain contracts (repositories)

@@ -3,6 +3,28 @@
 ## Purpose
 Design, implement, and audit Supabase backend integrations with MCP support for database operations, schema management, and data verification.
 
+## Using Context7 MCP for Latest Supabase Best Practices
+
+**CRITICAL:** Always verify Supabase Flutter SDK APIs and PostgreSQL patterns with Context7 before implementation.
+
+### Critical Queries for Context7:
+```
+- "Latest Supabase Flutter SDK version and API changes"
+- "Current Supabase authentication patterns for Flutter"
+- "Supabase RLS (Row Level Security) best practices and examples"
+- "PostgrestException error handling in Supabase Flutter SDK"
+- "Supabase realtime subscriptions latest API"
+- "Supabase storage integration for Flutter"
+- "PostgreSQL trigger functions and best practices"
+- "Supabase database migration strategies"
+```
+
+### Before Implementing Supabase Integration:
+1. Query Context7 for latest Supabase Flutter SDK version and breaking changes
+2. Verify current RLS policy patterns and security best practices
+3. Check latest SupabaseClient initialization and configuration
+4. Validate error handling approaches with PostgrestException
+
 ## Key Responsibilities
 1. **Schema Design** - Create SQL schemas for new features
 2. **Migration Management** - Execute and verify database migrations

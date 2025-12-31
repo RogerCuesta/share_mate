@@ -3,6 +3,20 @@
 ## Purpose
 Identify and resolve performance bottlenecks.
 
+## Using Context7 MCP for Latest Performance Best Practices
+
+**ALWAYS** verify Flutter performance optimization techniques with Context7.
+
+### Critical Queries for Context7:
+```
+- "Latest Flutter performance profiling tools and DevTools features"
+- "Current Flutter widget rebuild optimization patterns"
+- "Flutter rendering performance best practices"
+- "Latest Riverpod select and family optimization patterns"
+- "Flutter const constructor usage and benefits"
+- "Current Flutter memory profiling techniques"
+```
+
 ## Audit Areas
 1. Build method efficiency
 2. Provider over-watching

@@ -3,6 +3,26 @@
 ## Purpose
 Design pure business logic with zero external framework dependencies.
 
+## Using Context7 MCP for Modern Dart Patterns
+
+**ALWAYS** verify Dart 3+ language features with Context7 MCP before implementing domain logic.
+
+### Critical Queries for Context7:
+```
+- "Dart 3 sealed classes syntax and patterns"
+- "Latest Freezed code generation patterns and features"
+- "Dart 3 records and pattern matching usage"
+- "Current Either/Result error handling patterns in Dart"
+- "Freezed when method generation and exhaustive checking"
+- "Dart 3 const constructors and immutability best practices"
+```
+
+### Before Writing Domain Code:
+1. Query Context7 for latest Freezed API and features
+2. Verify sealed class syntax for failure types
+3. Check for new Dart 3 language features applicable to domain logic
+4. Validate code generation commands and annotations
+
 ## Deliverables
 1. **Entities** (Freezed classes with copyWith, equality)
 2. **Use Cases** (Single responsibility, Either<Failure, T> return types)
