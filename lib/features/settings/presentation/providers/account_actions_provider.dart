@@ -1,9 +1,8 @@
 // lib/features/settings/presentation/providers/account_actions_provider.dart
 
+import 'package:flutter_project_agents/core/di/injection.dart';
+import 'package:flutter_project_agents/features/settings/domain/failures/settings_failure.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-
-import '../../../../core/di/injection.dart';
-import '../../domain/failures/settings_failure.dart';
 
 part 'account_actions_provider.g.dart';
 
@@ -24,13 +23,13 @@ class AccountActionLoading extends AccountActionState {
 }
 
 class AccountActionSuccess extends AccountActionState {
-  final String message;
   const AccountActionSuccess(this.message);
+  final String message;
 }
 
 class AccountActionError extends AccountActionState {
-  final String message;
   const AccountActionError(this.message);
+  final String message;
 }
 
 /// Account Actions Provider

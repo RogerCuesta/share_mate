@@ -1,13 +1,9 @@
 // lib/features/subscriptions/data/models/payment_analytics_model.dart
 
-import '../../domain/entities/payment_analytics.dart';
+import 'package:flutter_project_agents/features/subscriptions/domain/entities/payment_analytics.dart';
 
 /// Data model for PaymentAnalytics
 class PaymentAnalyticsModel {
-  final double onTimePaymentRate;
-  final double averageDaysToPayment;
-  final List<TopPayerModel> topPayers;
-  final double overdueAmount;
 
   const PaymentAnalyticsModel({
     required this.onTimePaymentRate,
@@ -15,16 +11,6 @@ class PaymentAnalyticsModel {
     required this.topPayers,
     required this.overdueAmount,
   });
-
-  /// Convert to domain entity
-  PaymentAnalytics toEntity() {
-    return PaymentAnalytics(
-      onTimePaymentRate: onTimePaymentRate,
-      averageDaysToPayment: averageDaysToPayment,
-      topPayers: topPayers.map((m) => m.toEntity()).toList(),
-      overdueAmount: overdueAmount,
-    );
-  }
 
   /// Create from domain entity
   factory PaymentAnalyticsModel.fromEntity(PaymentAnalytics entity) {
@@ -47,6 +33,20 @@ class PaymentAnalyticsModel {
       overdueAmount: (json['overdue_amount'] as num).toDouble(),
     );
   }
+  final double onTimePaymentRate;
+  final double averageDaysToPayment;
+  final List<TopPayerModel> topPayers;
+  final double overdueAmount;
+
+  /// Convert to domain entity
+  PaymentAnalytics toEntity() {
+    return PaymentAnalytics(
+      onTimePaymentRate: onTimePaymentRate,
+      averageDaysToPayment: averageDaysToPayment,
+      topPayers: topPayers.map((m) => m.toEntity()).toList(),
+      overdueAmount: overdueAmount,
+    );
+  }
 
   /// Convert to JSON (for caching)
   Map<String, dynamic> toJson() {
@@ -61,24 +61,12 @@ class PaymentAnalyticsModel {
 
 /// Data model for TopPayer
 class TopPayerModel {
-  final String memberName;
-  final int paymentCount;
-  final double totalPaid;
 
   const TopPayerModel({
     required this.memberName,
     required this.paymentCount,
     required this.totalPaid,
   });
-
-  /// Convert to domain entity
-  TopPayer toEntity() {
-    return TopPayer(
-      memberName: memberName,
-      paymentCount: paymentCount,
-      totalPaid: totalPaid,
-    );
-  }
 
   /// Create from domain entity
   factory TopPayerModel.fromEntity(TopPayer entity) {
@@ -95,6 +83,18 @@ class TopPayerModel {
       memberName: json['member_name'] as String,
       paymentCount: json['payment_count'] as int,
       totalPaid: (json['total_paid'] as num).toDouble(),
+    );
+  }
+  final String memberName;
+  final int paymentCount;
+  final double totalPaid;
+
+  /// Convert to domain entity
+  TopPayer toEntity() {
+    return TopPayer(
+      memberName: memberName,
+      paymentCount: paymentCount,
+      totalPaid: totalPaid,
     );
   }
 

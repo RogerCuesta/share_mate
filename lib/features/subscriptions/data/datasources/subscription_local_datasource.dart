@@ -1,13 +1,12 @@
+import 'package:flutter_project_agents/features/subscriptions/data/models/payment_history_model.dart';
+import 'package:flutter_project_agents/features/subscriptions/data/models/subscription_member_model.dart';
+import 'package:flutter_project_agents/features/subscriptions/data/models/subscription_model.dart';
 import 'package:hive_ce/hive.dart';
-
-import '../models/payment_history_model.dart';
-import '../models/subscription_member_model.dart';
-import '../models/subscription_model.dart';
 
 /// Exception thrown when subscription local operations fail
 class SubscriptionLocalException implements Exception {
-  final String message;
   SubscriptionLocalException(this.message);
+  final String message;
 
   @override
   String toString() => 'SubscriptionLocalException: $message';
@@ -162,8 +161,8 @@ class SubscriptionLocalDataSourceImpl implements SubscriptionLocalDataSource {
   @override
   Future<void> cacheSubscriptions(List<SubscriptionModel> subscriptions) async {
     try {
-      final Map<String, SubscriptionModel> entries = {
-        for (var subscription in subscriptions) subscription.id: subscription,
+      final entries = <String, SubscriptionModel>{
+        for (final subscription in subscriptions) subscription.id: subscription,
       };
       await _subscriptionsBox.putAll(entries);
     } catch (e) {
@@ -281,8 +280,8 @@ class SubscriptionLocalDataSourceImpl implements SubscriptionLocalDataSource {
   @override
   Future<void> cacheMembers(List<SubscriptionMemberModel> members) async {
     try {
-      final Map<String, SubscriptionMemberModel> entries = {
-        for (var member in members) member.id: member,
+      final entries = <String, SubscriptionMemberModel>{
+        for (final member in members) member.id: member,
       };
       await _membersBox.putAll(entries);
     } catch (e) {
@@ -398,8 +397,8 @@ class SubscriptionLocalDataSourceImpl implements SubscriptionLocalDataSource {
     List<PaymentHistoryModel> histories,
   ) async {
     try {
-      final Map<String, PaymentHistoryModel> entries = {
-        for (var history in histories) history.id: history,
+      final entries = <String, PaymentHistoryModel>{
+        for (final history in histories) history.id: history,
       };
       await _paymentHistoryBox.putAll(entries);
     } catch (e) {

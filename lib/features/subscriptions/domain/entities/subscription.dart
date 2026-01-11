@@ -60,32 +60,20 @@ class Subscription with _$Subscription {
     /// Name of the subscription service (e.g., "Netflix", "Spotify")
     required String name,
 
-    /// URL for the service icon/logo
-    String? iconUrl,
-
     /// Hex color for the subscription card (e.g., "#E50914" for Netflix)
-    required String color,
-
-    /// Total monthly cost of the subscription
-    required double totalCost,
-
-    /// Billing cycle (monthly or yearly)
-    required BillingCycle billingCycle,
-
-    /// Due date for the next payment
-    required DateTime dueDate,
-
-    /// ID of the user who owns/pays for the main subscription
-    required String ownerId,
+    required String color, /// Total monthly cost of the subscription
+    required double totalCost, /// Billing cycle (monthly or yearly)
+    required BillingCycle billingCycle, /// Due date for the next payment
+    required DateTime dueDate, /// ID of the user who owns/pays for the main subscription
+    required String ownerId, /// When the subscription was created
+    required DateTime createdAt, /// URL for the service icon/logo
+    String? iconUrl,
 
     /// List of user IDs who share this subscription
     @Default([]) List<String> sharedWith,
 
     /// Current status of the subscription
     @Default(SubscriptionStatus.active) SubscriptionStatus status,
-
-    /// When the subscription was created
-    required DateTime createdAt,
   }) = _Subscription;
 
   const Subscription._();

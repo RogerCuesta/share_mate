@@ -1,8 +1,8 @@
 import 'package:dartz/dartz.dart';
 
-import '../entities/payment_history.dart';
-import '../failures/subscription_failure.dart';
-import '../repositories/subscription_repository.dart';
+import 'package:flutter_project_agents/features/subscriptions/domain/entities/payment_history.dart';
+import 'package:flutter_project_agents/features/subscriptions/domain/failures/subscription_failure.dart';
+import 'package:flutter_project_agents/features/subscriptions/domain/repositories/subscription_repository.dart';
 
 /// Use case to unmark a payment (undo a paid status)
 ///
@@ -10,9 +10,9 @@ import '../repositories/subscription_repository.dart';
 /// needs to be unmarked. This provides undo functionality and maintains
 /// a complete audit trail of all payment status changes.
 class UnmarkPayment {
-  final SubscriptionRepository _repository;
 
   UnmarkPayment(this._repository);
+  final SubscriptionRepository _repository;
 
   /// Execute the use case
   ///
@@ -29,8 +29,7 @@ class UnmarkPayment {
     required String subscriptionId,
     required String memberId,
     required double amount,
-    DateTime? paymentDate,
-    required String markedBy,
+    required String markedBy, DateTime? paymentDate,
     String? notes,
   }) async {
     // Validate subscription ID

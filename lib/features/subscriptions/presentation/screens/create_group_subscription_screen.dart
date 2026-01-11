@@ -13,13 +13,13 @@ import 'package:go_router/go_router.dart';
 
 /// Screen for creating/editing a group subscription with split billing
 class CreateGroupSubscriptionScreen extends ConsumerStatefulWidget {
-  /// Subscription ID - null for create mode, non-null for edit mode
-  final String? subscriptionId;
 
   const CreateGroupSubscriptionScreen({
     this.subscriptionId,
     super.key,
   });
+  /// Subscription ID - null for create mode, non-null for edit mode
+  final String? subscriptionId;
 
   @override
   ConsumerState<CreateGroupSubscriptionScreen> createState() =>
@@ -47,9 +47,9 @@ class _CreateGroupSubscriptionScreenState
       ref.listenManual(
         createGroupSubscriptionFormProvider,
         (previous, next) {
-          print('📊 [CreateGroupSubscriptionScreen] State changed');
-          print('   isSuccess: ${next.isSuccess}');
-          print('   errorMessage: ${next.errorMessage}');
+          debugPrint('📊 [CreateGroupSubscriptionScreen] State changed');
+          debugPrint('   isSuccess: ${next.isSuccess}');
+          debugPrint('   errorMessage: ${next.errorMessage}');
 
           final isEditMode = widget.subscriptionId != null;
           final successMessage = isEditMode
@@ -74,7 +74,7 @@ class _CreateGroupSubscriptionScreenState
             });
           } else if (next.errorMessage != null) {
             // Show error
-            print('❌ [CreateGroupSubscriptionScreen] Showing error: ${next.errorMessage}');
+            debugPrint('❌ [CreateGroupSubscriptionScreen] Showing error: ${next.errorMessage}');
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(next.errorMessage!),
@@ -93,13 +93,13 @@ class _CreateGroupSubscriptionScreenState
     final subscriptionId = widget.subscriptionId!;
 
     try {
-      print('📝 [CreateGroupSubscriptionScreen] Loading subscription: $subscriptionId');
+      debugPrint('📝 [CreateGroupSubscriptionScreen] Loading subscription: $subscriptionId');
 
       // Fetch subscription and members
       final subscription = await ref.read(subscriptionDetailProvider(subscriptionId).future);
       final members = await ref.read(subscriptionMembersProvider(subscriptionId).future);
 
-      print('✅ [CreateGroupSubscriptionScreen] Loaded: ${subscription.name} with ${members.length} members');
+      debugPrint('✅ [CreateGroupSubscriptionScreen] Loaded: ${subscription.name} with ${members.length} members');
 
       // Initialize form provider
       ref.read(createGroupSubscriptionFormProvider.notifier)
@@ -109,7 +109,7 @@ class _CreateGroupSubscriptionScreenState
       _serviceNameController.text = subscription.name;
       _priceController.text = subscription.totalCost.toString();
     } catch (e) {
-      print('❌ [CreateGroupSubscriptionScreen] Error loading subscription: $e');
+      debugPrint('❌ [CreateGroupSubscriptionScreen] Error loading subscription: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -164,7 +164,7 @@ class _CreateGroupSubscriptionScreenState
     );
 
     if (confirmed == true) {
-      print('🗑️ [CreateGroupSubscriptionScreen] Removing member: $memberName');
+      debugPrint('🗑️ [CreateGroupSubscriptionScreen] Removing member: $memberName');
       ref.read(createGroupSubscriptionFormProvider.notifier).removeMember(memberId);
     }
   }
@@ -275,7 +275,7 @@ class _CreateGroupSubscriptionScreenState
                   prefixIcon: const Padding(
                     padding: EdgeInsets.only(left: 16, top: 12),
                     child: Text(
-                      '\$',
+                      r'$',
                       style: TextStyle(
                         color: Color(0xFF6C63FF),
                         fontSize: 24,
@@ -347,7 +347,6 @@ class _CreateGroupSubscriptionScreenState
                             primary: Color(0xFF6C63FF),
                             onPrimary: Colors.white,
                             surface: Color(0xFF2D2D44),
-                            onSurface: Colors.white,
                           ),
                         ),
                         child: child!,

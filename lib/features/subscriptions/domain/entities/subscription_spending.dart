@@ -28,7 +28,7 @@ class SubscriptionSpending with _$SubscriptionSpending {
 
   /// Calculate percentage of total spending
   double getPercentage(double totalSpending) {
-    if (totalSpending == 0) return 0.0;
+    if (totalSpending == 0) return 0;
     return (totalAmountPaid / totalSpending) * 100;
   }
 }

@@ -1,13 +1,13 @@
 import 'package:dartz/dartz.dart';
 
-import '../entities/analytics_data.dart';
-import '../entities/monthly_stats.dart';
-import '../entities/payment_history.dart';
-import '../entities/payment_stats.dart';
-import '../entities/subscription.dart';
-import '../entities/subscription_member.dart';
-import '../entities/time_range.dart';
-import '../failures/subscription_failure.dart';
+import 'package:flutter_project_agents/features/subscriptions/domain/entities/analytics_data.dart';
+import 'package:flutter_project_agents/features/subscriptions/domain/entities/monthly_stats.dart';
+import 'package:flutter_project_agents/features/subscriptions/domain/entities/payment_history.dart';
+import 'package:flutter_project_agents/features/subscriptions/domain/entities/payment_stats.dart';
+import 'package:flutter_project_agents/features/subscriptions/domain/entities/subscription.dart';
+import 'package:flutter_project_agents/features/subscriptions/domain/entities/subscription_member.dart';
+import 'package:flutter_project_agents/features/subscriptions/domain/entities/time_range.dart';
+import 'package:flutter_project_agents/features/subscriptions/domain/failures/subscription_failure.dart';
 
 /// Repository interface for subscription operations
 ///

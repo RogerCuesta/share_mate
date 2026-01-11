@@ -254,7 +254,7 @@ class SubscriptionDetailScreen extends ConsumerWidget {
               // TODO: Delete subscription
               Navigator.pop(context);
               context.pop();
-              print('🗑️ Delete subscription: $subscriptionId');
+              debugPrint('🗑️ Delete subscription: $subscriptionId');
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.red,

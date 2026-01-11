@@ -1,10 +1,6 @@
 // lib/features/settings/presentation/screens/settings_screen.dart
 
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:package_info_plus/package_info_plus.dart';
-import 'package:url_launcher/url_launcher.dart';
-
 import 'package:flutter_project_agents/core/theme/theme_extensions.dart';
 import 'package:flutter_project_agents/features/auth/presentation/providers/auth_provider.dart';
 import 'package:flutter_project_agents/features/settings/domain/entities/app_settings.dart';
@@ -12,6 +8,9 @@ import 'package:flutter_project_agents/features/settings/presentation/providers/
 import 'package:flutter_project_agents/features/settings/presentation/providers/profile_provider.dart';
 import 'package:flutter_project_agents/features/settings/presentation/providers/settings_provider.dart';
 import 'package:flutter_project_agents/features/settings/presentation/providers/theme_provider.dart' hide Theme;
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:package_info_plus/package_info_plus.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 /// Settings Screen
 ///
@@ -266,7 +265,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     Text(
                       profile.email,
                       style: theme.textTheme.bodyMedium?.copyWith(
-                        color: theme.colorScheme.onSurface.withOpacity(0.7),
+                        color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
                       ),
                     ),
                   ],
@@ -292,8 +291,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   Widget _buildSection(
     BuildContext context, {
     required String title,
-    String? badge,
-    required List<Widget> children,
+    required List<Widget> children, String? badge,
   }) {
     final theme = Theme.of(context);
     final customTheme = theme.custom;
@@ -323,7 +321,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     vertical: 2,
                   ),
                   decoration: BoxDecoration(
-                    color: theme.colorScheme.primary.withOpacity(0.1),
+                    color: theme.colorScheme.primary.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(customTheme.borderRadiusSmall),
                   ),
                   child: Text(
@@ -384,7 +382,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           vertical: 4,
         ),
         decoration: BoxDecoration(
-          color: theme.colorScheme.primary.withOpacity(0.1),
+          color: theme.colorScheme.primary.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(customTheme.borderRadiusSmall),
         ),
         child: Text(

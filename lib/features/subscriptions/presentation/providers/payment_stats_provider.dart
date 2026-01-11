@@ -1,5 +1,6 @@
 // lib/features/subscriptions/presentation/providers/payment_stats_provider.dart
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter_project_agents/core/di/injection.dart';
 import 'package:flutter_project_agents/features/subscriptions/domain/entities/payment_stats.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -26,9 +27,9 @@ Future<PaymentStats> paymentStats(
   DateTime? startDate,
   DateTime? endDate,
 }) async {
-  print('📊 [PaymentStats] Fetching stats for: $subscriptionId');
+  debugPrint('📊 [PaymentStats] Fetching stats for: $subscriptionId');
   if (startDate != null || endDate != null) {
-    print('   Date range: $startDate to $endDate');
+    debugPrint('   Date range: $startDate to $endDate');
   }
 
   final getPaymentStats = ref.watch(getPaymentStatsProvider);
@@ -40,16 +41,16 @@ Future<PaymentStats> paymentStats(
 
   return result.fold(
     (failure) {
-      print('❌ [PaymentStats] Failed to fetch: ${failure.toString()}');
+      debugPrint('❌ [PaymentStats] Failed to fetch: ${failure.toString()}');
       throw failure; // AsyncValue will catch and show error
     },
     (stats) {
-      print('✅ [PaymentStats] Stats retrieved:');
-      print('   Total Payments: ${stats.totalPayments}');
-      print('   Amount Paid: \$${stats.totalAmountPaid.toStringAsFixed(2)}');
-      print('   Amount Unpaid: \$${stats.totalAmountUnpaid.toStringAsFixed(2)}');
-      print('   Unique Payers: ${stats.uniquePayers}');
-      print('   Payment Methods: ${stats.paymentMethods}');
+      debugPrint('✅ [PaymentStats] Stats retrieved:');
+      debugPrint('   Total Payments: ${stats.totalPayments}');
+      debugPrint('   Amount Paid: \$${stats.totalAmountPaid.toStringAsFixed(2)}');
+      debugPrint('   Amount Unpaid: \$${stats.totalAmountUnpaid.toStringAsFixed(2)}');
+      debugPrint('   Unique Payers: ${stats.uniquePayers}');
+      debugPrint('   Payment Methods: ${stats.paymentMethods}');
       return stats;
     },
   );

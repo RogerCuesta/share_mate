@@ -1,48 +1,12 @@
+import 'package:flutter_project_agents/core/storage/hive_type_ids.dart';
+import 'package:flutter_project_agents/features/subscriptions/domain/entities/subscription_member.dart';
 import 'package:hive_ce/hive.dart';
-
-import '../../../../core/storage/hive_type_ids.dart';
-import '../../domain/entities/subscription_member.dart';
 
 part 'subscription_member_model.g.dart';
 
 /// Data model for SubscriptionMember with Hive persistence
 @HiveType(typeId: HiveTypeIds.subscriptionMember)
 class SubscriptionMemberModel extends HiveObject {
-  @HiveField(0)
-  final String id;
-
-  @HiveField(1)
-  final String subscriptionId;
-
-  @HiveField(2)
-  final String userId;
-
-  @HiveField(3)
-  final String userName;
-
-  @HiveField(4)
-  final String userEmail;
-
-  @HiveField(5)
-  final String? userAvatar;
-
-  @HiveField(6)
-  final double amountToPay;
-
-  @HiveField(7)
-  final bool hasPaid;
-
-  @HiveField(8)
-  final DateTime? lastPaymentDate;
-
-  @HiveField(9)
-  final DateTime dueDate;
-
-  @HiveField(10)
-  final DateTime createdAt;
-
-  @HiveField(11, defaultValue: null)
-  final DateTime? updatedAt;
 
   SubscriptionMemberModel({
     required this.id,
@@ -50,31 +14,10 @@ class SubscriptionMemberModel extends HiveObject {
     required this.userId,
     required this.userName,
     required this.userEmail,
-    this.userAvatar,
-    required this.amountToPay,
-    required this.hasPaid,
+    required this.amountToPay, required this.hasPaid, required this.dueDate, required this.createdAt, this.userAvatar,
     this.lastPaymentDate,
-    required this.dueDate,
-    required this.createdAt,
     this.updatedAt,
   });
-
-  /// Convert to domain entity
-  SubscriptionMember toEntity() {
-    return SubscriptionMember(
-      id: id,
-      subscriptionId: subscriptionId,
-      userId: userId,
-      userName: userName,
-      userEmail: userEmail,
-      userAvatar: userAvatar,
-      amountToPay: amountToPay,
-      hasPaid: hasPaid,
-      lastPaymentDate: lastPaymentDate,
-      dueDate: dueDate,
-      createdAt: createdAt,
-    );
-  }
 
   /// Create from domain entity
   factory SubscriptionMemberModel.fromEntity(SubscriptionMember entity) {
@@ -113,6 +56,58 @@ class SubscriptionMemberModel extends HiveObject {
       updatedAt: json['updated_at'] != null
           ? DateTime.parse(json['updated_at'] as String)
           : null,
+    );
+  }
+  @HiveField(0)
+  final String id;
+
+  @HiveField(1)
+  final String subscriptionId;
+
+  @HiveField(2)
+  final String userId;
+
+  @HiveField(3)
+  final String userName;
+
+  @HiveField(4)
+  final String userEmail;
+
+  @HiveField(5)
+  final String? userAvatar;
+
+  @HiveField(6)
+  final double amountToPay;
+
+  @HiveField(7)
+  final bool hasPaid;
+
+  @HiveField(8)
+  final DateTime? lastPaymentDate;
+
+  @HiveField(9)
+  final DateTime dueDate;
+
+  @HiveField(10)
+  final DateTime createdAt;
+
+  @HiveField(11, defaultValue: null)
+  final DateTime? updatedAt;
+
+  /// Convert to domain entity
+  SubscriptionMember toEntity() {
+    return SubscriptionMember(
+      id: id,
+      subscriptionId: subscriptionId,
+      userId: userId,
+      userName: userName,
+      userEmail: userEmail,
+      userAvatar: userAvatar,
+      amountToPay: amountToPay,
+      hasPaid: hasPaid,
+      lastPaymentDate: lastPaymentDate,
+      dueDate: dueDate,
+      createdAt: createdAt,
     );
   }
 

@@ -1,12 +1,23 @@
+import 'package:flutter_project_agents/core/storage/hive_type_ids.dart';
+import 'package:flutter/foundation.dart';
 import 'package:hive_ce/hive.dart';
-
-import '../storage/hive_type_ids.dart';
 
 part 'payment_sync_queue.g.dart';
 
 /// Payment sync operation for queued offline operations
 @HiveType(typeId: HiveTypeIds.paymentSyncQueue)
 class PaymentSyncOperation extends HiveObject {
+
+  PaymentSyncOperation({
+    required this.id,
+    required this.memberId,
+    required this.subscriptionId,
+    required this.amount,
+    required this.markedBy,
+    required this.action,
+    required this.createdAt, this.notes,
+    this.retryCount = 0,
+  });
   @HiveField(0)
   final String id;
 
@@ -33,18 +44,6 @@ class PaymentSyncOperation extends HiveObject {
 
   @HiveField(8)
   final int retryCount;
-
-  PaymentSyncOperation({
-    required this.id,
-    required this.memberId,
-    required this.subscriptionId,
-    required this.amount,
-    required this.markedBy,
-    required this.action,
-    this.notes,
-    required this.createdAt,
-    this.retryCount = 0,
-  });
 
   /// Create a copy with updated retry count
   PaymentSyncOperation copyWith({
@@ -83,17 +82,17 @@ class PaymentSyncQueueService {
     if (!Hive.isBoxOpen(_boxName)) {
       await Hive.openBox<PaymentSyncOperation>(_boxName);
     }
-    print('🔄 [PaymentSyncQueue] Service initialized');
+    debugPrint('🔄 [PaymentSyncQueue] Service initialized');
   }
 
   /// Enqueue a payment operation for sync
   Future<void> enqueue(PaymentSyncOperation operation) async {
     try {
       await _box.put(operation.id, operation);
-      print('➕ [PaymentSyncQueue] Enqueued operation: ${operation.id} (action: ${operation.action})');
-      print('   📊 Queue size: ${_box.length}');
+      debugPrint('➕ [PaymentSyncQueue] Enqueued operation: ${operation.id} (action: ${operation.action})');
+      debugPrint('   📊 Queue size: ${_box.length}');
     } catch (e) {
-      print('❌ [PaymentSyncQueue] Failed to enqueue operation: $e');
+      debugPrint('❌ [PaymentSyncQueue] Failed to enqueue operation: $e');
       rethrow;
     }
   }
@@ -102,10 +101,10 @@ class PaymentSyncQueueService {
   Future<List<PaymentSyncOperation>> getPending() async {
     try {
       final operations = _box.values.toList();
-      print('🔍 [PaymentSyncQueue] Retrieved ${operations.length} pending operations');
+      debugPrint('🔍 [PaymentSyncQueue] Retrieved ${operations.length} pending operations');
       return operations;
     } catch (e) {
-      print('❌ [PaymentSyncQueue] Failed to get pending operations: $e');
+      debugPrint('❌ [PaymentSyncQueue] Failed to get pending operations: $e');
       return [];
     }
   }
@@ -114,10 +113,10 @@ class PaymentSyncQueueService {
   Future<void> markSynced(String operationId) async {
     try {
       await _box.delete(operationId);
-      print('✅ [PaymentSyncQueue] Operation marked as synced: $operationId');
-      print('   📊 Remaining in queue: ${_box.length}');
+      debugPrint('✅ [PaymentSyncQueue] Operation marked as synced: $operationId');
+      debugPrint('   📊 Remaining in queue: ${_box.length}');
     } catch (e) {
-      print('❌ [PaymentSyncQueue] Failed to mark operation as synced: $e');
+      debugPrint('❌ [PaymentSyncQueue] Failed to mark operation as synced: $e');
       rethrow;
     }
   }
@@ -129,10 +128,10 @@ class PaymentSyncQueueService {
       if (operation != null) {
         final updated = operation.copyWith(retryCount: operation.retryCount + 1);
         await _box.put(operationId, updated);
-        print('⚠️ [PaymentSyncQueue] Incremented retry count for $operationId: ${updated.retryCount}');
+        debugPrint('⚠️ [PaymentSyncQueue] Incremented retry count for $operationId: ${updated.retryCount}');
       }
     } catch (e) {
-      print('❌ [PaymentSyncQueue] Failed to increment retry count: $e');
+      debugPrint('❌ [PaymentSyncQueue] Failed to increment retry count: $e');
       rethrow;
     }
   }
@@ -142,9 +141,9 @@ class PaymentSyncQueueService {
     try {
       final count = _box.length;
       await _box.clear();
-      print('🗑️ [PaymentSyncQueue] Cleared all operations (removed $count)');
+      debugPrint('🗑️ [PaymentSyncQueue] Cleared all operations (removed $count)');
     } catch (e) {
-      print('❌ [PaymentSyncQueue] Failed to clear queue: $e');
+      debugPrint('❌ [PaymentSyncQueue] Failed to clear queue: $e');
       rethrow;
     }
   }

@@ -1,4 +1,5 @@
 // lib/features/subscriptions/presentation/providers/subscription_detail_provider.dart
+import 'package:flutter/foundation.dart';
 
 import 'package:flutter_project_agents/core/di/injection.dart';
 import 'package:flutter_project_agents/features/subscriptions/domain/entities/subscription.dart';
@@ -19,18 +20,18 @@ Future<Subscription> subscriptionDetail(
   SubscriptionDetailRef ref,
   String subscriptionId,
 ) async {
-  print('🔍 [SubscriptionDetail] Fetching subscription: $subscriptionId');
+  debugPrint('🔍 [SubscriptionDetail] Fetching subscription: $subscriptionId');
 
   final getSubscriptionDetails = ref.watch(getSubscriptionDetailsProvider);
   final result = await getSubscriptionDetails(subscriptionId);
 
   return result.fold(
     (failure) {
-      print('❌ [SubscriptionDetail] Failed to fetch: ${failure.toString()}');
+      debugPrint('❌ [SubscriptionDetail] Failed to fetch: ${failure.toString()}');
       throw failure; // AsyncValue will catch and show error
     },
     (subscription) {
-      print('✅ [SubscriptionDetail] Subscription found: ${subscription.name}');
+      debugPrint('✅ [SubscriptionDetail] Subscription found: ${subscription.name}');
       return subscription;
     },
   );
@@ -48,18 +49,18 @@ Future<List<SubscriptionMember>> subscriptionMembers(
   SubscriptionMembersRef ref,
   String subscriptionId,
 ) async {
-  print('🔍 [SubscriptionMembers] Fetching members for: $subscriptionId');
+  debugPrint('🔍 [SubscriptionMembers] Fetching members for: $subscriptionId');
 
   final repository = ref.watch(subscriptionRepositoryProvider);
   final result = await repository.getSubscriptionMembers(subscriptionId);
 
   return result.fold(
     (failure) {
-      print('❌ [SubscriptionMembers] Failed to fetch: ${failure.toString()}');
+      debugPrint('❌ [SubscriptionMembers] Failed to fetch: ${failure.toString()}');
       throw failure; // AsyncValue will catch and show error
     },
     (members) {
-      print('✅ [SubscriptionMembers] Found ${members.length} members');
+      debugPrint('✅ [SubscriptionMembers] Found ${members.length} members');
       return members;
     },
   );
@@ -78,7 +79,7 @@ Future<List<SubscriptionMember>> subscriptionMembers(
 class SubscriptionStats extends _$SubscriptionStats {
   @override
   Future<SubscriptionStatsData> build(String subscriptionId) async {
-    print('📊 [SubscriptionStats] Calculating stats for: $subscriptionId');
+    debugPrint('📊 [SubscriptionStats] Calculating stats for: $subscriptionId');
 
     // Watch both subscription and members providers
     final subscription =
@@ -93,7 +94,7 @@ class SubscriptionStats extends _$SubscriptionStats {
 
     final collectedAmount = members
         .where((m) => m.hasPaid)
-        .fold(0.0, (sum, m) => sum + m.amountToPay);
+        .fold<double>(0.0, (sum, m) => sum + m.amountToPay);
 
     // Remaining = total cost - collected amount
     // This includes both unpaid members AND owner's share (since owner hasn't "paid" themselves)
@@ -104,12 +105,12 @@ class SubscriptionStats extends _$SubscriptionStats {
     final floorAmount = (splitAmount * 100).floor() / 100;
     final yourShare = subscription.totalCost - (floorAmount * members.length);
 
-    print('📊 [SubscriptionStats] Stats calculated:');
-    print('   Total Members: $totalMembers');
-    print('   Paid: $paidMembers, Unpaid: $unpaidMembers');
-    print('   Collected: \$${collectedAmount.toStringAsFixed(2)}');
-    print('   Remaining: \$${remainingAmount.toStringAsFixed(2)}');
-    print('   Your Share: \$${yourShare.toStringAsFixed(2)}');
+    debugPrint('📊 [SubscriptionStats] Stats calculated:');
+    debugPrint('   Total Members: $totalMembers');
+    debugPrint('   Paid: $paidMembers, Unpaid: $unpaidMembers');
+    debugPrint('   Collected: \$${collectedAmount.toStringAsFixed(2)}');
+    debugPrint('   Remaining: \$${remainingAmount.toStringAsFixed(2)}');
+    debugPrint('   Your Share: \$${yourShare.toStringAsFixed(2)}');
 
     return SubscriptionStatsData(
       totalMembers: totalMembers,

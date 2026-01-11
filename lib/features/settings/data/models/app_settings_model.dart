@@ -1,9 +1,8 @@
 // lib/features/settings/data/models/app_settings_model.dart
 
+import 'package:flutter_project_agents/core/storage/hive_type_ids.dart';
+import 'package:flutter_project_agents/features/settings/domain/entities/app_settings.dart';
 import 'package:hive_ce/hive.dart';
-
-import '../../../../core/storage/hive_type_ids.dart';
-import '../../domain/entities/app_settings.dart';
 
 part 'app_settings_model.g.dart';
 
@@ -13,29 +12,6 @@ part 'app_settings_model.g.dart';
 /// Stores user preferences locally (theme, language, notifications, etc.).
 @HiveType(typeId: HiveTypeIds.appSettings) // typeId: 20
 class AppSettingsModel extends HiveObject {
-  @HiveField(0)
-  final String themeMode;
-
-  @HiveField(1)
-  final String language;
-
-  @HiveField(2)
-  final String currency;
-
-  @HiveField(3)
-  final String dateFormat;
-
-  @HiveField(4)
-  final bool paymentRemindersEnabled;
-
-  @HiveField(5)
-  final bool subscriptionChangesEnabled;
-
-  @HiveField(6)
-  final bool friendRequestsEnabled;
-
-  @HiveField(7)
-  final DateTime? lastUpdated;
 
   AppSettingsModel({
     this.themeMode = 'system',
@@ -59,6 +35,29 @@ class AppSettingsModel extends HiveObject {
         friendRequestsEnabled: entity.friendRequestsEnabled,
         lastUpdated: entity.lastUpdated,
       );
+  @HiveField(0)
+  final String themeMode;
+
+  @HiveField(1)
+  final String language;
+
+  @HiveField(2)
+  final String currency;
+
+  @HiveField(3)
+  final String dateFormat;
+
+  @HiveField(4)
+  final bool paymentRemindersEnabled;
+
+  @HiveField(5)
+  final bool subscriptionChangesEnabled;
+
+  @HiveField(6)
+  final bool friendRequestsEnabled;
+
+  @HiveField(7)
+  final DateTime? lastUpdated;
 
   /// Convert model to domain entity
   AppSettings toEntity() => AppSettings(

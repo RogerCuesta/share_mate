@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_project_agents/features/auth/presentation/providers/auth_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
-import '../../../auth/presentation/providers/auth_provider.dart';
 
 /// Home screen header with greeting and notifications
 ///
@@ -61,13 +60,13 @@ class HomeHeader extends ConsumerWidget {
 // ═══════════════════════════════════════════════════════════════════════════
 
 class _UserGreeting extends StatelessWidget {
-  final String greeting;
-  final String userName;
 
   const _UserGreeting({
     required this.greeting,
     required this.userName,
   });
+  final String greeting;
+  final String userName;
 
   @override
   Widget build(BuildContext context) {
@@ -119,10 +118,10 @@ class _NotificationButton extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
       ),
       child: IconButton(
-        icon: Stack(
+        icon: const Stack(
           clipBehavior: Clip.none,
           children: [
-            const Icon(
+            Icon(
               Icons.notifications_outlined,
               color: Colors.white,
               size: 24,
@@ -151,9 +150,9 @@ class _NotificationButton extends StatelessWidget {
 // ═══════════════════════════════════════════════════════════════════════════
 
 class _NotificationBadge extends StatelessWidget {
-  final int count;
 
   const _NotificationBadge({required this.count});
+  final int count;
 
   @override
   Widget build(BuildContext context) {

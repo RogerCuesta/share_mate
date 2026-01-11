@@ -1,13 +1,12 @@
 // lib/features/subscriptions/presentation/screens/analytics_screen.dart
 
 import 'package:flutter/material.dart';
+import 'package:flutter_project_agents/features/subscriptions/domain/entities/analytics_data.dart';
+import 'package:flutter_project_agents/features/subscriptions/domain/entities/time_range.dart';
+import 'package:flutter_project_agents/features/subscriptions/presentation/providers/analytics_provider.dart';
+import 'package:flutter_project_agents/features/subscriptions/presentation/widgets/analytics/overview_cards_section.dart';
+import 'package:flutter_project_agents/features/subscriptions/presentation/widgets/analytics/spending_distribution_chart.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
-import '../../domain/entities/analytics_data.dart';
-import '../../domain/entities/time_range.dart';
-import '../providers/analytics_provider.dart';
-import '../widgets/analytics/overview_cards_section.dart';
-import '../widgets/analytics/spending_distribution_chart.dart';
 
 /// Analytics Dashboard Screen
 ///
@@ -146,7 +145,7 @@ class _AnalyticsHeader extends StatelessWidget {
           Text(
             'Track your spending and payment trends',
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: Colors.white.withOpacity(0.6),
+                  color: Colors.white.withValues(alpha: 0.6),
                 ),
           ),
         ],
@@ -160,13 +159,13 @@ class _AnalyticsHeader extends StatelessWidget {
 // ═══════════════════════════════════════════════════════════════════════════
 
 class _TimeRangeFilter extends StatelessWidget {
-  final TimeRange selectedTimeRange;
-  final ValueChanged<TimeRange> onTimeRangeChanged;
 
   const _TimeRangeFilter({
     required this.selectedTimeRange,
     required this.onTimeRangeChanged,
   });
+  final TimeRange selectedTimeRange;
+  final ValueChanged<TimeRange> onTimeRangeChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -193,15 +192,15 @@ class _TimeRangeFilter extends StatelessWidget {
 }
 
 class _TimeRangeChip extends StatelessWidget {
-  final String label;
-  final bool isSelected;
-  final VoidCallback onTap;
 
   const _TimeRangeChip({
     required this.label,
     required this.isSelected,
     required this.onTap,
   });
+  final String label;
+  final bool isSelected;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -217,7 +216,7 @@ class _TimeRangeChip extends StatelessWidget {
           border: Border.all(
             color: isSelected
                 ? const Color(0xFF6C63FF)
-                : Colors.white.withOpacity(0.1),
+                : Colors.white.withValues(alpha: 0.1),
             width: 1.5,
           ),
         ),
@@ -225,7 +224,7 @@ class _TimeRangeChip extends StatelessWidget {
           child: Text(
             label,
             style: TextStyle(
-              color: isSelected ? Colors.white : Colors.white.withOpacity(0.6),
+              color: isSelected ? Colors.white : Colors.white.withValues(alpha: 0.6),
               fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
               fontSize: 14,
             ),
@@ -240,33 +239,6 @@ class _TimeRangeChip extends StatelessWidget {
 // OVERVIEW CARDS SECTION (PLACEHOLDER)
 // ═══════════════════════════════════════════════════════════════════════════
 
-class _OverviewCardsSection extends StatelessWidget {
-  final dynamic overview; // TODO: Replace with AnalyticsOverview type
-
-  const _OverviewCardsSection({
-    required this.overview,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(24),
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: const Color(0xFF2D2D44),
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: const Center(
-          child: Text(
-            'Overview Cards (TODO)',
-            style: TextStyle(color: Colors.white70),
-          ),
-        ),
-      ),
-    );
-  }
-}
 
 // ═══════════════════════════════════════════════════════════════════════════
 // LOADING STATE
@@ -303,13 +275,13 @@ class _AnalyticsLoadingState extends StatelessWidget {
 // ═══════════════════════════════════════════════════════════════════════════
 
 class _AnalyticsErrorState extends StatelessWidget {
-  final Object error;
-  final VoidCallback onRetry;
 
   const _AnalyticsErrorState({
     required this.error,
     required this.onRetry,
   });
+  final Object error;
+  final VoidCallback onRetry;
 
   @override
   Widget build(BuildContext context) {

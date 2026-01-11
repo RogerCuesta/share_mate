@@ -2,7 +2,7 @@
 
 import 'package:flutter/material.dart';
 
-import '../../../domain/entities/analytics_overview.dart';
+import 'package:flutter_project_agents/features/subscriptions/domain/entities/analytics_overview.dart';
 
 /// Overview Cards Section
 ///
@@ -12,12 +12,11 @@ import '../../../domain/entities/analytics_overview.dart';
 /// - Total Members (cyan gradient)
 /// - Average Cost per Subscription (red gradient)
 class OverviewCardsSection extends StatelessWidget {
-  final AnalyticsOverview overview;
 
   const OverviewCardsSection({
-    super.key,
-    required this.overview,
+    required this.overview, super.key,
   });
+  final AnalyticsOverview overview;
 
   @override
   Widget build(BuildContext context) {
@@ -105,10 +104,6 @@ class OverviewCardsSection extends StatelessWidget {
 
 /// Individual Overview Card with gradient background
 class _OverviewCard extends StatelessWidget {
-  final String title;
-  final String value;
-  final IconData icon;
-  final Gradient gradient;
 
   const _OverviewCard({
     required this.title,
@@ -116,6 +111,10 @@ class _OverviewCard extends StatelessWidget {
     required this.icon,
     required this.gradient,
   });
+  final String title;
+  final String value;
+  final IconData icon;
+  final Gradient gradient;
 
   @override
   Widget build(BuildContext context) {
@@ -125,7 +124,7 @@ class _OverviewCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.2),
+            color: Colors.black.withValues(alpha: 0.2),
             blurRadius: 8,
             offset: const Offset(0, 4),
           ),
@@ -141,7 +140,7 @@ class _OverviewCard extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.2),
+                color: Colors.white.withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Icon(

@@ -1,7 +1,7 @@
 // test/helpers/mocks.dart
 
 import 'package:flutter_project_agents/features/auth/domain/repositories/auth_repository.dart';
-import 'package:flutter_project_agents/features/friends/domain/repositories/friendship_repository.dart';
+import 'package:flutter_project_agents/features/contacts/domain/repositories/contact_repository.dart';
 import 'package:mocktail/mocktail.dart';
 
 /// Mock for AuthRepository
@@ -10,11 +10,11 @@ import 'package:mocktail/mocktail.dart';
 /// depending on actual data sources.
 class MockAuthRepository extends Mock implements AuthRepository {}
 
-/// Mock for FriendshipRepository
+/// Mock for ContactRepository
 ///
-/// Used in use case tests to verify friendship business logic without
+/// Used in use case tests to verify contact business logic without
 /// depending on actual data sources.
-class MockFriendshipRepository extends Mock implements FriendshipRepository {}
+class MockContactRepository extends Mock implements ContactRepository {}
 
 /// Register fallback values for mocktail
 ///

@@ -1,17 +1,10 @@
-import '../../domain/entities/monthly_stats.dart';
+import 'package:flutter_project_agents/features/subscriptions/domain/entities/monthly_stats.dart';
 
 /// Data model for MonthlyStats
 ///
 /// This model does NOT use Hive as stats are calculated in real-time
 /// from subscriptions and members data.
 class MonthlyStatsModel {
-  final double totalMonthlyCost;
-  final double pendingToCollect;
-  final int activeSubscriptionsCount;
-  final int overduePaymentsCount;
-  final double collectedAmount;
-  final int paidMembersCount;
-  final int unpaidMembersCount;
 
   MonthlyStatsModel({
     required this.totalMonthlyCost,
@@ -22,19 +15,6 @@ class MonthlyStatsModel {
     required this.paidMembersCount,
     required this.unpaidMembersCount,
   });
-
-  /// Convert to domain entity
-  MonthlyStats toEntity() {
-    return MonthlyStats(
-      totalMonthlyCost: totalMonthlyCost,
-      pendingToCollect: pendingToCollect,
-      activeSubscriptionsCount: activeSubscriptionsCount,
-      overduePaymentsCount: overduePaymentsCount,
-      collectedAmount: collectedAmount,
-      paidMembersCount: paidMembersCount,
-      unpaidMembersCount: unpaidMembersCount,
-    );
-  }
 
   /// Create from domain entity
   factory MonthlyStatsModel.fromEntity(MonthlyStats entity) {
@@ -59,6 +39,26 @@ class MonthlyStatsModel {
       collectedAmount: (json['collected_amount'] as num?)?.toDouble() ?? 0.0,
       paidMembersCount: json['paid_members_count'] as int? ?? 0,
       unpaidMembersCount: json['unpaid_members_count'] as int? ?? 0,
+    );
+  }
+  final double totalMonthlyCost;
+  final double pendingToCollect;
+  final int activeSubscriptionsCount;
+  final int overduePaymentsCount;
+  final double collectedAmount;
+  final int paidMembersCount;
+  final int unpaidMembersCount;
+
+  /// Convert to domain entity
+  MonthlyStats toEntity() {
+    return MonthlyStats(
+      totalMonthlyCost: totalMonthlyCost,
+      pendingToCollect: pendingToCollect,
+      activeSubscriptionsCount: activeSubscriptionsCount,
+      overduePaymentsCount: overduePaymentsCount,
+      collectedAmount: collectedAmount,
+      paidMembersCount: paidMembersCount,
+      unpaidMembersCount: unpaidMembersCount,
     );
   }
 

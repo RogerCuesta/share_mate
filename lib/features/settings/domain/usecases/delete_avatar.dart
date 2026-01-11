@@ -2,16 +2,16 @@
 
 import 'package:dartz/dartz.dart';
 
-import '../failures/settings_failure.dart';
-import '../repositories/profile_repository.dart';
+import 'package:flutter_project_agents/features/settings/domain/failures/settings_failure.dart';
+import 'package:flutter_project_agents/features/settings/domain/repositories/profile_repository.dart';
 
 /// Use case: Delete Avatar
 ///
 /// Deletes the user's avatar from storage.
 class DeleteAvatar {
-  final ProfileRepository repository;
 
   DeleteAvatar(this.repository);
+  final ProfileRepository repository;
 
   Future<Either<SettingsFailure, Unit>> call(String userId) async {
     return repository.deleteAvatar(userId);

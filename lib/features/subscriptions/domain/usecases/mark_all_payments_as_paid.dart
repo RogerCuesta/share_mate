@@ -1,7 +1,7 @@
 import 'package:dartz/dartz.dart';
 
-import '../failures/subscription_failure.dart';
-import '../repositories/subscription_repository.dart';
+import 'package:flutter_project_agents/features/subscriptions/domain/failures/subscription_failure.dart';
+import 'package:flutter_project_agents/features/subscriptions/domain/repositories/subscription_repository.dart';
 
 /// Use case to mark all pending payments as paid for a subscription
 ///
@@ -9,9 +9,9 @@ import '../repositories/subscription_repository.dart';
 /// in a subscription. This is a bulk operation for convenience when all
 /// members have paid their share.
 class MarkAllPaymentsAsPaid {
-  final SubscriptionRepository _repository;
 
   MarkAllPaymentsAsPaid(this._repository);
+  final SubscriptionRepository _repository;
 
   /// Execute the use case
   ///
@@ -24,8 +24,7 @@ class MarkAllPaymentsAsPaid {
   /// Returns [SubscriptionFailure] if validation or operation fails.
   Future<Either<SubscriptionFailure, int>> call({
     required String subscriptionId,
-    DateTime? paymentDate,
-    required String markedBy,
+    required String markedBy, DateTime? paymentDate,
     String? notes,
   }) async {
     // Validate subscription ID

@@ -1,9 +1,9 @@
 // lib/core/theme/app_theme.dart
 
 import 'package:flutter/material.dart';
-import 'app_colors.dart';
-import 'app_text_styles.dart';
-import 'theme_extensions.dart';
+import 'package:flutter_project_agents/core/theme/app_colors.dart';
+import 'package:flutter_project_agents/core/theme/app_text_styles.dart';
+import 'package:flutter_project_agents/core/theme/theme_extensions.dart';
 
 /// Main theme builder for SubMate
 ///
@@ -22,7 +22,6 @@ class AppTheme {
   static ThemeData get lightTheme {
     final colorScheme = ColorScheme.fromSeed(
       seedColor: AppColors.primaryPurple,
-      brightness: Brightness.light,
       primary: AppColors.primaryPurple,
       onPrimary: Colors.white,
       secondary: AppColors.accentCyan,
@@ -122,7 +121,7 @@ class AppTheme {
           if (states.contains(WidgetState.selected)) {
             return Colors.white;
           }
-          return AppColors.lightOnSurface.withOpacity(0.5);
+          return AppColors.lightOnSurface.withValues(alpha: 0.5);
         }),
         trackColor: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.selected)) {
@@ -133,7 +132,7 @@ class AppTheme {
       ),
 
       // Custom theme extensions
-      extensions: [AppThemeExtension.light],
+      extensions: const [AppThemeExtension.light],
     );
   }
 
@@ -244,7 +243,7 @@ class AppTheme {
           if (states.contains(WidgetState.selected)) {
             return Colors.white;
           }
-          return AppColors.darkOnSurface.withOpacity(0.5);
+          return AppColors.darkOnSurface.withValues(alpha: 0.5);
         }),
         trackColor: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.selected)) {
@@ -255,7 +254,7 @@ class AppTheme {
       ),
 
       // Custom theme extensions
-      extensions: [AppThemeExtension.dark],
+      extensions: const [AppThemeExtension.dark],
     );
   }
 }

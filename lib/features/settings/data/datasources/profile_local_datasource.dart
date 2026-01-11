@@ -1,9 +1,8 @@
 // lib/features/settings/data/datasources/profile_local_datasource.dart
 
 import 'package:flutter_project_agents/core/storage/hive_service.dart';
+import 'package:flutter_project_agents/features/settings/data/models/user_profile_model.dart';
 import 'package:hive_ce/hive.dart';
-
-import '../models/user_profile_model.dart';
 
 /// Profile Local Data Source Interface
 abstract class ProfileLocalDataSource {
@@ -69,8 +68,8 @@ class ProfileLocalDataSourceImpl implements ProfileLocalDataSource {
 
 /// Exception thrown when profile local operations fail
 class ProfileLocalException implements Exception {
-  final String message;
   ProfileLocalException(this.message);
+  final String message;
 
   @override
   String toString() => message;

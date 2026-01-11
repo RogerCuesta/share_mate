@@ -1,11 +1,10 @@
 // lib/features/subscriptions/domain/entities/analytics_data.dart
 
+import 'package:flutter_project_agents/features/subscriptions/domain/entities/analytics_overview.dart';
+import 'package:flutter_project_agents/features/subscriptions/domain/entities/monthly_spending.dart';
+import 'package:flutter_project_agents/features/subscriptions/domain/entities/payment_analytics.dart';
+import 'package:flutter_project_agents/features/subscriptions/domain/entities/subscription_spending.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-
-import 'analytics_overview.dart';
-import 'monthly_spending.dart';
-import 'payment_analytics.dart';
-import 'subscription_spending.dart';
 
 part 'analytics_data.freezed.dart';
 

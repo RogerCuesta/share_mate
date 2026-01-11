@@ -1,0 +1,69 @@
+Analyzing sub_mate...                                           
+
+   info • Place 'dart:' imports before other imports • lib/core/storage/hive_service.dart:4:1 • directives_ordering
+   info • Sort directive sections alphabetically • lib/core/sync/payment_sync_queue.dart:2:1 • directives_ordering
+   info • 'ContactsListRef' is deprecated and shouldn't be used. Will be removed in 3.0. Use Ref instead • lib/features/contacts/presentation/providers/contacts_provider.dart:16:36 • deprecated_member_use_from_same_package
+  error • The function 'debugPrint' isn't defined • lib/features/contacts/presentation/providers/contacts_provider.dart:29:11 • undefined_function
+   info • 'EmailVerificationStatusRef' is deprecated and shouldn't be used. Will be removed in 3.0. Use Ref instead • lib/features/settings/presentation/providers/account_actions_provider.dart:145:38 • deprecated_member_use_from_same_package
+   info • 'bool' parameters should be named parameters • lib/features/settings/presentation/providers/settings_provider.dart:56:39 • avoid_positional_boolean_parameters
+   info • 'bool' parameters should be named parameters • lib/features/settings/presentation/providers/settings_provider.dart:64:42 • avoid_positional_boolean_parameters
+   info • 'bool' parameters should be named parameters • lib/features/settings/presentation/providers/settings_provider.dart:72:37 • avoid_positional_boolean_parameters
+   info • Method invocation or property access on a 'dynamic' target • lib/features/settings/presentation/screens/settings_screen.dart:248:19 • avoid_dynamic_calls
+   info • Method invocation or property access on a 'dynamic' target • lib/features/settings/presentation/screens/settings_screen.dart:261:23 • avoid_dynamic_calls
+   info • Method invocation or property access on a 'dynamic' target • lib/features/settings/presentation/screens/settings_screen.dart:266:23 • avoid_dynamic_calls
+   info • Method invocation or property access on a 'dynamic' target • lib/features/settings/presentation/screens/settings_screen.dart:441:18 • avoid_dynamic_calls
+   info • Method invocation or property access on a 'dynamic' target • lib/features/settings/presentation/screens/settings_screen.dart:443:36 • avoid_dynamic_calls
+   info • Sort directive sections alphabetically • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:2:1 • directives_ordering
+   info • Method invocation or property access on a 'dynamic' target • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:150:32 • avoid_dynamic_calls
+   info • Method invocation or property access on a 'dynamic' target • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:151:54 • avoid_dynamic_calls
+   info • Method invocation or property access on a 'dynamic' target • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:160:85 • avoid_dynamic_calls
+   info • Method invocation or property access on a 'dynamic' target • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:163:11 • avoid_dynamic_calls
+   info • Method invocation or property access on a 'dynamic' target • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:164:27 • avoid_dynamic_calls
+   info • Method invocation or property access on a 'dynamic' target • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:173:11 • avoid_dynamic_calls
+   info • Method invocation or property access on a 'dynamic' target • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:221:25 • avoid_dynamic_calls
+   info • Unnecessary duplication of receiver • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:411:7 • cascade_invocations
+   info • Method invocation or property access on a 'dynamic' target • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:482:25 • avoid_dynamic_calls
+   info • Classes should define instance members • lib/features/subscriptions/data/datasources/subscription_seed_data.dart:7:1 • avoid_classes_with_only_static_members
+   info • The method is used to change a property • lib/features/subscriptions/presentation/providers/analytics_provider.dart:20:8 • use_setters_to_change_properties
+   info • 'AnalyticsDataRef' is deprecated and shouldn't be used. Will be removed in 3.0. Use Ref instead • lib/features/subscriptions/presentation/providers/analytics_provider.dart:31:37 • deprecated_member_use_from_same_package
+   info • Don't throw instances of classes that don't extend either 'Exception' or 'Error' • lib/features/subscriptions/presentation/providers/analytics_provider.dart:52:28 • only_throw_errors
+   info • 'PaymentStatsRef' is deprecated and shouldn't be used. Will be removed in 3.0. Use Ref instead • lib/features/subscriptions/presentation/providers/payment_stats_provider.dart:24:3 • deprecated_member_use_from_same_package
+  error • The function 'debugPrint' isn't defined • lib/features/subscriptions/presentation/providers/payment_stats_provider.dart:29:3 • undefined_function
+  error • The function 'debugPrint' isn't defined • lib/features/subscriptions/presentation/providers/payment_stats_provider.dart:31:5 • undefined_function
+  error • The function 'debugPrint' isn't defined • lib/features/subscriptions/presentation/providers/payment_stats_provider.dart:43:7 • undefined_function
+   info • Don't throw instances of classes that don't extend either 'Exception' or 'Error' • lib/features/subscriptions/presentation/providers/payment_stats_provider.dart:44:13 • only_throw_errors
+  error • The function 'debugPrint' isn't defined • lib/features/subscriptions/presentation/providers/payment_stats_provider.dart:47:7 • undefined_function
+  error • The function 'debugPrint' isn't defined • lib/features/subscriptions/presentation/providers/payment_stats_provider.dart:48:7 • undefined_function
+  error • The function 'debugPrint' isn't defined • lib/features/subscriptions/presentation/providers/payment_stats_provider.dart:49:7 • undefined_function
+  error • The function 'debugPrint' isn't defined • lib/features/subscriptions/presentation/providers/payment_stats_provider.dart:50:7 • undefined_function
+  error • The function 'debugPrint' isn't defined • lib/features/subscriptions/presentation/providers/payment_stats_provider.dart:51:7 • undefined_function
+  error • The function 'debugPrint' isn't defined • lib/features/subscriptions/presentation/providers/payment_stats_provider.dart:52:7 • undefined_function
+   info • 'SubscriptionDetailRef' is deprecated and shouldn't be used. Will be removed in 3.0. Use Ref instead • lib/features/subscriptions/presentation/providers/subscription_detail_provider.dart:20:3 • deprecated_member_use_from_same_package
+   info • Don't throw instances of classes that don't extend either 'Exception' or 'Error' • lib/features/subscriptions/presentation/providers/subscription_detail_provider.dart:31:13 • only_throw_errors
+   info • 'SubscriptionMembersRef' is deprecated and shouldn't be used. Will be removed in 3.0. Use Ref instead • lib/features/subscriptions/presentation/providers/subscription_detail_provider.dart:49:3 • deprecated_member_use_from_same_package
+   info • Don't throw instances of classes that don't extend either 'Exception' or 'Error' • lib/features/subscriptions/presentation/providers/subscription_detail_provider.dart:60:13 • only_throw_errors
+  error • The returned type 'double' isn't returnable from a 'int' function, as required by the closure's context • lib/features/subscriptions/presentation/providers/subscription_detail_provider.dart:97:30 • return_of_invalid_type_from_closure
+  error • The argument type 'int' can't be assigned to the parameter type 'double'.  • lib/features/subscriptions/presentation/providers/subscription_detail_provider.dart:119:24 • argument_type_not_assignable
+   info • 'MonthlyStatsRef' is deprecated and shouldn't be used. Will be removed in 3.0. Use Ref instead • lib/features/subscriptions/presentation/providers/subscriptions_provider.dart:18:35 • deprecated_member_use_from_same_package
+   info • Don't throw instances of classes that don't extend either 'Exception' or 'Error' • lib/features/subscriptions/presentation/providers/subscriptions_provider.dart:28:28 • only_throw_errors
+   info • 'ActiveSubscriptionsRef' is deprecated and shouldn't be used. Will be removed in 3.0. Use Ref instead • lib/features/subscriptions/presentation/providers/subscriptions_provider.dart:53:3 • deprecated_member_use_from_same_package
+   info • Don't throw instances of classes that don't extend either 'Exception' or 'Error' • lib/features/subscriptions/presentation/providers/subscriptions_provider.dart:64:28 • only_throw_errors
+   info • 'PendingPaymentsRef' is deprecated and shouldn't be used. Will be removed in 3.0. Use Ref instead • lib/features/subscriptions/presentation/providers/subscriptions_provider.dart:81:3 • deprecated_member_use_from_same_package
+   info • Don't throw instances of classes that don't extend either 'Exception' or 'Error' • lib/features/subscriptions/presentation/providers/subscriptions_provider.dart:92:28 • only_throw_errors
+   info • 'OverduePaymentsRef' is deprecated and shouldn't be used. Will be removed in 3.0. Use Ref instead • lib/features/subscriptions/presentation/providers/subscriptions_provider.dart:106:3 • deprecated_member_use_from_same_package
+   info • 'SubscriptionDetailsRef' is deprecated and shouldn't be used. Will be removed in 3.0. Use Ref instead • lib/features/subscriptions/presentation/providers/subscriptions_provider.dart:122:3 • deprecated_member_use_from_same_package
+   info • Don't throw instances of classes that don't extend either 'Exception' or 'Error' • lib/features/subscriptions/presentation/providers/subscriptions_provider.dart:129:24 • only_throw_errors
+   info • The method is used to change a property • lib/features/subscriptions/presentation/providers/subscriptions_provider.dart:148:8 • use_setters_to_change_properties
+   info • Unnecessary duplication of receiver • lib/features/subscriptions/presentation/screens/subscription_detail_screen.dart:111:21 • cascade_invocations
+   info • Unnecessary duplication of receiver • lib/features/subscriptions/presentation/screens/subscription_detail_screen.dart:112:21 • cascade_invocations
+   info • Unnecessary duplication of receiver • lib/features/subscriptions/presentation/screens/subscription_detail_screen.dart:828:9 • cascade_invocations
+   info • Classes should define instance members • lib/features/subscriptions/presentation/widgets/color_picker_widget.dart:3:1 • avoid_classes_with_only_static_members
+   info • Classes that override '==' should not be implemented • test/features/auth/data/datasources/auth_remote_datasource_test.dart:17:40 • avoid_implementing_value_types
+   info • Classes that override '==' should not be implemented • test/features/auth/data/datasources/auth_remote_datasource_test.dart:19:43 • avoid_implementing_value_types
+   info • Classes that override '==' should not be implemented • test/features/auth/data/datasources/auth_remote_datasource_test.dart:22:50 • avoid_implementing_value_types
+   info • Classes that override '==' should not be implemented • test/features/auth/data/repositories/auth_repository_impl_test.dart:24:48 • avoid_implementing_value_types
+   info • Classes that override '==' should not be implemented • test/features/auth/data/repositories/auth_repository_impl_test.dart:26:43 • avoid_implementing_value_types
+   info • Classes that override '==' should not be implemented • test/features/auth/data/repositories/auth_repository_impl_test.dart:31:45 • avoid_implementing_value_types
+   info • Classes that override '==' should not be implemented • test/features/auth/data/repositories/auth_repository_impl_test.dart:33:52 • avoid_implementing_value_types
+
+65 issues found. (ran in 2.5s)

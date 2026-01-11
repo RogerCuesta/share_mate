@@ -61,7 +61,8 @@ class PaymentHistory with _$PaymentHistory {
     /// The action performed (paid or unpaid)
     required PaymentAction action,
 
-    /// Optional notes about the payment
+    /// When this history record was created
+    required DateTime createdAt, /// Optional notes about the payment
     String? notes,
 
     /// Payment method used ('cash', 'transfer', 'card', etc.)
@@ -69,9 +70,6 @@ class PaymentHistory with _$PaymentHistory {
 
     /// Additional metadata (flexible JSONB storage)
     Map<String, dynamic>? metadata,
-
-    /// When this history record was created
-    required DateTime createdAt,
   }) = _PaymentHistory;
 
   const PaymentHistory._();

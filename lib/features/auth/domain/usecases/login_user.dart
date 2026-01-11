@@ -13,8 +13,8 @@ import 'package:flutter_project_agents/features/auth/domain/repositories/auth_re
 /// ```dart
 /// final result = await loginUser(params);
 /// result.fold(
-///   (failure) => print('Login failed: $failure'),
-///   (session) => print('Logged in, token: ${session.token}'),
+///   (failure) => debugPrint('Login failed: $failure'),
+///   (session) => debugPrint('Logged in, token: ${session.token}'),
 /// );
 /// ```
 class LoginUser {

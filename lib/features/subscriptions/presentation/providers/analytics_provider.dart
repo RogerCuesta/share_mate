@@ -1,12 +1,10 @@
 // lib/features/subscriptions/presentation/providers/analytics_provider.dart
 
+import 'package:flutter_project_agents/core/di/injection.dart';
+import 'package:flutter_project_agents/features/auth/presentation/providers/auth_provider.dart';
+import 'package:flutter_project_agents/features/subscriptions/domain/entities/analytics_data.dart';
+import 'package:flutter_project_agents/features/subscriptions/domain/entities/time_range.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-
-import '../../../auth/presentation/providers/auth_provider.dart';
-import '../../domain/entities/analytics_data.dart';
-import '../../domain/entities/time_range.dart';
-import '../../domain/usecases/get_analytics_data.dart';
-import '../../../../core/di/injection.dart';
 
 part 'analytics_provider.g.dart';
 

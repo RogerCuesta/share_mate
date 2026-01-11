@@ -12,9 +12,9 @@ abstract class AccountRemoteDataSource {
 
 /// Account Remote Data Source Implementation (Supabase Auth)
 class AccountRemoteDataSourceImpl implements AccountRemoteDataSource {
-  final SupabaseClient client;
 
   AccountRemoteDataSourceImpl({required this.client});
+  final SupabaseClient client;
 
   @override
   Future<void> changePassword({required String newPassword}) async {
@@ -74,8 +74,8 @@ class AccountRemoteDataSourceImpl implements AccountRemoteDataSource {
 
 /// Exception thrown when account remote operations fail
 class AccountRemoteException implements Exception {
-  final String message;
   AccountRemoteException(this.message);
+  final String message;
 
   @override
   String toString() => message;

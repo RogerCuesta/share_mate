@@ -1,4 +1,5 @@
 // lib/features/subscriptions/presentation/providers/payment_provider.dart
+import 'package:flutter/foundation.dart';
 
 import 'package:flutter_project_agents/core/di/injection.dart';
 import 'package:flutter_project_agents/features/auth/presentation/providers/auth_provider.dart';
@@ -70,10 +71,10 @@ class PaymentAction extends _$PaymentAction {
     required double amount,
     String? notes,
   }) async {
-    print('🔍 [PaymentAction] Marking payment as paid...');
-    print('   Subscription: $subscriptionId');
-    print('   Member: $memberId');
-    print('   Amount: \$${amount.toStringAsFixed(2)}');
+    debugPrint('🔍 [PaymentAction] Marking payment as paid...');
+    debugPrint('   Subscription: $subscriptionId');
+    debugPrint('   Member: $memberId');
+    debugPrint('   Amount: \$${amount.toStringAsFixed(2)}');
 
     // Set loading state
     state = const PaymentActionState.loading();
@@ -87,7 +88,7 @@ class PaymentAction extends _$PaymentAction {
       );
 
       if (userId.isEmpty) {
-        print('❌ [PaymentAction] No authenticated user');
+        debugPrint('❌ [PaymentAction] No authenticated user');
         state = const PaymentActionState.error('Not authenticated');
         return false;
       }
@@ -110,12 +111,12 @@ class PaymentAction extends _$PaymentAction {
             invalidData: (msg) => msg,
             orElse: () => 'Failed to mark payment as paid',
           );
-          print('❌ [PaymentAction] Error: $message');
+          debugPrint('❌ [PaymentAction] Error: $message');
           state = PaymentActionState.error(message);
           return false;
         },
         (payment) {
-          print('✅ [PaymentAction] Payment marked successfully');
+          debugPrint('✅ [PaymentAction] Payment marked successfully');
           state = PaymentActionState.success(payment);
 
           // Invalidate relevant providers to refresh UI
@@ -125,7 +126,7 @@ class PaymentAction extends _$PaymentAction {
         },
       );
     } catch (e) {
-      print('❌ [PaymentAction] Unexpected error: $e');
+      debugPrint('❌ [PaymentAction] Unexpected error: $e');
       state = PaymentActionState.error('Unexpected error: $e');
       return false;
     }
@@ -141,8 +142,8 @@ class PaymentAction extends _$PaymentAction {
     required String subscriptionId,
     String? notes,
   }) async {
-    print('🔍 [PaymentAction] Marking all payments as paid...');
-    print('   Subscription: $subscriptionId');
+    debugPrint('🔍 [PaymentAction] Marking all payments as paid...');
+    debugPrint('   Subscription: $subscriptionId');
 
     // Set loading state
     state = const PaymentActionState.loading();
@@ -156,7 +157,7 @@ class PaymentAction extends _$PaymentAction {
       );
 
       if (userId.isEmpty) {
-        print('❌ [PaymentAction] No authenticated user');
+        debugPrint('❌ [PaymentAction] No authenticated user');
         state = const PaymentActionState.error('Not authenticated');
         return 0;
       }
@@ -178,12 +179,12 @@ class PaymentAction extends _$PaymentAction {
             invalidData: (msg) => msg,
             orElse: () => 'Failed to mark all payments as paid',
           );
-          print('❌ [PaymentAction] Error: $message');
+          debugPrint('❌ [PaymentAction] Error: $message');
           state = PaymentActionState.error(message);
           return 0;
         },
         (count) {
-          print('✅ [PaymentAction] $count payments marked successfully');
+          debugPrint('✅ [PaymentAction] $count payments marked successfully');
           state = PaymentActionState.bulkSuccess(count);
 
           // Invalidate relevant providers to refresh UI
@@ -193,7 +194,7 @@ class PaymentAction extends _$PaymentAction {
         },
       );
     } catch (e) {
-      print('❌ [PaymentAction] Unexpected error: $e');
+      debugPrint('❌ [PaymentAction] Unexpected error: $e');
       state = PaymentActionState.error('Unexpected error: $e');
       return 0;
     }
@@ -213,10 +214,10 @@ class PaymentAction extends _$PaymentAction {
     required double amount,
     String? notes,
   }) async {
-    print('🔍 [PaymentAction] Unmarking payment...');
-    print('   Subscription: $subscriptionId');
-    print('   Member: $memberId');
-    print('   Amount: \$${amount.toStringAsFixed(2)}');
+    debugPrint('🔍 [PaymentAction] Unmarking payment...');
+    debugPrint('   Subscription: $subscriptionId');
+    debugPrint('   Member: $memberId');
+    debugPrint('   Amount: \$${amount.toStringAsFixed(2)}');
 
     // Set loading state
     state = const PaymentActionState.loading();
@@ -230,7 +231,7 @@ class PaymentAction extends _$PaymentAction {
       );
 
       if (userId.isEmpty) {
-        print('❌ [PaymentAction] No authenticated user');
+        debugPrint('❌ [PaymentAction] No authenticated user');
         state = const PaymentActionState.error('Not authenticated');
         return false;
       }
@@ -253,12 +254,12 @@ class PaymentAction extends _$PaymentAction {
             invalidData: (msg) => msg,
             orElse: () => 'Failed to unmark payment',
           );
-          print('❌ [PaymentAction] Error: $message');
+          debugPrint('❌ [PaymentAction] Error: $message');
           state = PaymentActionState.error(message);
           return false;
         },
         (payment) {
-          print('✅ [PaymentAction] Payment unmarked successfully');
+          debugPrint('✅ [PaymentAction] Payment unmarked successfully');
           state = PaymentActionState.success(payment);
 
           // Invalidate relevant providers to refresh UI
@@ -268,7 +269,7 @@ class PaymentAction extends _$PaymentAction {
         },
       );
     } catch (e) {
-      print('❌ [PaymentAction] Unexpected error: $e');
+      debugPrint('❌ [PaymentAction] Unexpected error: $e');
       state = PaymentActionState.error('Unexpected error: $e');
       return false;
     }
@@ -283,7 +284,7 @@ class PaymentAction extends _$PaymentAction {
   ///
   /// This ensures the UI updates to reflect the new payment status.
   void _invalidateProviders(String subscriptionId) {
-    print('🔄 [PaymentAction] Invalidating providers...');
+    debugPrint('🔄 [PaymentAction] Invalidating providers...');
 
     // Invalidate subscription members (payment status changed)
     ref.invalidate(subscriptionMembersProvider(subscriptionId));
@@ -297,6 +298,6 @@ class PaymentAction extends _$PaymentAction {
     // Invalidate pending payments (may have decreased)
     ref.invalidate(pendingPaymentsProvider);
 
-    print('✅ [PaymentAction] Providers invalidated');
+    debugPrint('✅ [PaymentAction] Providers invalidated');
   }
 }

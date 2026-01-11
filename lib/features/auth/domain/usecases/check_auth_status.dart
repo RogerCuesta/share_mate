@@ -12,8 +12,8 @@ import 'package:flutter_project_agents/features/auth/domain/repositories/auth_re
 /// ```dart
 /// final result = await checkAuthStatus();
 /// result.fold(
-///   (failure) => print('Error checking auth: $failure'),
-///   (isAuthenticated) => print('Is authenticated: $isAuthenticated'),
+///   (failure) => debugPrint('Error checking auth: $failure'),
+///   (isAuthenticated) => debugPrint('Is authenticated: $isAuthenticated'),
 /// );
 /// ```
 class CheckAuthStatus {

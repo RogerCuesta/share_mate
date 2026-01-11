@@ -31,8 +31,6 @@ void main() {
     billingCycle: BillingCycle.monthly,
     dueDate: DateTime.now().add(const Duration(days: 30)),
     ownerId: 'user-123',
-    sharedWith: const [],
-    status: SubscriptionStatus.active,
     createdAt: DateTime.now(),
   );
 

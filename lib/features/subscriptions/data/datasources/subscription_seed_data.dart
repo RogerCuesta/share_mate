@@ -30,14 +30,12 @@ class SubscriptionSeedData {
       Subscription(
         id: 'sub_1',
         name: 'Netflix',
-        iconUrl: null,
         color: '#E50914',
         totalCost: 15.99,
         billingCycle: BillingCycle.monthly,
         dueDate: now.add(const Duration(days: 24)),
         ownerId: currentUserId,
         sharedWith: ['user_2', 'user_3'],
-        status: SubscriptionStatus.active,
         createdAt: now.subtract(const Duration(days: 90)),
       ),
 
@@ -45,14 +43,12 @@ class SubscriptionSeedData {
       Subscription(
         id: 'sub_2',
         name: 'Spotify',
-        iconUrl: null,
         color: '#1DB954',
         totalCost: 9.99,
         billingCycle: BillingCycle.monthly,
         dueDate: now.add(const Duration(days: 28)),
         ownerId: currentUserId,
         sharedWith: ['user_2'],
-        status: SubscriptionStatus.active,
         createdAt: now.subtract(const Duration(days: 60)),
       ),
 
@@ -60,14 +56,12 @@ class SubscriptionSeedData {
       Subscription(
         id: 'sub_3',
         name: 'Disney+',
-        iconUrl: null,
         color: '#0063E5',
         totalCost: 13.99,
         billingCycle: BillingCycle.monthly,
         dueDate: now.add(const Duration(days: 15)),
         ownerId: currentUserId,
         sharedWith: ['user_3', 'user_4'],
-        status: SubscriptionStatus.active,
         createdAt: now.subtract(const Duration(days: 45)),
       ),
 
@@ -75,14 +69,12 @@ class SubscriptionSeedData {
       Subscription(
         id: 'sub_4',
         name: 'YouTube Premium',
-        iconUrl: null,
         color: '#FF0000',
         totalCost: 11.99,
         billingCycle: BillingCycle.monthly,
         dueDate: now.add(const Duration(days: 5)),
         ownerId: currentUserId,
         sharedWith: ['user_2', 'user_3', 'user_4'],
-        status: SubscriptionStatus.active,
         createdAt: now.subtract(const Duration(days: 120)),
       ),
 
@@ -90,14 +82,12 @@ class SubscriptionSeedData {
       Subscription(
         id: 'sub_5',
         name: 'Amazon Prime',
-        iconUrl: null,
         color: '#00A8E1',
         totalCost: 14.99,
         billingCycle: BillingCycle.monthly,
         dueDate: now.add(const Duration(days: 20)),
         ownerId: currentUserId,
         sharedWith: ['user_5'],
-        status: SubscriptionStatus.active,
         createdAt: now.subtract(const Duration(days: 180)),
       ),
 
@@ -105,14 +95,12 @@ class SubscriptionSeedData {
       Subscription(
         id: 'sub_6',
         name: 'Apple Music',
-        iconUrl: null,
         color: '#FA243C',
         totalCost: 10.99,
         billingCycle: BillingCycle.monthly,
         dueDate: now.add(const Duration(days: 12)),
         ownerId: currentUserId,
         sharedWith: ['user_6'],
-        status: SubscriptionStatus.active,
         createdAt: now.subtract(const Duration(days: 30)),
       ),
 
@@ -120,14 +108,12 @@ class SubscriptionSeedData {
       Subscription(
         id: 'sub_7',
         name: 'HBO Max',
-        iconUrl: null,
         color: '#5D28FA',
         totalCost: 15.99,
         billingCycle: BillingCycle.monthly,
         dueDate: now.add(const Duration(days: 8)),
         ownerId: currentUserId,
         sharedWith: ['user_2', 'user_6'],
-        status: SubscriptionStatus.active,
         createdAt: now.subtract(const Duration(days: 75)),
       ),
 
@@ -135,14 +121,12 @@ class SubscriptionSeedData {
       Subscription(
         id: 'sub_8',
         name: 'Adobe Creative Cloud',
-        iconUrl: null,
         color: '#FF0000',
         totalCost: 599.88, // Yearly cost
         billingCycle: BillingCycle.yearly,
         dueDate: now.add(const Duration(days: 120)),
         ownerId: currentUserId,
         sharedWith: [],
-        status: SubscriptionStatus.active,
         createdAt: now.subtract(const Duration(days: 245)),
       ),
     ];
@@ -163,9 +147,7 @@ class SubscriptionSeedData {
         userId: 'user_2',
         userName: 'Sarah Jenkins',
         userEmail: 'sarah@email.com',
-        userAvatar: null,
         amountToPay: 5.33, // 15.99 / 3 members
-        hasPaid: false,
         lastPaymentDate: now.subtract(const Duration(days: 34)),
         dueDate: now.subtract(const Duration(days: 4)),
         createdAt: now.subtract(const Duration(days: 90)),
@@ -178,9 +160,7 @@ class SubscriptionSeedData {
         userId: 'user_3',
         userName: 'Mike T.',
         userEmail: 'sarah@email.com',
-        userAvatar: null,
-        amountToPay: 5.00, // 9.99 / 2 members
-        hasPaid: false,
+        amountToPay: 5, // 9.99 / 2 members
         lastPaymentDate: now.subtract(const Duration(days: 35)),
         dueDate: now.subtract(const Duration(days: 5)),
         createdAt: now.subtract(const Duration(days: 60)),
@@ -193,10 +173,7 @@ class SubscriptionSeedData {
         userId: 'user_3',
         userName: 'Emma Wilson',
         userEmail: 'sarah@email.com',
-        userAvatar: null,
         amountToPay: 4.66, // 13.99 / 3 members
-        hasPaid: false,
-        lastPaymentDate: null,
         dueDate: now.add(const Duration(days: 15)),
         createdAt: now.subtract(const Duration(days: 45)),
       ),
@@ -208,10 +185,7 @@ class SubscriptionSeedData {
         userId: 'user_4',
         userName: 'David Lee',
         userEmail: 'sarah@email.com',
-        userAvatar: null,
         amountToPay: 4.66, // 13.99 / 3 members
-        hasPaid: false,
-        lastPaymentDate: null,
         dueDate: now.add(const Duration(days: 15)),
         createdAt: now.subtract(const Duration(days: 45)),
       ),
@@ -223,9 +197,7 @@ class SubscriptionSeedData {
         userId: 'user_2',
         userName: 'Alex Rodriguez',
         userEmail: 'sarah@email.com',
-        userAvatar: null,
-        amountToPay: 3.00, // 11.99 / 4 members
-        hasPaid: false,
+        amountToPay: 3, // 11.99 / 4 members
         lastPaymentDate: now.subtract(const Duration(days: 25)),
         dueDate: now.add(const Duration(days: 5)),
         createdAt: now.subtract(const Duration(days: 120)),
@@ -238,10 +210,7 @@ class SubscriptionSeedData {
         userId: 'user_3',
         userName: 'Jessica Chen',
         userEmail: 'sarah@email.com',
-        userAvatar: null,
-        amountToPay: 3.00, // 11.99 / 4 members
-        hasPaid: false,
-        lastPaymentDate: null,
+        amountToPay: 3, // 11.99 / 4 members
         dueDate: now.add(const Duration(days: 5)),
         createdAt: now.subtract(const Duration(days: 120)),
       ),
@@ -253,9 +222,7 @@ class SubscriptionSeedData {
         userId: 'user_4',
         userName: 'Chris Parker',
         userEmail: 'sarah@email.com',
-        userAvatar: null,
-        amountToPay: 3.00, // 11.99 / 4 members
-        hasPaid: false,
+        amountToPay: 3, // 11.99 / 4 members
         lastPaymentDate: now.subtract(const Duration(days: 32)),
         dueDate: now.subtract(const Duration(days: 2)),
         createdAt: now.subtract(const Duration(days: 120)),
@@ -268,10 +235,7 @@ class SubscriptionSeedData {
         userId: 'user_5',
         userName: 'Rachel Green',
         userEmail: 'sarah@email.com',
-        userAvatar: null,
         amountToPay: 7.50, // 14.99 / 2 members
-        hasPaid: false,
-        lastPaymentDate: null,
         dueDate: now.add(const Duration(days: 20)),
         createdAt: now.subtract(const Duration(days: 180)),
       ),
@@ -283,10 +247,7 @@ class SubscriptionSeedData {
         userId: 'user_6',
         userName: 'Tom Brady',
         userEmail: 'sarah@email.com',
-        userAvatar: null,
         amountToPay: 5.50, // 10.99 / 2 members
-        hasPaid: false,
-        lastPaymentDate: null,
         dueDate: now.add(const Duration(days: 12)),
         createdAt: now.subtract(const Duration(days: 30)),
       ),
@@ -298,10 +259,7 @@ class SubscriptionSeedData {
         userId: 'user_2',
         userName: 'Lisa Anderson',
         userEmail: 'sarah@email.com',
-        userAvatar: null,
         amountToPay: 5.33, // 15.99 / 3 members
-        hasPaid: false,
-        lastPaymentDate: null,
         dueDate: now.add(const Duration(days: 8)),
         createdAt: now.subtract(const Duration(days: 75)),
       ),
@@ -313,10 +271,7 @@ class SubscriptionSeedData {
         userId: 'user_6',
         userName: 'Kevin Martinez',
         userEmail: 'sarah@email.com',
-        userAvatar: null,
         amountToPay: 5.33, // 15.99 / 3 members
-        hasPaid: false,
-        lastPaymentDate: null,
         dueDate: now.add(const Duration(days: 8)),
         createdAt: now.subtract(const Duration(days: 75)),
       ),
@@ -329,10 +284,10 @@ class SubscriptionSeedData {
   static MonthlyStats getMockStats() {
     return const MonthlyStats(
       totalMonthlyCost: 142.90, // Sum of all monthly costs (including yearly/12)
-      pendingToCollect: 45.00, // Total from unpaid members
+      pendingToCollect: 45, // Total from unpaid members
       activeSubscriptionsCount: 8, // All 8 subscriptions
       overduePaymentsCount: 3, // Sarah, Mike, and Chris
-      collectedAmount: 35.00, // Amount already collected this month
+      collectedAmount: 35, // Amount already collected this month
       paidMembersCount: 4, // Members who have paid
       unpaidMembersCount: 11, // Members who haven't paid
     );

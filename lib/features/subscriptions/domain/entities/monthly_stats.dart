@@ -33,7 +33,7 @@ class MonthlyStats with _$MonthlyStats {
   /// Calculate the percentage of payments collected
   double get collectionRate {
     final totalExpected = pendingToCollect + collectedAmount;
-    if (totalExpected == 0) return 0.0;
+    if (totalExpected == 0) return 0;
     return (collectedAmount / totalExpected) * 100;
   }
 
@@ -50,7 +50,7 @@ class MonthlyStats with _$MonthlyStats {
 
   /// Get average cost per subscription
   double get averageCostPerSubscription {
-    if (activeSubscriptionsCount == 0) return 0.0;
+    if (activeSubscriptionsCount == 0) return 0;
     return totalMonthlyCost / activeSubscriptionsCount;
   }
 }

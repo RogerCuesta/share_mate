@@ -7,12 +7,6 @@ import 'package:intl/intl.dart';
 ///
 /// Displays a live preview of the subscription card with the current form values.
 class SubscriptionPreviewCard extends StatelessWidget {
-  final String name;
-  final double totalCost;
-  final BillingCycle billingCycle;
-  final DateTime dueDate;
-  final String color;
-  final String? iconUrl;
 
   const SubscriptionPreviewCard({
     required this.name,
@@ -23,6 +17,12 @@ class SubscriptionPreviewCard extends StatelessWidget {
     this.iconUrl,
     super.key,
   });
+  final String name;
+  final double totalCost;
+  final BillingCycle billingCycle;
+  final DateTime dueDate;
+  final String color;
+  final String? iconUrl;
 
   @override
   Widget build(BuildContext context) {
@@ -57,7 +57,6 @@ class SubscriptionPreviewCard extends StatelessWidget {
               BoxShadow(
                 color: cardColor.withValues(alpha: 0.4),
                 blurRadius: 20,
-                spreadRadius: 0,
                 offset: const Offset(0, 8),
               ),
             ],

@@ -13,8 +13,8 @@ import 'package:flutter_project_agents/features/auth/domain/repositories/auth_re
 /// ```dart
 /// final result = await registerUser(params);
 /// result.fold(
-///   (failure) => print('Registration failed: $failure'),
-///   (user) => print('User registered: ${user.email}'),
+///   (failure) => debugPrint('Registration failed: $failure'),
+///   (user) => debugPrint('User registered: ${user.email}'),
 /// );
 /// ```
 class RegisterUser {

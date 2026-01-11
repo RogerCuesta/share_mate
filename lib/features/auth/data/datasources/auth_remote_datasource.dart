@@ -61,9 +61,9 @@ abstract class AuthRemoteDataSource {
 
 /// Implementation of AuthRemoteDataSource using Supabase
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
-  final SupabaseClient _client;
 
   const AuthRemoteDataSourceImpl({required SupabaseClient client}) : _client = client;
+  final SupabaseClient _client;
 
   @override
   Future<AuthResponse> register({
@@ -272,15 +272,15 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
 
 /// Base exception for remote authentication errors
 class AuthRemoteException implements Exception {
-  final String message;
-  final String code;
-  final dynamic originalError;
 
   const AuthRemoteException(
     this.message, {
     this.code = 'auth_error',
     this.originalError,
   });
+  final String message;
+  final String code;
+  final dynamic originalError;
 
   @override
   String toString() => 'AuthRemoteException($code): $message';
@@ -288,9 +288,9 @@ class AuthRemoteException implements Exception {
 
 /// Network connectivity exception
 class NetworkException implements Exception {
-  final String message;
 
   const NetworkException(this.message);
+  final String message;
 
   @override
   String toString() => 'NetworkException: $message';

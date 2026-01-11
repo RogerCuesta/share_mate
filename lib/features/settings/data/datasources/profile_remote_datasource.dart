@@ -2,9 +2,8 @@
 
 import 'dart:typed_data';
 
+import 'package:flutter_project_agents/features/settings/data/models/user_profile_model.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-
-import '../models/user_profile_model.dart';
 
 /// Profile Remote Data Source Interface
 abstract class ProfileRemoteDataSource {
@@ -16,9 +15,9 @@ abstract class ProfileRemoteDataSource {
 
 /// Profile Remote Data Source Implementation (Supabase)
 class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
-  final SupabaseClient client;
 
   ProfileRemoteDataSourceImpl({required this.client});
+  final SupabaseClient client;
 
   @override
   Future<UserProfileModel> getProfile(String userId) async {
@@ -54,7 +53,7 @@ class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
   @override
   Future<String> uploadAvatar(String userId, Uint8List imageData) async {
     try {
-      final fileName = 'profile.jpg';
+      const fileName = 'profile.jpg';
       final path = '$userId/$fileName';
 
       // Upload to Supabase Storage
@@ -88,8 +87,8 @@ class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
 
 /// Exception thrown when profile remote operations fail
 class ProfileRemoteException implements Exception {
-  final String message;
   ProfileRemoteException(this.message);
+  final String message;
 
   @override
   String toString() => message;
@@ -97,8 +96,8 @@ class ProfileRemoteException implements Exception {
 
 /// Exception thrown when avatar upload fails
 class AvatarUploadException implements Exception {
-  final String message;
   AvatarUploadException(this.message);
+  final String message;
 
   @override
   String toString() => message;
@@ -106,8 +105,8 @@ class AvatarUploadException implements Exception {
 
 /// Exception thrown when avatar deletion fails
 class AvatarDeleteException implements Exception {
-  final String message;
   AvatarDeleteException(this.message);
+  final String message;
 
   @override
   String toString() => message;

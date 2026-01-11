@@ -5,10 +5,9 @@ import 'package:flutter_project_agents/core/presentation/app_shell.dart';
 import 'package:flutter_project_agents/features/auth/presentation/providers/auth_provider.dart';
 import 'package:flutter_project_agents/features/auth/presentation/screens/login_screen.dart';
 import 'package:flutter_project_agents/features/auth/presentation/screens/register_screen.dart';
-import 'package:flutter_project_agents/features/subscriptions/presentation/screens/create_subscription_screen.dart';
 import 'package:flutter_project_agents/features/subscriptions/presentation/screens/create_group_subscription_screen.dart';
+import 'package:flutter_project_agents/features/subscriptions/presentation/screens/create_subscription_screen.dart';
 import 'package:flutter_project_agents/features/subscriptions/presentation/screens/subscription_detail_screen.dart';
-import 'package:flutter_project_agents/features/friends/presentation/screens/add_friend_screen.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -121,11 +120,6 @@ final routerProvider = Provider<GoRouter>((ref) {
           final subscriptionId = state.pathParameters['id']!;
           return CreateGroupSubscriptionScreen(subscriptionId: subscriptionId);
         },
-      ),
-      GoRoute(
-        path: '/add-friend',
-        name: 'add-friend',
-        builder: (context, state) => const AddFriendScreen(),
       ),
     ],
     errorBuilder: (context, state) => Scaffold(

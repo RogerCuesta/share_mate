@@ -7,7 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 /// Custom Bottom Navigation Bar with notched design for centered FAB
 ///
 /// Features:
-/// - 4 navigation items (Home, Friends, Analytics, Settings)
+/// - 4 navigation items (Home, Contacts, Analytics, Settings)
 /// - Circular notch in center for FAB
 /// - Active state with color transition
 /// - Filled/Outlined icons based on state
@@ -22,7 +22,7 @@ class CustomBottomNavBar extends ConsumerWidget {
 
     return BottomAppBar(
       shape: const CircularNotchedRectangle(),
-      notchMargin: 8.0,
+      notchMargin: 8,
       color: const Color(0xFF1F1F2E).withValues(alpha: 0.95),
       elevation: 0,
       child: ClipRRect(
@@ -43,9 +43,9 @@ class CustomBottomNavBar extends ConsumerWidget {
                       .setIndex(0),
                 ),
                 _NavBarItem(
-                  icon: Icons.people_outline,
-                  activeIcon: Icons.people,
-                  label: 'Friends',
+                  icon: Icons.contacts_outlined,
+                  activeIcon: Icons.contacts,
+                  label: 'Contacts',
                   isActive: selectedIndex == 1,
                   onTap: () => ref
                       .read(selectedBottomNavIndexProvider.notifier)
@@ -85,11 +85,6 @@ class CustomBottomNavBar extends ConsumerWidget {
 // ═══════════════════════════════════════════════════════════════════════════
 
 class _NavBarItem extends StatefulWidget {
-  final IconData icon;
-  final IconData activeIcon;
-  final String label;
-  final bool isActive;
-  final VoidCallback onTap;
 
   const _NavBarItem({
     required this.icon,
@@ -98,6 +93,11 @@ class _NavBarItem extends StatefulWidget {
     required this.isActive,
     required this.onTap,
   });
+  final IconData icon;
+  final IconData activeIcon;
+  final String label;
+  final bool isActive;
+  final VoidCallback onTap;
 
   @override
   State<_NavBarItem> createState() => _NavBarItemState();
@@ -119,7 +119,7 @@ class _NavBarItemState extends State<_NavBarItem>
     );
 
     _scaleAnimation = Tween<double>(
-      begin: 1.0,
+      begin: 1,
       end: 1.1,
     ).animate(
       CurvedAnimation(

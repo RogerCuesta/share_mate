@@ -98,7 +98,7 @@ void main() {
             email: email,
             password: password,
           )).thenThrow(
-        AuthException('User already registered'),
+        const AuthException('User already registered'),
       );
 
       // Act & Assert
@@ -118,7 +118,7 @@ void main() {
             email: email,
             password: password,
           )).thenThrow(
-        AuthException('Password is too weak'),
+        const AuthException('Password is too weak'),
       );
 
       // Act & Assert
@@ -199,7 +199,7 @@ void main() {
           )).thenAnswer((_) async => mockAuthResponse);
 
       when(() => mockGoTrueClient.updateUser(any())).thenThrow(
-        AuthException('Failed to update metadata'),
+        const AuthException('Failed to update metadata'),
       );
 
       // Act
@@ -261,7 +261,7 @@ void main() {
             email: email,
             password: password,
           )).thenThrow(
-        AuthException('Invalid login credentials'),
+        const AuthException('Invalid login credentials'),
       );
 
       // Act & Assert
@@ -280,7 +280,7 @@ void main() {
             email: email,
             password: password,
           )).thenThrow(
-        AuthException('User not found'),
+        const AuthException('User not found'),
       );
 
       // Act & Assert
@@ -299,7 +299,7 @@ void main() {
             email: email,
             password: password,
           )).thenThrow(
-        AuthException('Too many requests'),
+        const AuthException('Too many requests'),
       );
 
       // Act & Assert
@@ -386,7 +386,7 @@ void main() {
     test('should throw AuthRemoteException on Supabase error during logout', () async {
       // Arrange
       when(() => mockGoTrueClient.signOut()).thenThrow(
-        AuthException('Session expired'),
+        const AuthException('Session expired'),
       );
 
       // Act & Assert

@@ -1,10 +1,9 @@
 // lib/features/settings/presentation/providers/theme_provider.dart
 
 import 'package:flutter/material.dart' show ThemeMode;
+import 'package:flutter_project_agents/core/di/injection.dart';
+import 'package:flutter_project_agents/features/settings/domain/entities/app_settings.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-
-import '../../../../core/di/injection.dart';
-import '../../domain/entities/app_settings.dart';
 
 part 'theme_provider.g.dart';
 

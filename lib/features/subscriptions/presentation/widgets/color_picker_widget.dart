@@ -28,14 +28,14 @@ class SubscriptionColors {
 ///
 /// Displays a grid of predefined colors with the selected color highlighted.
 class ColorPickerWidget extends StatelessWidget {
-  final String selectedColor;
-  final ValueChanged<String> onColorSelected;
 
   const ColorPickerWidget({
     required this.selectedColor,
     required this.onColorSelected,
     super.key,
   });
+  final String selectedColor;
+  final ValueChanged<String> onColorSelected;
 
   @override
   Widget build(BuildContext context) {
@@ -57,7 +57,6 @@ class ColorPickerWidget extends StatelessWidget {
             crossAxisCount: 6,
             crossAxisSpacing: 12,
             mainAxisSpacing: 12,
-            childAspectRatio: 1,
           ),
           itemCount: SubscriptionColors.predefinedColors.length,
           itemBuilder: (context, index) {
@@ -78,15 +77,15 @@ class ColorPickerWidget extends StatelessWidget {
 
 /// Individual color option in the color picker
 class _ColorOption extends StatelessWidget {
-  final String color;
-  final bool isSelected;
-  final VoidCallback onTap;
 
   const _ColorOption({
     required this.color,
     required this.isSelected,
     required this.onTap,
   });
+  final String color;
+  final bool isSelected;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {

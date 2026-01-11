@@ -1,14 +1,9 @@
 // lib/features/subscriptions/data/models/subscription_spending_model.dart
 
-import '../../domain/entities/subscription_spending.dart';
+import 'package:flutter_project_agents/features/subscriptions/domain/entities/subscription_spending.dart';
 
 /// Data model for SubscriptionSpending
 class SubscriptionSpendingModel {
-  final String subscriptionId;
-  final String subscriptionName;
-  final double totalAmountPaid;
-  final int paymentCount;
-  final String color;
 
   const SubscriptionSpendingModel({
     required this.subscriptionId,
@@ -17,17 +12,6 @@ class SubscriptionSpendingModel {
     required this.paymentCount,
     required this.color,
   });
-
-  /// Convert to domain entity
-  SubscriptionSpending toEntity() {
-    return SubscriptionSpending(
-      subscriptionId: subscriptionId,
-      subscriptionName: subscriptionName,
-      totalAmountPaid: totalAmountPaid,
-      paymentCount: paymentCount,
-      color: color,
-    );
-  }
 
   /// Create from domain entity
   factory SubscriptionSpendingModel.fromEntity(SubscriptionSpending entity) {
@@ -48,6 +32,22 @@ class SubscriptionSpendingModel {
       totalAmountPaid: (json['total_amount_paid'] as num).toDouble(),
       paymentCount: json['payment_count'] as int,
       color: json['color'] as String,
+    );
+  }
+  final String subscriptionId;
+  final String subscriptionName;
+  final double totalAmountPaid;
+  final int paymentCount;
+  final String color;
+
+  /// Convert to domain entity
+  SubscriptionSpending toEntity() {
+    return SubscriptionSpending(
+      subscriptionId: subscriptionId,
+      subscriptionName: subscriptionName,
+      totalAmountPaid: totalAmountPaid,
+      paymentCount: paymentCount,
+      color: color,
     );
   }
 

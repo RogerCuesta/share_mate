@@ -1,7 +1,7 @@
 // lib/core/theme/theme_extensions.dart
 
 import 'package:flutter/material.dart';
-import 'app_colors.dart';
+import 'package:flutter_project_agents/core/theme/app_colors.dart';
 
 /// Custom theme extension for brand-specific properties
 ///
@@ -9,6 +9,27 @@ import 'app_colors.dart';
 /// custom shadows, spacing, and brand-specific UI elements.
 @immutable
 class AppThemeExtension extends ThemeExtension<AppThemeExtension> {
+
+  const AppThemeExtension({
+    required this.primaryGradient,
+    required this.cardGradientPurple,
+    required this.cardGradientCyan,
+    required this.cardGradientBlue,
+    required this.cardGradientRed,
+    required this.cardShadow,
+    required this.buttonShadow,
+    required this.bottomNavShadow,
+    required this.borderRadiusSmall,
+    required this.borderRadiusMedium,
+    required this.borderRadiusLarge,
+    required this.borderRadiusXLarge,
+    required this.spacingXSmall,
+    required this.spacingSmall,
+    required this.spacingMedium,
+    required this.spacingLarge,
+    required this.spacingXLarge,
+    required this.glassBlurSigma,
+  });
   /// Gradients
   final LinearGradient primaryGradient;
   final LinearGradient cardGradientPurple;
@@ -37,29 +58,8 @@ class AppThemeExtension extends ThemeExtension<AppThemeExtension> {
   /// Glassmorphism blur
   final double glassBlurSigma;
 
-  const AppThemeExtension({
-    required this.primaryGradient,
-    required this.cardGradientPurple,
-    required this.cardGradientCyan,
-    required this.cardGradientBlue,
-    required this.cardGradientRed,
-    required this.cardShadow,
-    required this.buttonShadow,
-    required this.bottomNavShadow,
-    required this.borderRadiusSmall,
-    required this.borderRadiusMedium,
-    required this.borderRadiusLarge,
-    required this.borderRadiusXLarge,
-    required this.spacingXSmall,
-    required this.spacingSmall,
-    required this.spacingMedium,
-    required this.spacingLarge,
-    required this.spacingXLarge,
-    required this.glassBlurSigma,
-  });
-
   /// Light theme extension
-  static final light = AppThemeExtension(
+  static const light = AppThemeExtension(
     primaryGradient: AppColors.primaryGradient,
     cardGradientPurple: AppColors.primaryGradient,
     cardGradientCyan: AppColors.cyanGradient,
@@ -69,21 +69,21 @@ class AppThemeExtension extends ThemeExtension<AppThemeExtension> {
       BoxShadow(
         color: AppColors.lightShadow,
         blurRadius: 8,
-        offset: const Offset(0, 2),
+        offset: Offset(0, 2),
       ),
     ],
     buttonShadow: [
       BoxShadow(
         color: AppColors.lightShadow,
         blurRadius: 4,
-        offset: const Offset(0, 2),
+        offset: Offset(0, 2),
       ),
     ],
     bottomNavShadow: [
       BoxShadow(
         color: AppColors.lightShadow,
         blurRadius: 12,
-        offset: const Offset(0, -4),
+        offset: Offset(0, -4),
       ),
     ],
     borderRadiusSmall: 8,
@@ -99,7 +99,7 @@ class AppThemeExtension extends ThemeExtension<AppThemeExtension> {
   );
 
   /// Dark theme extension
-  static final dark = AppThemeExtension(
+  static const dark = AppThemeExtension(
     primaryGradient: AppColors.primaryGradient,
     cardGradientPurple: AppColors.primaryGradient,
     cardGradientCyan: AppColors.cyanGradient,
@@ -109,21 +109,21 @@ class AppThemeExtension extends ThemeExtension<AppThemeExtension> {
       BoxShadow(
         color: AppColors.darkShadow,
         blurRadius: 8,
-        offset: const Offset(0, 4),
+        offset: Offset(0, 4),
       ),
     ],
     buttonShadow: [
       BoxShadow(
         color: AppColors.darkShadow,
         blurRadius: 4,
-        offset: const Offset(0, 2),
+        offset: Offset(0, 2),
       ),
     ],
     bottomNavShadow: [
       BoxShadow(
         color: AppColors.darkShadow,
         blurRadius: 12,
-        offset: const Offset(0, -4),
+        offset: Offset(0, -4),
       ),
     ],
     borderRadiusSmall: 8,

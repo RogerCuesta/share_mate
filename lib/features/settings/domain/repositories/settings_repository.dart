@@ -2,8 +2,8 @@
 
 import 'package:dartz/dartz.dart';
 
-import '../entities/app_settings.dart';
-import '../failures/settings_failure.dart';
+import 'package:flutter_project_agents/features/settings/domain/entities/app_settings.dart';
+import 'package:flutter_project_agents/features/settings/domain/failures/settings_failure.dart';
 
 /// Settings Repository Interface
 ///

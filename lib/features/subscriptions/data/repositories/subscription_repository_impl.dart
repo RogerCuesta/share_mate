@@ -1,36 +1,35 @@
 import 'package:dartz/dartz.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter_project_agents/core/sync/payment_sync_queue.dart';
+import 'package:flutter_project_agents/features/subscriptions/data/datasources/subscription_local_datasource.dart';
+import 'package:flutter_project_agents/features/subscriptions/data/datasources/subscription_remote_datasource.dart';
+import 'package:flutter_project_agents/features/subscriptions/data/models/subscription_member_model.dart';
+import 'package:flutter_project_agents/features/subscriptions/data/models/subscription_model.dart';
+import 'package:flutter_project_agents/features/subscriptions/domain/entities/analytics_data.dart';
+import 'package:flutter_project_agents/features/subscriptions/domain/entities/analytics_overview.dart';
+import 'package:flutter_project_agents/features/subscriptions/domain/entities/monthly_stats.dart';
+import 'package:flutter_project_agents/features/subscriptions/domain/entities/payment_analytics.dart';
+import 'package:flutter_project_agents/features/subscriptions/domain/entities/payment_history.dart';
+import 'package:flutter_project_agents/features/subscriptions/domain/entities/payment_stats.dart';
+import 'package:flutter_project_agents/features/subscriptions/domain/entities/subscription.dart';
+import 'package:flutter_project_agents/features/subscriptions/domain/entities/subscription_member.dart';
+import 'package:flutter_project_agents/features/subscriptions/domain/entities/time_range.dart';
+import 'package:flutter_project_agents/features/subscriptions/domain/failures/subscription_failure.dart';
+import 'package:flutter_project_agents/features/subscriptions/domain/repositories/subscription_repository.dart';
 import 'package:uuid/uuid.dart';
-
-import '../../../../core/sync/payment_sync_queue.dart';
-import '../../domain/entities/analytics_data.dart';
-import '../../domain/entities/analytics_overview.dart';
-import '../../domain/entities/monthly_stats.dart';
-import '../../domain/entities/payment_analytics.dart';
-import '../../domain/entities/payment_history.dart';
-import '../../domain/entities/payment_stats.dart';
-import '../../domain/entities/subscription.dart';
-import '../../domain/entities/subscription_member.dart';
-import '../../domain/entities/time_range.dart';
-import '../../domain/failures/subscription_failure.dart';
-import '../../domain/repositories/subscription_repository.dart';
-import '../datasources/subscription_local_datasource.dart';
-import '../datasources/subscription_remote_datasource.dart';
-import '../models/analytics_data_model.dart';
-import '../models/subscription_member_model.dart';
-import '../models/subscription_model.dart';
 
 /// Implementation of SubscriptionRepository with offline-first strategy
 ///
 /// This repository tries Supabase first, then falls back to Hive cache on errors.
 class SubscriptionRepositoryImpl implements SubscriptionRepository {
-  final SubscriptionRemoteDataSource _remoteDataSource;
-  final SubscriptionLocalDataSource _localDataSource;
 
   SubscriptionRepositoryImpl({
     required SubscriptionRemoteDataSource remoteDataSource,
     required SubscriptionLocalDataSource localDataSource,
   })  : _remoteDataSource = remoteDataSource,
         _localDataSource = localDataSource;
+  final SubscriptionRemoteDataSource _remoteDataSource;
+  final SubscriptionLocalDataSource _localDataSource;
 
   @override
   Future<Either<SubscriptionFailure, MonthlyStats>> getMonthlyStats(
@@ -52,7 +51,7 @@ class SubscriptionRepositoryImpl implements SubscriptionRepository {
             subscriptions.where((s) => s.status == 'active').toList();
 
         final totalMonthlyCost = activeSubscriptions.fold<double>(
-          0.0,
+          0,
           (sum, sub) {
             final monthlyCost = sub.billingCycle == 'yearly'
                 ? sub.totalCost / 12
@@ -66,12 +65,12 @@ class SubscriptionRepositoryImpl implements SubscriptionRepository {
         final paidMembers = members.where((m) => m.hasPaid).toList();
 
         final pendingToCollect = unpaidMembers.fold<double>(
-          0.0,
+          0,
           (sum, member) => sum + member.amountToPay,
         );
 
         final collectedAmount = paidMembers.fold<double>(
-          0.0,
+          0,
           (sum, member) => sum + member.amountToPay,
         );
 
@@ -271,7 +270,7 @@ class SubscriptionRepositoryImpl implements SubscriptionRepository {
     } on SubscriptionRemoteException {
       // Remote failed, but local is already saved
       // Return network error
-      return Left(SubscriptionFailure.networkError());
+      return const Left(SubscriptionFailure.networkError());
     } catch (e) {
       return Left(SubscriptionFailure.serverError(e.toString()));
     }
@@ -295,7 +294,7 @@ class SubscriptionRepositoryImpl implements SubscriptionRepository {
 
       return Right(remoteModel.toEntity());
     } on SubscriptionRemoteException {
-      return Left(SubscriptionFailure.networkError());
+      return const Left(SubscriptionFailure.networkError());
     } catch (e) {
       return Left(SubscriptionFailure.serverError(e.toString()));
     }
@@ -314,7 +313,7 @@ class SubscriptionRepositoryImpl implements SubscriptionRepository {
 
       return const Right(unit);
     } on SubscriptionRemoteException {
-      return Left(SubscriptionFailure.networkError());
+      return const Left(SubscriptionFailure.networkError());
     } catch (e) {
       return Left(SubscriptionFailure.serverError(e.toString()));
     }
@@ -330,8 +329,8 @@ class SubscriptionRepositoryImpl implements SubscriptionRepository {
     String? notes,
   }) async {
     try {
-      print('🔍 [SubscriptionRepository] Marking payment as paid');
-      print('   Member: $memberId, Amount: \$${amount.toStringAsFixed(2)}');
+      debugPrint('🔍 [SubscriptionRepository] Marking payment as paid');
+      debugPrint('   Member: $memberId, Amount: \$${amount.toStringAsFixed(2)}');
 
       // Phase 1: Optimistic update in local cache
       final cachedMember = await _localDataSource.getMemberById(memberId);
@@ -357,7 +356,7 @@ class SubscriptionRepositoryImpl implements SubscriptionRepository {
           updatedAt: DateTime.now(),
         );
         await _localDataSource.updateMember(updatedMember);
-        print('   ✅ Local cache updated optimistically');
+        debugPrint('   ✅ Local cache updated optimistically');
       }
 
       // Phase 2: Try remote update
@@ -373,12 +372,12 @@ class SubscriptionRepositoryImpl implements SubscriptionRepository {
 
         // Phase 3a: Success → cache confirmed data
         await _localDataSource.cachePaymentHistory(remoteHistory);
-        print('   ✅ Remote update successful, history cached');
+        debugPrint('   ✅ Remote update successful, history cached');
 
         return Right(remoteHistory.toEntity());
       } on SubscriptionRemoteException catch (e) {
         // Phase 3b: Remote failed → queue for sync
-        print('   ⚠️ Remote update failed: $e');
+        debugPrint('   ⚠️ Remote update failed: $e');
         await _queuePaymentOperation(
           subscriptionId: subscriptionId,
           memberId: memberId,
@@ -404,11 +403,11 @@ class SubscriptionRepositoryImpl implements SubscriptionRepository {
           createdAt: DateTime.now(),
         );
 
-        print('   📤 Operation queued for sync, returning optimistic result');
+        debugPrint('   📤 Operation queued for sync, returning optimistic result');
         return Right(optimisticHistory);
       }
     } catch (e) {
-      print('   ❌ Unexpected error: $e');
+      debugPrint('   ❌ Unexpected error: $e');
       return Left(SubscriptionFailure.paymentError(e.toString()));
     }
   }
@@ -421,15 +420,15 @@ class SubscriptionRepositoryImpl implements SubscriptionRepository {
     String? notes,
   }) async {
     try {
-      print('🔍 [SubscriptionRepository] Marking all payments as paid');
-      print('   Subscription: $subscriptionId');
+      debugPrint('🔍 [SubscriptionRepository] Marking all payments as paid');
+      debugPrint('   Subscription: $subscriptionId');
 
       // Phase 1: Optimistic update in local cache
       final cachedMembers = await _localDataSource
           .getMembersBySubscriptionId(subscriptionId);
       final unpaidMembers = cachedMembers.where((m) => !m.hasPaid).toList();
 
-      print('   📊 Found ${unpaidMembers.length} unpaid members in cache');
+      debugPrint('   📊 Found ${unpaidMembers.length} unpaid members in cache');
 
       // Update all unpaid members locally
       for (final member in unpaidMembers) {
@@ -449,7 +448,7 @@ class SubscriptionRepositoryImpl implements SubscriptionRepository {
         );
         await _localDataSource.updateMember(updatedMember);
       }
-      print('   ✅ Local cache updated optimistically');
+      debugPrint('   ✅ Local cache updated optimistically');
 
       // Phase 2: Try remote update
       try {
@@ -460,11 +459,11 @@ class SubscriptionRepositoryImpl implements SubscriptionRepository {
           notes: notes,
         );
 
-        print('   ✅ Remote update successful: $count payments marked');
+        debugPrint('   ✅ Remote update successful: $count payments marked');
         return Right(count);
       } on SubscriptionRemoteException catch (e) {
         // Phase 3b: Remote failed → queue operations for sync
-        print('   ⚠️ Remote update failed: $e');
+        debugPrint('   ⚠️ Remote update failed: $e');
 
         for (final member in unpaidMembers) {
           await _queuePaymentOperation(
@@ -477,11 +476,11 @@ class SubscriptionRepositoryImpl implements SubscriptionRepository {
           );
         }
 
-        print('   📤 ${unpaidMembers.length} operations queued for sync');
+        debugPrint('   📤 ${unpaidMembers.length} operations queued for sync');
         return Right(unpaidMembers.length);
       }
     } catch (e) {
-      print('   ❌ Unexpected error: $e');
+      debugPrint('   ❌ Unexpected error: $e');
       return Left(SubscriptionFailure.paymentError(e.toString()));
     }
   }
@@ -496,8 +495,8 @@ class SubscriptionRepositoryImpl implements SubscriptionRepository {
     String? notes,
   }) async {
     try {
-      print('🔍 [SubscriptionRepository] Unmarking payment');
-      print('   Member: $memberId');
+      debugPrint('🔍 [SubscriptionRepository] Unmarking payment');
+      debugPrint('   Member: $memberId');
 
       // Phase 1: Optimistic update in local cache
       final cachedMember = await _localDataSource.getMemberById(memberId);
@@ -523,7 +522,7 @@ class SubscriptionRepositoryImpl implements SubscriptionRepository {
           updatedAt: DateTime.now(),
         );
         await _localDataSource.updateMember(updatedMember);
-        print('   ✅ Local cache updated optimistically');
+        debugPrint('   ✅ Local cache updated optimistically');
       }
 
       // Phase 2: Try remote update
@@ -539,12 +538,12 @@ class SubscriptionRepositoryImpl implements SubscriptionRepository {
 
         // Phase 3a: Success → cache confirmed data
         await _localDataSource.cachePaymentHistory(remoteHistory);
-        print('   ✅ Remote update successful, history cached');
+        debugPrint('   ✅ Remote update successful, history cached');
 
         return Right(remoteHistory.toEntity());
       } on SubscriptionRemoteException catch (e) {
         // Phase 3b: Remote failed → queue for sync
-        print('   ⚠️ Remote update failed: $e');
+        debugPrint('   ⚠️ Remote update failed: $e');
         await _queuePaymentOperation(
           subscriptionId: subscriptionId,
           memberId: memberId,
@@ -570,11 +569,11 @@ class SubscriptionRepositoryImpl implements SubscriptionRepository {
           createdAt: DateTime.now(),
         );
 
-        print('   📤 Operation queued for sync, returning optimistic result');
+        debugPrint('   📤 Operation queued for sync, returning optimistic result');
         return Right(optimisticHistory);
       }
     } catch (e) {
-      print('   ❌ Unexpected error: $e');
+      debugPrint('   ❌ Unexpected error: $e');
       return Left(SubscriptionFailure.paymentError(e.toString()));
     }
   }
@@ -585,8 +584,8 @@ class SubscriptionRepositoryImpl implements SubscriptionRepository {
     String? memberId,
   }) async {
     try {
-      print('🔍 [SubscriptionRepository] Fetching payment history');
-      print('   Subscription: $subscriptionId');
+      debugPrint('🔍 [SubscriptionRepository] Fetching payment history');
+      debugPrint('   Subscription: $subscriptionId');
 
       // Try remote first
       final remoteHistory = await _remoteDataSource.getPaymentHistory(
@@ -597,27 +596,27 @@ class SubscriptionRepositoryImpl implements SubscriptionRepository {
       // Cache in Hive
       await _localDataSource.cachePaymentHistories(remoteHistory);
 
-      print('   ✅ Fetched ${remoteHistory.length} records from remote');
+      debugPrint('   ✅ Fetched ${remoteHistory.length} records from remote');
 
       return Right(remoteHistory.map((h) => h.toEntity()).toList());
     } on SubscriptionRemoteException {
       // Fallback to local cache
       try {
-        print('   ⚠️ Remote fetch failed, falling back to cache');
+        debugPrint('   ⚠️ Remote fetch failed, falling back to cache');
         final cachedHistory = memberId != null
             ? await _localDataSource.getPaymentHistoryByMemberId(memberId)
             : await _localDataSource.getPaymentHistoryBySubscriptionId(
                 subscriptionId,
               );
 
-        print('   📦 Fetched ${cachedHistory.length} records from cache');
+        debugPrint('   📦 Fetched ${cachedHistory.length} records from cache');
 
         return Right(cachedHistory.map((h) => h.toEntity()).toList());
       } catch (localError) {
         return Left(SubscriptionFailure.cacheError(localError.toString()));
       }
     } catch (e) {
-      print('   ❌ Unexpected error: $e');
+      debugPrint('   ❌ Unexpected error: $e');
       return Left(SubscriptionFailure.serverError(e.toString()));
     }
   }
@@ -650,9 +649,9 @@ class SubscriptionRepositoryImpl implements SubscriptionRepository {
       );
 
       await syncQueue.enqueue(operation);
-      print('   📤 Queued sync operation: ${operation.id}');
+      debugPrint('   📤 Queued sync operation: ${operation.id}');
     } catch (e) {
-      print('   ⚠️ Failed to queue sync operation: $e');
+      debugPrint('   ⚠️ Failed to queue sync operation: $e');
     }
   }
 
@@ -681,8 +680,6 @@ class SubscriptionRepositoryImpl implements SubscriptionRepository {
             userEmail: userEmail,
             userAvatar: userAvatar,
             amountToPay: subscription.costPerPerson,
-            hasPaid: false,
-            lastPaymentDate: null,
             dueDate: subscription.dueDate,
             createdAt: DateTime.now(),
           );
@@ -699,7 +696,7 @@ class SubscriptionRepositoryImpl implements SubscriptionRepository {
         },
       );
     } on SubscriptionRemoteException {
-      return Left(SubscriptionFailure.networkError());
+      return const Left(SubscriptionFailure.networkError());
     } catch (e) {
       return Left(SubscriptionFailure.memberError(e.toString()));
     }
@@ -718,7 +715,7 @@ class SubscriptionRepositoryImpl implements SubscriptionRepository {
 
       return const Right(unit);
     } on SubscriptionRemoteException {
-      return Left(SubscriptionFailure.networkError());
+      return const Left(SubscriptionFailure.networkError());
     } catch (e) {
       return Left(SubscriptionFailure.memberError(e.toString()));
     }
@@ -743,7 +740,7 @@ class SubscriptionRepositoryImpl implements SubscriptionRepository {
 
       return Right(updatedModel.toEntity());
     } on SubscriptionRemoteException {
-      return Left(SubscriptionFailure.networkError());
+      return const Left(SubscriptionFailure.networkError());
     } catch (e) {
       return Left(SubscriptionFailure.memberError(e.toString()));
     }
@@ -765,7 +762,7 @@ class SubscriptionRepositoryImpl implements SubscriptionRepository {
 
       return Right(stats);
     } on SubscriptionRemoteException {
-      return Left(SubscriptionFailure.networkError());
+      return const Left(SubscriptionFailure.networkError());
     } catch (e) {
       return Left(SubscriptionFailure.serverError(e.toString()));
     }
@@ -778,7 +775,7 @@ class SubscriptionRepositoryImpl implements SubscriptionRepository {
     required List<PaymentHistory> history,
   }) async {
     // TODO: Implement after creating PdfGenerator service
-    return Left(SubscriptionFailure.serverError('PDF export not yet implemented'));
+    return const Left(SubscriptionFailure.serverError('PDF export not yet implemented'));
   }
 
   @override
@@ -788,7 +785,7 @@ class SubscriptionRepositoryImpl implements SubscriptionRepository {
     required List<PaymentHistory> history,
   }) async {
     // TODO: Implement after creating CsvGenerator service
-    return Left(SubscriptionFailure.serverError('CSV export not yet implemented'));
+    return const Left(SubscriptionFailure.serverError('CSV export not yet implemented'));
   }
 
   @override
@@ -797,9 +794,9 @@ class SubscriptionRepositoryImpl implements SubscriptionRepository {
     required TimeRange timeRange,
   }) async {
     try {
-      print('🔍 [SubscriptionRepository] Fetching analytics data');
-      print('   User: $userId');
-      print('   Time Range: ${timeRange.displayName}');
+      debugPrint('🔍 [SubscriptionRepository] Fetching analytics data');
+      debugPrint('   User: $userId');
+      debugPrint('   Time Range: ${timeRange.displayName}');
 
       // Try remote first
       final analyticsModel = await _remoteDataSource.getAnalyticsData(
@@ -810,26 +807,26 @@ class SubscriptionRepositoryImpl implements SubscriptionRepository {
       // Optional: Cache analytics data locally
       // await _localDataSource.cacheAnalyticsData(analyticsModel);
 
-      print('✅ [SubscriptionRepository] Analytics data fetched successfully');
+      debugPrint('✅ [SubscriptionRepository] Analytics data fetched successfully');
       return Right(analyticsModel.toEntity());
     } on SubscriptionRemoteException catch (e) {
       // Fallback: Calculate from cache
-      print('   ⚠️ Remote fetch failed: $e');
-      print('   📦 Calculating analytics from local cache...');
+      debugPrint('   ⚠️ Remote fetch failed: $e');
+      debugPrint('   📦 Calculating analytics from local cache...');
 
       try {
         final cachedAnalytics = await _calculateAnalyticsFromCache(
           userId,
           timeRange,
         );
-        print('   ✅ Analytics calculated from cache');
+        debugPrint('   ✅ Analytics calculated from cache');
         return Right(cachedAnalytics);
       } catch (localError) {
-        print('   ❌ Cache calculation failed: $localError');
+        debugPrint('   ❌ Cache calculation failed: $localError');
         return Left(SubscriptionFailure.cacheError(localError.toString()));
       }
     } catch (e) {
-      print('   ❌ Unexpected error: $e');
+      debugPrint('   ❌ Unexpected error: $e');
       return Left(SubscriptionFailure.serverError(e.toString()));
     }
   }
@@ -849,7 +846,7 @@ class SubscriptionRepositoryImpl implements SubscriptionRepository {
         subscriptions.where((s) => s.status == 'active').toList();
 
     final totalMonthlyCost = activeSubscriptions.fold<double>(
-      0.0,
+      0,
       (sum, sub) {
         final monthlyCost = sub.billingCycle == 'yearly'
             ? sub.totalCost / 12

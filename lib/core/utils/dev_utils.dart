@@ -1,4 +1,5 @@
 // lib/core/utils/dev_utils.dart
+import 'package:flutter/foundation.dart';
 
 import 'package:flutter_project_agents/core/storage/hive_service.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -25,7 +26,7 @@ class DevUtils {
   /// ```dart
   /// // In your debug menu or during development
   /// await DevUtils.clearAllAuthData();
-  /// print('✅ All auth data cleared!');
+  /// debugPrint('✅ All auth data cleared!');
   /// ```
   static Future<void> clearAllAuthData() async {
     try {
@@ -36,11 +37,11 @@ class DevUtils {
       const secureStorage = FlutterSecureStorage();
       await secureStorage.deleteAll();
 
-      print('✅ DevUtils: All auth data cleared successfully!');
-      print('   - Hive boxes: users, credentials, current_user_id');
-      print('   - Secure storage: all sessions and tokens');
+      debugPrint('✅ DevUtils: All auth data cleared successfully!');
+      debugPrint('   - Hive boxes: users, credentials, current_user_id');
+      debugPrint('   - Secure storage: all sessions and tokens');
     } catch (e) {
-      print('❌ DevUtils: Error clearing auth data: $e');
+      debugPrint('❌ DevUtils: Error clearing auth data: $e');
       rethrow;
     }
   }
@@ -49,9 +50,9 @@ class DevUtils {
   static Future<void> clearHiveAuthData() async {
     try {
       await HiveService.clearAuthData();
-      print('✅ DevUtils: Hive auth data cleared!');
+      debugPrint('✅ DevUtils: Hive auth data cleared!');
     } catch (e) {
-      print('❌ DevUtils: Error clearing Hive data: $e');
+      debugPrint('❌ DevUtils: Error clearing Hive data: $e');
       rethrow;
     }
   }
@@ -61,9 +62,9 @@ class DevUtils {
     try {
       const secureStorage = FlutterSecureStorage();
       await secureStorage.deleteAll();
-      print('✅ DevUtils: Secure storage cleared!');
+      debugPrint('✅ DevUtils: Secure storage cleared!');
     } catch (e) {
-      print('❌ DevUtils: Error clearing secure storage: $e');
+      debugPrint('❌ DevUtils: Error clearing secure storage: $e');
       rethrow;
     }
   }
@@ -77,9 +78,9 @@ class DevUtils {
       await HiveService.deleteAllData();
       const secureStorage = FlutterSecureStorage();
       await secureStorage.deleteAll();
-      print('✅ DevUtils: ALL app data nuked!');
+      debugPrint('✅ DevUtils: ALL app data nuked!');
     } catch (e) {
-      print('❌ DevUtils: Error nuking data: $e');
+      debugPrint('❌ DevUtils: Error nuking data: $e');
       rethrow;
     }
   }

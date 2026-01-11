@@ -32,8 +32,7 @@ class PaymentStatsCard extends ConsumerWidget {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
         side: BorderSide(
-          color: Colors.white.withOpacity(0.1),
-          width: 1,
+          color: Colors.white.withValues(alpha: 0.1),
         ),
       ),
       child: Padding(
@@ -46,7 +45,7 @@ class PaymentStatsCard extends ConsumerWidget {
                 Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF6B4FBB).withOpacity(0.2),
+                    color: const Color(0xFF6B4FBB).withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: const Icon(
@@ -107,7 +106,7 @@ class PaymentStatsCard extends ConsumerWidget {
   }
 
   Widget _buildStatsContent(PaymentStats stats) {
-    final currencyFormat = NumberFormat.currency(symbol: '\$');
+    final currencyFormat = NumberFormat.currency(symbol: r'$');
 
     return Column(
       children: [
@@ -215,8 +214,7 @@ class _StatItem extends StatelessWidget {
         color: const Color(0xFF2A2A3E),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: color.withOpacity(0.3),
-          width: 1,
+          color: color.withValues(alpha: 0.3),
         ),
       ),
       child: Column(
@@ -292,11 +290,10 @@ class _PaymentMethodChip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: const Color(0xFF6B4FBB).withOpacity(0.2),
+        color: const Color(0xFF6B4FBB).withValues(alpha: 0.2),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: const Color(0xFF6B4FBB).withOpacity(0.3),
-          width: 1,
+          color: const Color(0xFF6B4FBB).withValues(alpha: 0.3),
         ),
       ),
       child: Row(

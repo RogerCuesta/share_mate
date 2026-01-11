@@ -38,53 +38,52 @@ class _AddMemberDialogState extends State<AddMemberDialog> {
 
   /// Handles the "Add Member" button press
   void _handleAdd() {
-    print('📝 [AddMemberDialog] Attempting to add member...');
+    debugPrint('📝 [AddMemberDialog] Attempting to add member...');
 
     if (_formKey.currentState?.validate() ?? false) {
       final member = SubscriptionMemberInput(
         id: const Uuid().v4(), // ✅ Generate UUID v4
         name: _nameController.text.trim(),
         email: _emailController.text.trim().toLowerCase(), // ✅ Normalize email
-        avatar: null, // Future feature: avatar support
       );
 
-      print('✅ [AddMemberDialog] Member created successfully:');
-      print('   Name: ${member.name}');
-      print('   Email: ${member.email}');
-      print('   ID: ${member.id}');
+      debugPrint('✅ [AddMemberDialog] Member created successfully:');
+      debugPrint('   Name: ${member.name}');
+      debugPrint('   Email: ${member.email}');
+      debugPrint('   ID: ${member.id}');
 
       Navigator.of(context).pop(member);
     } else {
-      print('❌ [AddMemberDialog] Validation failed');
+      debugPrint('❌ [AddMemberDialog] Validation failed');
     }
   }
 
   /// Validates the name field
   String? _validateName(String? value) {
     if (value == null || value.trim().isEmpty) {
-      print('⚠️ [AddMemberDialog] Name validation: empty');
+      debugPrint('⚠️ [AddMemberDialog] Name validation: empty');
       return 'Name is required';
     }
 
     if (value.trim().length < 2) {
-      print('⚠️ [AddMemberDialog] Name validation: too short (${value.trim().length} chars)');
+      debugPrint('⚠️ [AddMemberDialog] Name validation: too short (${value.trim().length} chars)');
       return 'Name must be at least 2 characters';
     }
 
     // Prevent names that are only numbers
     if (RegExp(r'^\d+$').hasMatch(value.trim())) {
-      print('⚠️ [AddMemberDialog] Name validation: numbers only');
+      debugPrint('⚠️ [AddMemberDialog] Name validation: numbers only');
       return 'Name cannot be only numbers';
     }
 
-    print('✅ [AddMemberDialog] Name validation: passed');
+    debugPrint('✅ [AddMemberDialog] Name validation: passed');
     return null;
   }
 
   /// Validates the email field with strict regex
   String? _validateEmail(String? value) {
     if (value == null || value.trim().isEmpty) {
-      print('⚠️ [AddMemberDialog] Email validation: empty');
+      debugPrint('⚠️ [AddMemberDialog] Email validation: empty');
       return 'Email is required';
     }
 
@@ -94,11 +93,11 @@ class _AddMemberDialogState extends State<AddMemberDialog> {
     );
 
     if (!emailRegex.hasMatch(value.trim())) {
-      print('⚠️ [AddMemberDialog] Email validation: invalid format');
+      debugPrint('⚠️ [AddMemberDialog] Email validation: invalid format');
       return 'Please enter a valid email address';
     }
 
-    print('✅ [AddMemberDialog] Email validation: passed');
+    debugPrint('✅ [AddMemberDialog] Email validation: passed');
     return null;
   }
 
@@ -134,7 +133,7 @@ class _AddMemberDialogState extends State<AddMemberDialog> {
                     IconButton(
                       icon: Icon(Icons.close, color: Colors.grey[400]),
                       onPressed: () {
-                        print('❌ [AddMemberDialog] Cancelled by user');
+                        debugPrint('❌ [AddMemberDialog] Cancelled by user');
                         Navigator.of(context).pop();
                       },
                       tooltip: 'Cancel',
@@ -261,7 +260,7 @@ class _AddMemberDialogState extends State<AddMemberDialog> {
                   children: [
                     TextButton(
                       onPressed: () {
-                        print('❌ [AddMemberDialog] Cancelled by user');
+                        debugPrint('❌ [AddMemberDialog] Cancelled by user');
                         Navigator.of(context).pop();
                       },
                       child: Text(

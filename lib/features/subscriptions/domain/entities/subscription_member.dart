@@ -21,23 +21,17 @@ class SubscriptionMember with _$SubscriptionMember {
     /// Email address of the user
     required String userEmail,
 
-    /// URL for the user's avatar/profile picture
-    String? userAvatar,
-
     /// Amount this member needs to pay
-    required double amountToPay,
+    required double amountToPay, /// Due date for this member's payment
+    required DateTime dueDate, /// When the member was added to the subscription
+    required DateTime createdAt, /// URL for the user's avatar/profile picture
+    String? userAvatar,
 
     /// Whether the member has paid for the current billing cycle
     @Default(false) bool hasPaid,
 
     /// Date of the last payment made by this member
     DateTime? lastPaymentDate,
-
-    /// Due date for this member's payment
-    required DateTime dueDate,
-
-    /// When the member was added to the subscription
-    required DateTime createdAt,
   }) = _SubscriptionMember;
 
   const SubscriptionMember._();

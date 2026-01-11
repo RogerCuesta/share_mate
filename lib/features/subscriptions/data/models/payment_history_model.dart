@@ -1,7 +1,6 @@
+import 'package:flutter_project_agents/core/storage/hive_type_ids.dart';
+import 'package:flutter_project_agents/features/subscriptions/domain/entities/payment_history.dart';
 import 'package:hive_ce/hive.dart';
-
-import '../../../../core/storage/hive_type_ids.dart';
-import '../../domain/entities/payment_history.dart';
 
 part 'payment_history_model.g.dart';
 
@@ -11,6 +10,59 @@ part 'payment_history_model.g.dart';
 /// audit trail even if members or subscriptions are deleted.
 @HiveType(typeId: HiveTypeIds.paymentHistory)
 class PaymentHistoryModel extends HiveObject {
+
+  PaymentHistoryModel({
+    required this.id,
+    required this.subscriptionId,
+    required this.memberId,
+    required this.memberName,
+    required this.subscriptionName,
+    required this.amount,
+    required this.paymentDate,
+    required this.markedBy,
+    required this.action,
+    required this.createdAt, this.notes,
+    this.paymentMethod,
+    this.metadata,
+  });
+
+  /// Create from domain entity
+  factory PaymentHistoryModel.fromEntity(PaymentHistory entity) {
+    return PaymentHistoryModel(
+      id: entity.id,
+      subscriptionId: entity.subscriptionId,
+      memberId: entity.memberId,
+      memberName: entity.memberName,
+      subscriptionName: entity.subscriptionName,
+      amount: entity.amount,
+      paymentDate: entity.paymentDate,
+      markedBy: entity.markedBy,
+      action: _actionToString(entity.action),
+      notes: entity.notes,
+      paymentMethod: entity.paymentMethod,
+      metadata: entity.metadata,
+      createdAt: entity.createdAt,
+    );
+  }
+
+  /// Create from Supabase JSON
+  factory PaymentHistoryModel.fromJson(Map<String, dynamic> json) {
+    return PaymentHistoryModel(
+      id: json['id'] as String,
+      subscriptionId: json['subscription_id'] as String,
+      memberId: json['member_id'] as String,
+      memberName: json['member_name'] as String? ?? 'Unknown Member',
+      subscriptionName: json['subscription_name'] as String? ?? 'Unknown Subscription',
+      amount: (json['amount'] as num).toDouble(),
+      paymentDate: DateTime.parse(json['payment_date'] as String),
+      markedBy: json['marked_by'] as String,
+      action: json['action'] as String,
+      notes: json['notes'] as String?,
+      paymentMethod: json['payment_method'] as String?,
+      metadata: json['metadata'] as Map<String, dynamic>?,
+      createdAt: DateTime.parse(json['created_at'] as String),
+    );
+  }
   @HiveField(0)
   final String id;
 
@@ -50,22 +102,6 @@ class PaymentHistoryModel extends HiveObject {
   @HiveField(8)
   final DateTime createdAt;
 
-  PaymentHistoryModel({
-    required this.id,
-    required this.subscriptionId,
-    required this.memberId,
-    required this.memberName,
-    required this.subscriptionName,
-    required this.amount,
-    required this.paymentDate,
-    required this.markedBy,
-    required this.action,
-    this.notes,
-    this.paymentMethod,
-    this.metadata,
-    required this.createdAt,
-  });
-
   /// Convert to domain entity
   PaymentHistory toEntity() {
     return PaymentHistory(
@@ -82,44 +118,6 @@ class PaymentHistoryModel extends HiveObject {
       paymentMethod: paymentMethod,
       metadata: metadata,
       createdAt: createdAt,
-    );
-  }
-
-  /// Create from domain entity
-  factory PaymentHistoryModel.fromEntity(PaymentHistory entity) {
-    return PaymentHistoryModel(
-      id: entity.id,
-      subscriptionId: entity.subscriptionId,
-      memberId: entity.memberId,
-      memberName: entity.memberName,
-      subscriptionName: entity.subscriptionName,
-      amount: entity.amount,
-      paymentDate: entity.paymentDate,
-      markedBy: entity.markedBy,
-      action: _actionToString(entity.action),
-      notes: entity.notes,
-      paymentMethod: entity.paymentMethod,
-      metadata: entity.metadata,
-      createdAt: entity.createdAt,
-    );
-  }
-
-  /// Create from Supabase JSON
-  factory PaymentHistoryModel.fromJson(Map<String, dynamic> json) {
-    return PaymentHistoryModel(
-      id: json['id'] as String,
-      subscriptionId: json['subscription_id'] as String,
-      memberId: json['member_id'] as String,
-      memberName: json['member_name'] as String? ?? 'Unknown Member',
-      subscriptionName: json['subscription_name'] as String? ?? 'Unknown Subscription',
-      amount: (json['amount'] as num).toDouble(),
-      paymentDate: DateTime.parse(json['payment_date'] as String),
-      markedBy: json['marked_by'] as String,
-      action: json['action'] as String,
-      notes: json['notes'] as String?,
-      paymentMethod: json['payment_method'] as String?,
-      metadata: json['metadata'] as Map<String, dynamic>?,
-      createdAt: DateTime.parse(json['created_at'] as String),
     );
   }
 

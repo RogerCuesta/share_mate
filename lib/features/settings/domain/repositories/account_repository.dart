@@ -2,7 +2,7 @@
 
 import 'package:dartz/dartz.dart';
 
-import '../failures/settings_failure.dart';
+import 'package:flutter_project_agents/features/settings/domain/failures/settings_failure.dart';
 
 /// Account Repository Interface
 ///

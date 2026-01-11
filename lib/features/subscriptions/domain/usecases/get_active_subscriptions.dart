@@ -1,16 +1,16 @@
 import 'package:dartz/dartz.dart';
 
-import '../entities/subscription.dart';
-import '../failures/subscription_failure.dart';
-import '../repositories/subscription_repository.dart';
+import 'package:flutter_project_agents/features/subscriptions/domain/entities/subscription.dart';
+import 'package:flutter_project_agents/features/subscriptions/domain/failures/subscription_failure.dart';
+import 'package:flutter_project_agents/features/subscriptions/domain/repositories/subscription_repository.dart';
 
 /// Use case to get all active subscriptions for a user
 ///
 /// Returns a list of subscriptions with status = active.
 class GetActiveSubscriptions {
-  final SubscriptionRepository _repository;
 
   GetActiveSubscriptions(this._repository);
+  final SubscriptionRepository _repository;
 
   /// Execute the use case
   ///

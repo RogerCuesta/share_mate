@@ -1,25 +1,15 @@
+import 'package:flutter_project_agents/core/di/injection.dart';
 import 'package:flutter_project_agents/features/auth/presentation/providers/auth_provider.dart';
 import 'package:flutter_project_agents/features/subscriptions/domain/entities/subscription.dart';
 import 'package:flutter_project_agents/features/subscriptions/domain/entities/subscription_member_input.dart';
 import 'package:flutter_project_agents/features/subscriptions/presentation/providers/subscriptions_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:flutter_project_agents/core/di/injection.dart';
 import 'package:uuid/uuid.dart';
 
 part 'create_subscription_form_provider.g.dart';
 
 /// Form state for creating a subscription
 class CreateSubscriptionFormState {
-  final String name;
-  final String cost;
-  final BillingCycle billingCycle;
-  final DateTime dueDate;
-  final String color;
-  final String iconUrl;
-  final List<SubscriptionMemberInput> members;
-  final bool isLoading;
-  final String? errorMessage;
-  final bool isSuccess;
 
   CreateSubscriptionFormState({
     this.name = '',
@@ -33,6 +23,16 @@ class CreateSubscriptionFormState {
     this.errorMessage,
     this.isSuccess = false,
   }) : dueDate = dueDate ?? DateTime.now().add(const Duration(days: 30));
+  final String name;
+  final String cost;
+  final BillingCycle billingCycle;
+  final DateTime dueDate;
+  final String color;
+  final String iconUrl;
+  final List<SubscriptionMemberInput> members;
+  final bool isLoading;
+  final String? errorMessage;
+  final bool isSuccess;
 
   CreateSubscriptionFormState copyWith({
     String? name,
@@ -62,7 +62,7 @@ class CreateSubscriptionFormState {
 
   /// Calculate split amount per person including the owner
   double get splitAmount {
-    if (members.isEmpty) return 0.0;
+    if (members.isEmpty) return 0;
     final totalCost = double.tryParse(cost) ?? 0.0;
     final totalPeople = members.length + 1; // +1 for owner
     return totalCost / totalPeople;
@@ -121,44 +121,44 @@ class CreateSubscriptionForm extends _$CreateSubscriptionForm {
 
   /// Update name field
   void updateName(String name) {
-    state = state.copyWith(name: name, errorMessage: null);
+    state = state.copyWith(name: name);
   }
 
   /// Update cost field
   void updateCost(String cost) {
-    state = state.copyWith(cost: cost, errorMessage: null);
+    state = state.copyWith(cost: cost);
   }
 
   /// Update billing cycle
   void updateBillingCycle(BillingCycle cycle) {
-    state = state.copyWith(billingCycle: cycle, errorMessage: null);
+    state = state.copyWith(billingCycle: cycle);
   }
 
   /// Update due date
   void updateDueDate(DateTime date) {
-    state = state.copyWith(dueDate: date, errorMessage: null);
+    state = state.copyWith(dueDate: date);
   }
 
   /// Update color
   void updateColor(String color) {
-    state = state.copyWith(color: color, errorMessage: null);
+    state = state.copyWith(color: color);
   }
 
   /// Update icon URL
   void updateIconUrl(String url) {
-    state = state.copyWith(iconUrl: url, errorMessage: null);
+    state = state.copyWith(iconUrl: url);
   }
 
   /// Add a member to the subscription (hardcoded for now)
   void addMember(SubscriptionMemberInput member) {
     final updatedMembers = [...state.members, member];
-    state = state.copyWith(members: updatedMembers, errorMessage: null);
+    state = state.copyWith(members: updatedMembers);
   }
 
   /// Remove a member from the subscription
   void removeMember(String memberId) {
     final updatedMembers = state.members.where((m) => m.id != memberId).toList();
-    state = state.copyWith(members: updatedMembers, errorMessage: null);
+    state = state.copyWith(members: updatedMembers);
   }
 
   /// Reset form to initial state
@@ -176,7 +176,7 @@ class CreateSubscriptionForm extends _$CreateSubscriptionForm {
     }
 
     // Set loading state
-    state = state.copyWith(isLoading: true, errorMessage: null);
+    state = state.copyWith(isLoading: true);
 
     try {
       // Get current user ID from auth provider
@@ -207,8 +207,6 @@ class CreateSubscriptionForm extends _$CreateSubscriptionForm {
         billingCycle: state.billingCycle,
         dueDate: state.dueDate,
         ownerId: userId,
-        sharedWith: const [], // No members initially
-        status: SubscriptionStatus.active,
         createdAt: DateTime.now(),
       );
 
@@ -257,7 +255,6 @@ class CreateSubscriptionForm extends _$CreateSubscriptionForm {
           state = state.copyWith(
             isLoading: false,
             isSuccess: true,
-            errorMessage: null,
           );
         },
       );

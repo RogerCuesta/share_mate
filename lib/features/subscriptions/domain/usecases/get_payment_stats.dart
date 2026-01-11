@@ -2,9 +2,9 @@
 
 import 'package:dartz/dartz.dart';
 
-import '../entities/payment_stats.dart';
-import '../failures/subscription_failure.dart';
-import '../repositories/subscription_repository.dart';
+import 'package:flutter_project_agents/features/subscriptions/domain/entities/payment_stats.dart';
+import 'package:flutter_project_agents/features/subscriptions/domain/failures/subscription_failure.dart';
+import 'package:flutter_project_agents/features/subscriptions/domain/repositories/subscription_repository.dart';
 
 /// Use case for retrieving payment statistics for a subscription
 ///
@@ -16,9 +16,9 @@ import '../repositories/subscription_repository.dart';
 ///
 /// Optional date range filters can be applied to analyze specific periods.
 class GetPaymentStats {
-  final SubscriptionRepository _repository;
 
   GetPaymentStats(this._repository);
+  final SubscriptionRepository _repository;
 
   /// Execute the use case
   ///
@@ -29,7 +29,7 @@ class GetPaymentStats {
     DateTime? startDate,
     DateTime? endDate,
   }) async {
-    return await _repository.getPaymentStats(
+    return _repository.getPaymentStats(
       subscriptionId: subscriptionId,
       startDate: startDate,
       endDate: endDate,

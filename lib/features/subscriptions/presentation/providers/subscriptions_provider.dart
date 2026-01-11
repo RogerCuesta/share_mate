@@ -1,10 +1,9 @@
+import 'package:flutter_project_agents/core/di/injection.dart';
+import 'package:flutter_project_agents/features/auth/presentation/providers/auth_provider.dart';
+import 'package:flutter_project_agents/features/subscriptions/domain/entities/monthly_stats.dart';
+import 'package:flutter_project_agents/features/subscriptions/domain/entities/subscription.dart';
+import 'package:flutter_project_agents/features/subscriptions/domain/entities/subscription_member.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-
-import '../../../../core/di/injection.dart';
-import '../../../auth/presentation/providers/auth_provider.dart';
-import '../../domain/entities/monthly_stats.dart';
-import '../../domain/entities/subscription.dart';
-import '../../domain/entities/subscription_member.dart';
 
 part 'subscriptions_provider.g.dart';
 
@@ -33,8 +32,8 @@ Future<MonthlyStats> monthlyStats(MonthlyStatsRef ref) async {
     orElse: () {
       // If not authenticated, return empty stats
       return const MonthlyStats(
-        totalMonthlyCost: 0.0,
-        pendingToCollect: 0.0,
+        totalMonthlyCost: 0,
+        pendingToCollect: 0,
         activeSubscriptionsCount: 0,
         overduePaymentsCount: 0,
       );

@@ -50,9 +50,9 @@ class _PaymentStatusToggleState extends ConsumerState<PaymentStatusToggle> {
   Future<void> _togglePaymentStatus(bool? newValue) async {
     if (newValue == null) return;
 
-    print('🔍 [PaymentStatusToggle] Toggling payment status...');
-    print('   Member: ${widget.member.userName}');
-    print('   Current: ${widget.member.hasPaid}, New: $newValue');
+    debugPrint('🔍 [PaymentStatusToggle] Toggling payment status...');
+    debugPrint('   Member: ${widget.member.userName}');
+    debugPrint('   Current: ${widget.member.hasPaid}, New: $newValue');
 
     // Cancel existing undo timer if any
     _undoTimer?.cancel();
@@ -151,7 +151,7 @@ class _PaymentStatusToggleState extends ConsumerState<PaymentStatusToggle> {
   Future<void> _handleUndo() async {
     if (!_canUndo) return;
 
-    print('🔄 [PaymentStatusToggle] Undoing last action...');
+    debugPrint('🔄 [PaymentStatusToggle] Undoing last action...');
 
     // Cancel undo timer
     _undoTimer?.cancel();

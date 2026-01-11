@@ -1,4 +1,5 @@
 // lib/core/supabase/supabase_service.dart
+import 'package:flutter/foundation.dart';
 
 import 'package:flutter_project_agents/core/config/env_config.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -150,7 +151,7 @@ class SupabaseService {
   /// ```dart
   /// final user = SupabaseService.currentUser;
   /// if (user != null) {
-  ///   print('Logged in as: ${user.email}');
+  ///   debugPrint('Logged in as: ${user.email}');
   /// }
   /// ```
   static User? get currentUser => auth.currentUser;
@@ -163,7 +164,7 @@ class SupabaseService {
   /// ```dart
   /// final session = SupabaseService.currentSession;
   /// if (session != null) {
-  ///   print('Access token: ${session.accessToken}');
+  ///   debugPrint('Access token: ${session.accessToken}');
   /// }
   /// ```
   static Session? get currentSession => auth.currentSession;
@@ -184,22 +185,22 @@ class SupabaseService {
   // ignore: avoid_print
   static void debugPrintStatus() {
     // ignore: avoid_print
-    print('═══════════════════════════════════════════════════════════');
+    debugPrint('═══════════════════════════════════════════════════════════');
     // ignore: avoid_print
-    print('Supabase Service Status');
+    debugPrint('Supabase Service Status');
     // ignore: avoid_print
-    print('═══════════════════════════════════════════════════════════');
+    debugPrint('═══════════════════════════════════════════════════════════');
     // ignore: avoid_print
-    print('Initialized: ${isInitialized ? '✅ Yes' : '❌ No'}');
+    debugPrint('Initialized: ${isInitialized ? '✅ Yes' : '❌ No'}');
     // ignore: avoid_print
-    print('Authenticated: ${isAuthenticated ? '✅ Yes' : '❌ No'}');
+    debugPrint('Authenticated: ${isAuthenticated ? '✅ Yes' : '❌ No'}');
     if (isAuthenticated && currentUser != null) {
       // ignore: avoid_print
-      print('User ID: ${currentUser!.id}');
+      debugPrint('User ID: ${currentUser!.id}');
       // ignore: avoid_print
-      print('User Email: ${currentUser!.email ?? 'N/A'}');
+      debugPrint('User Email: ${currentUser!.email ?? 'N/A'}');
     }
     // ignore: avoid_print
-    print('═══════════════════════════════════════════════════════════');
+    debugPrint('═══════════════════════════════════════════════════════════');
   }
 }

@@ -1,17 +1,13 @@
 // lib/features/subscriptions/data/models/analytics_data_model.dart
 
-import '../../domain/entities/analytics_data.dart';
-import 'analytics_overview_model.dart';
-import 'monthly_spending_model.dart';
-import 'payment_analytics_model.dart';
-import 'subscription_spending_model.dart';
+import 'package:flutter_project_agents/features/subscriptions/data/models/analytics_overview_model.dart';
+import 'package:flutter_project_agents/features/subscriptions/data/models/monthly_spending_model.dart';
+import 'package:flutter_project_agents/features/subscriptions/data/models/payment_analytics_model.dart';
+import 'package:flutter_project_agents/features/subscriptions/data/models/subscription_spending_model.dart';
+import 'package:flutter_project_agents/features/subscriptions/domain/entities/analytics_data.dart';
 
 /// Data model for AnalyticsData
 class AnalyticsDataModel {
-  final AnalyticsOverviewModel overview;
-  final List<MonthlySpendingModel> spendingTrends;
-  final List<SubscriptionSpendingModel> subscriptionSpending;
-  final PaymentAnalyticsModel paymentAnalytics;
 
   const AnalyticsDataModel({
     required this.overview,
@@ -19,16 +15,6 @@ class AnalyticsDataModel {
     required this.subscriptionSpending,
     required this.paymentAnalytics,
   });
-
-  /// Convert to domain entity
-  AnalyticsData toEntity() {
-    return AnalyticsData(
-      overview: overview.toEntity(),
-      spendingTrends: spendingTrends.map((model) => model.toEntity()).toList(),
-      subscriptionSpending: subscriptionSpending.map((model) => model.toEntity()).toList(),
-      paymentAnalytics: paymentAnalytics.toEntity(),
-    );
-  }
 
   /// Create from domain entity
   factory AnalyticsDataModel.fromEntity(AnalyticsData entity) {
@@ -55,6 +41,20 @@ class AnalyticsDataModel {
           .map((item) => SubscriptionSpendingModel.fromJson(item as Map<String, dynamic>))
           .toList(),
       paymentAnalytics: PaymentAnalyticsModel.fromJson(json['payment_analytics'] as Map<String, dynamic>),
+    );
+  }
+  final AnalyticsOverviewModel overview;
+  final List<MonthlySpendingModel> spendingTrends;
+  final List<SubscriptionSpendingModel> subscriptionSpending;
+  final PaymentAnalyticsModel paymentAnalytics;
+
+  /// Convert to domain entity
+  AnalyticsData toEntity() {
+    return AnalyticsData(
+      overview: overview.toEntity(),
+      spendingTrends: spendingTrends.map((model) => model.toEntity()).toList(),
+      subscriptionSpending: subscriptionSpending.map((model) => model.toEntity()).toList(),
+      paymentAnalytics: paymentAnalytics.toEntity(),
     );
   }
 

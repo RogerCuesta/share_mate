@@ -11,8 +11,8 @@ import 'package:flutter_project_agents/features/auth/domain/repositories/auth_re
 /// ```dart
 /// final result = await logoutUser();
 /// result.fold(
-///   (failure) => print('Logout failed: $failure'),
-///   (_) => print('Logged out successfully'),
+///   (failure) => debugPrint('Logout failed: $failure'),
+///   (_) => debugPrint('Logged out successfully'),
 /// );
 /// ```
 class LogoutUser {

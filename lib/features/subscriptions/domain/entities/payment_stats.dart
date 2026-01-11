@@ -35,8 +35,8 @@ class PaymentStats with _$PaymentStats {
   /// Factory for empty stats (no payment history)
   factory PaymentStats.empty() => const PaymentStats(
         totalPayments: 0,
-        totalAmountPaid: 0.0,
-        totalAmountUnpaid: 0.0,
+        totalAmountPaid: 0,
+        totalAmountUnpaid: 0,
         uniquePayers: 0,
         paymentMethods: {},
       );
@@ -67,7 +67,7 @@ class PaymentStats with _$PaymentStats {
   /// Get payment method usage percentage
   double getPaymentMethodPercentage(String method) {
     if (totalPayments == 0 || !paymentMethods.containsKey(method)) {
-      return 0.0;
+      return 0;
     }
 
     return (paymentMethods[method]! / totalPayments) * 100;

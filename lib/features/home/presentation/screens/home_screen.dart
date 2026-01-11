@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_project_agents/features/home/presentation/widgets/action_required_section.dart';
+import 'package:flutter_project_agents/features/home/presentation/widgets/active_subscriptions_section.dart';
+import 'package:flutter_project_agents/features/home/presentation/widgets/home_header.dart';
+import 'package:flutter_project_agents/features/home/presentation/widgets/stats_cards.dart';
+import 'package:flutter_project_agents/features/subscriptions/presentation/providers/subscriptions_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
-import '../../../subscriptions/presentation/providers/subscriptions_provider.dart';
-import '../widgets/action_required_section.dart';
-import '../widgets/active_subscriptions_section.dart';
-import '../widgets/home_header.dart';
-import '../widgets/stats_cards.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -29,7 +28,7 @@ class HomeScreen extends ConsumerWidget {
             // 2. Stats Cards (Monthly Cost + Pending)
             SliverToBoxAdapter(
               child: Padding(
-                padding: const EdgeInsets.only(top: 8.0, bottom: 24.0),
+                padding: const EdgeInsets.only(top: 8, bottom: 24),
                 child: monthlyStatsAsync.when(
                   data: (stats) => StatsCards(stats: stats),
                   loading: () => const StatsCardsLoading(),
@@ -41,7 +40,7 @@ class HomeScreen extends ConsumerWidget {
             // 3. Action Required Section
             SliverToBoxAdapter(
               child: Padding(
-                padding: const EdgeInsets.only(bottom: 24.0),
+                padding: const EdgeInsets.only(bottom: 24),
                 child: pendingAsync.when(
                   data: (pending) => ActionRequiredSection(
                     pendingPayments: pending.take(2).toList(),

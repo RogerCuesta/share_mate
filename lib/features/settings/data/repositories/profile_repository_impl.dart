@@ -3,14 +3,13 @@
 import 'dart:typed_data';
 
 import 'package:dartz/dartz.dart';
+import 'package:flutter_project_agents/features/settings/data/datasources/profile_local_datasource.dart';
+import 'package:flutter_project_agents/features/settings/data/datasources/profile_remote_datasource.dart';
+import 'package:flutter_project_agents/features/settings/data/models/user_profile_model.dart';
+import 'package:flutter_project_agents/features/settings/domain/entities/user_profile.dart';
+import 'package:flutter_project_agents/features/settings/domain/failures/settings_failure.dart';
+import 'package:flutter_project_agents/features/settings/domain/repositories/profile_repository.dart';
 import 'package:image/image.dart' as img;
-
-import '../../domain/entities/user_profile.dart';
-import '../../domain/failures/settings_failure.dart';
-import '../../domain/repositories/profile_repository.dart';
-import '../datasources/profile_local_datasource.dart';
-import '../datasources/profile_remote_datasource.dart';
-import '../models/user_profile_model.dart';
 
 /// Profile Repository Implementation
 ///
@@ -19,13 +18,13 @@ import '../models/user_profile_model.dart';
 /// - Cache successful responses locally
 /// - Fallback to cache on network errors
 class ProfileRepositoryImpl implements ProfileRepository {
-  final ProfileRemoteDataSource remoteDataSource;
-  final ProfileLocalDataSource localDataSource;
 
   ProfileRepositoryImpl({
     required this.remoteDataSource,
     required this.localDataSource,
   });
+  final ProfileRemoteDataSource remoteDataSource;
+  final ProfileLocalDataSource localDataSource;
 
   @override
   Future<Either<SettingsFailure, UserProfile>> getProfile(
@@ -46,7 +45,7 @@ class ProfileRepositoryImpl implements ProfileRepository {
         if (cachedModel != null) {
           return Right(cachedModel.toEntity());
         }
-        return Left(SettingsFailure.networkError());
+        return const Left(SettingsFailure.networkError());
       } catch (_) {
         return Left(SettingsFailure.profileUpdateError(e.message));
       }

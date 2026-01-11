@@ -205,7 +205,6 @@ void main() {
           email: 'test@example.com',
           fullName: 'John Doe',
           createdAt: DateTime.now(),
-          supabaseId: null,
         );
         expect(user.isSyncedWithSupabase, false);
         expect(user.isLocalOnly, true);

@@ -1,15 +1,15 @@
 import 'package:dartz/dartz.dart';
 
-import '../failures/subscription_failure.dart';
-import '../repositories/subscription_repository.dart';
+import 'package:flutter_project_agents/features/subscriptions/domain/failures/subscription_failure.dart';
+import 'package:flutter_project_agents/features/subscriptions/domain/repositories/subscription_repository.dart';
 
 /// Use case to delete a subscription
 ///
 /// Deletes a subscription and all associated member records.
 class DeleteSubscription {
-  final SubscriptionRepository _repository;
 
   DeleteSubscription(this._repository);
+  final SubscriptionRepository _repository;
 
   /// Execute the use case
   ///

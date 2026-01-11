@@ -1,9 +1,8 @@
 // lib/features/settings/data/datasources/settings_local_datasource.dart
 
 import 'package:flutter_project_agents/core/storage/hive_service.dart';
+import 'package:flutter_project_agents/features/settings/data/models/app_settings_model.dart';
 import 'package:hive_ce/hive.dart';
-
-import '../models/app_settings_model.dart';
 
 /// Settings Local Data Source Interface
 abstract class SettingsLocalDataSource {
@@ -61,8 +60,8 @@ class SettingsLocalDataSourceImpl implements SettingsLocalDataSource {
 
 /// Exception thrown when settings local operations fail
 class SettingsLocalException implements Exception {
-  final String message;
   SettingsLocalException(this.message);
+  final String message;
 
   @override
   String toString() => message;

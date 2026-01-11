@@ -482,8 +482,6 @@ class SubscriptionRepositoryMock implements SubscriptionRepository {
             userEmail: userEmail,
             userAvatar: userAvatar,
             amountToPay: subscription.costPerPerson,
-            hasPaid: false,
-            lastPaymentDate: null,
             dueDate: subscription.dueDate,
             createdAt: DateTime.now(),
           );
@@ -565,7 +563,7 @@ class SubscriptionRepositoryMock implements SubscriptionRepository {
         .toList();
 
     final totalMonthlyCost = activeSubscriptions.fold<double>(
-      0.0,
+      0,
       (sum, sub) => sum + sub.monthlyCost,
     );
 
@@ -574,12 +572,12 @@ class SubscriptionRepositoryMock implements SubscriptionRepository {
     final paidMembers = _cachedMembers!.where((m) => m.hasPaid).toList();
 
     final pendingToCollect = unpaidMembers.fold<double>(
-      0.0,
+      0,
       (sum, member) => sum + member.amountToPay,
     );
 
     final collectedAmount = paidMembers.fold<double>(
-      0.0,
+      0,
       (sum, member) => sum + member.amountToPay,
     );
 
@@ -631,8 +629,8 @@ class SubscriptionRepositoryMock implements SubscriptionRepository {
       final unpaidHistory = history.where((h) => h.action == PaymentAction.unpaid).toList();
 
       final totalPayments = paidHistory.length;
-      final totalAmountPaid = paidHistory.fold<double>(0.0, (sum, h) => sum + h.amount);
-      final totalAmountUnpaid = unpaidHistory.fold<double>(0.0, (sum, h) => sum + h.amount);
+      final totalAmountPaid = paidHistory.fold<double>(0, (sum, h) => sum + h.amount);
+      final totalAmountUnpaid = unpaidHistory.fold<double>(0, (sum, h) => sum + h.amount);
       final uniquePayers = paidHistory.map((h) => h.memberId).toSet().length;
 
       // Calculate payment methods breakdown

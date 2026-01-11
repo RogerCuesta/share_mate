@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../subscriptions/domain/entities/subscription_member.dart';
+import 'package:flutter_project_agents/features/subscriptions/domain/entities/subscription_member.dart';
 
 /// Action Required section for home screen
 ///
@@ -13,12 +13,11 @@ import '../../../subscriptions/domain/entities/subscription_member.dart';
 /// - Days overdue indicator
 /// - Remind button for each payment
 class ActionRequiredSection extends StatelessWidget {
-  final List<SubscriptionMember> pendingPayments;
 
   const ActionRequiredSection({
-    super.key,
-    required this.pendingPayments,
+    required this.pendingPayments, super.key,
   });
+  final List<SubscriptionMember> pendingPayments;
 
   @override
   Widget build(BuildContext context) {
@@ -60,13 +59,13 @@ class ActionRequiredSection extends StatelessWidget {
 // ═══════════════════════════════════════════════════════════════════════════
 
 class _SectionHeader extends StatelessWidget {
-  final int itemCount;
-  final VoidCallback onViewAll;
 
   const _SectionHeader({
     required this.itemCount,
     required this.onViewAll,
   });
+  final int itemCount;
+  final VoidCallback onViewAll;
 
   @override
   Widget build(BuildContext context) {
@@ -99,14 +98,14 @@ class _SectionHeader extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
-                  color: const Color(0xFF6C63FF).withOpacity(0.9),
+                  color: const Color(0xFF6C63FF).withValues(alpha: 0.9),
                 ),
               ),
               const SizedBox(width: 4),
               Icon(
                 Icons.arrow_forward_ios,
                 size: 12,
-                color: const Color(0xFF6C63FF).withOpacity(0.9),
+                color: const Color(0xFF6C63FF).withValues(alpha: 0.9),
               ),
             ],
           ),
@@ -121,13 +120,13 @@ class _SectionHeader extends StatelessWidget {
 // ═══════════════════════════════════════════════════════════════════════════
 
 class _AnimatedPendingPaymentTile extends StatefulWidget {
-  final SubscriptionMember member;
-  final int index;
 
   const _AnimatedPendingPaymentTile({
     required this.member,
     required this.index,
   });
+  final SubscriptionMember member;
+  final int index;
 
   @override
   State<_AnimatedPendingPaymentTile> createState() =>
@@ -151,8 +150,8 @@ class _AnimatedPendingPaymentTileState
     );
 
     _fadeAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
+      begin: 0,
+      end: 1,
     ).animate(
       CurvedAnimation(
         parent: _controller,
@@ -201,9 +200,9 @@ class _AnimatedPendingPaymentTileState
 // ═══════════════════════════════════════════════════════════════════════════
 
 class _PendingPaymentTile extends StatelessWidget {
-  final SubscriptionMember member;
 
   const _PendingPaymentTile({required this.member});
+  final SubscriptionMember member;
 
   @override
   Widget build(BuildContext context) {
@@ -218,12 +217,11 @@ class _PendingPaymentTile extends StatelessWidget {
         color: const Color(0xFF2A2A3E),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: statusColor.withOpacity(0.2),
-          width: 1,
+          color: statusColor.withValues(alpha: 0.2),
         ),
         boxShadow: [
           BoxShadow(
-            color: statusColor.withOpacity(0.1),
+            color: statusColor.withValues(alpha: 0.1),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -259,13 +257,13 @@ class _PendingPaymentTile extends StatelessWidget {
 // ═══════════════════════════════════════════════════════════════════════════
 
 class _UserAvatar extends StatelessWidget {
-  final SubscriptionMember member;
-  final Color statusColor;
 
   const _UserAvatar({
     required this.member,
     required this.statusColor,
   });
+  final SubscriptionMember member;
+  final Color statusColor;
 
   @override
   Widget build(BuildContext context) {
@@ -275,13 +273,13 @@ class _UserAvatar extends StatelessWidget {
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             border: Border.all(
-              color: statusColor.withOpacity(0.3),
+              color: statusColor.withValues(alpha: 0.3),
               width: 2,
             ),
           ),
           child: CircleAvatar(
             radius: 24,
-            backgroundColor: statusColor.withOpacity(0.2),
+            backgroundColor: statusColor.withValues(alpha: 0.2),
             backgroundImage: member.userAvatar != null
                 ? NetworkImage(member.userAvatar!)
                 : null,
@@ -330,13 +328,13 @@ class _UserAvatar extends StatelessWidget {
 // ═══════════════════════════════════════════════════════════════════════════
 
 class _UserInfo extends StatelessWidget {
-  final SubscriptionMember member;
-  final int daysOverdue;
 
   const _UserInfo({
     required this.member,
     required this.daysOverdue,
   });
+  final SubscriptionMember member;
+  final int daysOverdue;
 
   @override
   Widget build(BuildContext context) {
@@ -364,13 +362,13 @@ class _UserInfo extends StatelessWidget {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
               decoration: BoxDecoration(
-                color: const Color(0xFF6C63FF).withOpacity(0.2),
+                color: const Color(0xFF6C63FF).withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(4),
               ),
               child: Text(
                 'Subscription',
                 style: TextStyle(
-                  color: const Color(0xFF6C63FF).withOpacity(0.9),
+                  color: const Color(0xFF6C63FF).withValues(alpha: 0.9),
                   fontSize: 10,
                   fontWeight: FontWeight.w600,
                 ),
@@ -400,13 +398,13 @@ class _UserInfo extends StatelessWidget {
 // ═══════════════════════════════════════════════════════════════════════════
 
 class _PaymentAction extends StatelessWidget {
-  final SubscriptionMember member;
-  final Color statusColor;
 
   const _PaymentAction({
     required this.member,
     required this.statusColor,
   });
+  final SubscriptionMember member;
+  final Color statusColor;
 
   @override
   Widget build(BuildContext context) {
@@ -433,7 +431,7 @@ class _PaymentAction extends StatelessWidget {
           },
           style: OutlinedButton.styleFrom(
             foregroundColor: statusColor,
-            side: BorderSide(color: statusColor.withOpacity(0.5)),
+            side: BorderSide(color: statusColor.withValues(alpha: 0.5)),
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             minimumSize: Size.zero,
             tapTargetSize: MaterialTapTargetSize.shrinkWrap,

@@ -12,8 +12,8 @@ import 'package:flutter_project_agents/features/auth/domain/repositories/auth_re
 /// ```dart
 /// final result = await getCurrentUser();
 /// result.fold(
-///   (failure) => print('No user logged in: $failure'),
-///   (user) => print('Current user: ${user.email}'),
+///   (failure) => debugPrint('No user logged in: $failure'),
+///   (user) => debugPrint('Current user: ${user.email}'),
 /// );
 /// ```
 class GetCurrentUser {

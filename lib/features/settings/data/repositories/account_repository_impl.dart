@@ -1,18 +1,17 @@
 // lib/features/settings/data/repositories/account_repository_impl.dart
 
 import 'package:dartz/dartz.dart';
-
-import '../../domain/failures/settings_failure.dart';
-import '../../domain/repositories/account_repository.dart';
-import '../datasources/account_remote_datasource.dart';
+import 'package:flutter_project_agents/features/settings/data/datasources/account_remote_datasource.dart';
+import 'package:flutter_project_agents/features/settings/domain/failures/settings_failure.dart';
+import 'package:flutter_project_agents/features/settings/domain/repositories/account_repository.dart';
 
 /// Account Repository Implementation
 ///
 /// Manages account operations via Supabase Auth.
 class AccountRepositoryImpl implements AccountRepository {
-  final AccountRemoteDataSource remoteDataSource;
 
   AccountRepositoryImpl({required this.remoteDataSource});
+  final AccountRemoteDataSource remoteDataSource;
 
   @override
   Future<Either<SettingsFailure, Unit>> changePassword({

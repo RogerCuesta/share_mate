@@ -23,8 +23,8 @@ class PaymentActionButtons extends ConsumerWidget {
 
   /// Handle mark all as paid action
   Future<void> _handleMarkAllAsPaid(BuildContext context, WidgetRef ref) async {
-    print('🔍 [PaymentActionButtons] Marking all payments as paid...');
-    print('   Subscription: $subscriptionId');
+    debugPrint('🔍 [PaymentActionButtons] Marking all payments as paid...');
+    debugPrint('   Subscription: $subscriptionId');
 
     final paymentNotifier = ref.read(paymentActionProvider.notifier);
     final count = await paymentNotifier.markAllAsPaid(

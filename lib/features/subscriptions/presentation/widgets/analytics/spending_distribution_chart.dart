@@ -3,7 +3,7 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 
-import '../../../domain/entities/subscription_spending.dart';
+import 'package:flutter_project_agents/features/subscriptions/domain/entities/subscription_spending.dart';
 
 /// Spending Distribution Pie Chart Widget
 ///
@@ -18,14 +18,13 @@ import '../../../domain/entities/subscription_spending.dart';
 /// - Groups excess subscriptions into "Others"
 /// - Loading and empty states
 class SpendingDistributionChart extends StatefulWidget {
-  final List<SubscriptionSpending> data;
-  final bool isLoading;
 
   const SpendingDistributionChart({
-    super.key,
-    required this.data,
+    required this.data, super.key,
     this.isLoading = false,
   });
+  final List<SubscriptionSpending> data;
+  final bool isLoading;
 
   @override
   State<SpendingDistributionChart> createState() =>
@@ -46,7 +45,7 @@ class _SpendingDistributionChartState extends State<SpendingDistributionChart> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.2),
+            color: Colors.black.withValues(alpha: 0.2),
             blurRadius: 8,
             offset: const Offset(0, 4),
           ),
@@ -133,7 +132,7 @@ class _SpendingDistributionChartState extends State<SpendingDistributionChart> {
 
     // Calculate "Others" total
     final othersTotal = others.fold<double>(
-      0.0,
+      0,
       (sum, item) => sum + item.totalAmountPaid,
     );
 
@@ -150,7 +149,7 @@ class _SpendingDistributionChartState extends State<SpendingDistributionChart> {
   }
 
   double _calculateTotal(List<SubscriptionSpending> data) {
-    return data.fold<double>(0.0, (sum, item) => sum + item.totalAmountPaid);
+    return data.fold<double>(0, (sum, item) => sum + item.totalAmountPaid);
   }
 
   List<PieChartSectionData> _buildSections(
@@ -175,8 +174,8 @@ class _SpendingDistributionChartState extends State<SpendingDistributionChart> {
           fontSize: fontSize,
           fontWeight: FontWeight.bold,
           color: Colors.white,
-          shadows: [
-            const Shadow(
+          shadows: const [
+            Shadow(
               color: Colors.black45,
               blurRadius: 2,
             ),
@@ -274,8 +273,8 @@ class _SpendingDistributionChartState extends State<SpendingDistributionChart> {
                         const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                     decoration: BoxDecoration(
                       color: index == touchedIndex
-                          ? const Color(0xFF6C63FF).withOpacity(0.2)
-                          : Colors.white.withOpacity(0.1),
+                          ? const Color(0xFF6C63FF).withValues(alpha: 0.2)
+                          : Colors.white.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(
@@ -313,37 +312,6 @@ class _SpendingDistributionChartState extends State<SpendingDistributionChart> {
 // ═══════════════════════════════════════════════════════════════════════════
 
 /// Custom center label for donut chart
-class _CenterLabel extends StatelessWidget {
-  final double totalAmount;
-
-  const _CenterLabel({required this.totalAmount});
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        const Text(
-          'Total',
-          style: TextStyle(
-            color: Colors.white60,
-            fontSize: 12,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          '\$${totalAmount.toStringAsFixed(2)}',
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      ],
-    );
-  }
-}
 
 // ═══════════════════════════════════════════════════════════════════════════
 // LOADING STATE
@@ -396,7 +364,7 @@ class _EmptyState extends StatelessWidget {
             Icon(
               Icons.pie_chart_outline,
               size: 64,
-              color: Colors.white.withOpacity(0.3),
+              color: Colors.white.withValues(alpha: 0.3),
             ),
             const SizedBox(height: 16),
             const Text(
@@ -411,7 +379,7 @@ class _EmptyState extends StatelessWidget {
             Text(
               'Mark payments to see distribution',
               style: TextStyle(
-                color: Colors.white.withOpacity(0.5),
+                color: Colors.white.withValues(alpha: 0.5),
                 fontSize: 14,
               ),
               textAlign: TextAlign.center,

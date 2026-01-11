@@ -1,4 +1,5 @@
 // lib/core/config/env_config.dart
+import 'package:flutter/foundation.dart';
 
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
@@ -131,20 +132,20 @@ class EnvConfig {
   /// ⚠️ Only use in development. Never log actual values in production.
   static void debugPrintStatus() {
     // ignore: avoid_print
-    print('═══════════════════════════════════════════════════════════');
+    debugPrint('═══════════════════════════════════════════════════════════');
     // ignore: avoid_print
-    print('Environment Configuration Status');
+    debugPrint('Environment Configuration Status');
     // ignore: avoid_print
-    print('═══════════════════════════════════════════════════════════');
+    debugPrint('═══════════════════════════════════════════════════════════');
     // ignore: avoid_print
-    print('SUPABASE_URL: ${supabaseUrl.isNotEmpty ? '✅ Set' : '❌ Missing'}');
+    debugPrint('SUPABASE_URL: ${supabaseUrl.isNotEmpty ? '✅ Set' : '❌ Missing'}');
     // ignore: avoid_print
-    print('SUPABASE_ANON_KEY: ${supabaseAnonKey.isNotEmpty ? '✅ Set' : '❌ Missing'}');
+    debugPrint('SUPABASE_ANON_KEY: ${supabaseAnonKey.isNotEmpty ? '✅ Set' : '❌ Missing'}');
     // ignore: avoid_print
-    print('SUPABASE_SERVICE_ROLE_KEY: ${supabaseServiceRoleKey.isNotEmpty ? '✅ Set (optional)' : '⚠️ Not set (optional)'}');
+    debugPrint('SUPABASE_SERVICE_ROLE_KEY: ${supabaseServiceRoleKey.isNotEmpty ? '✅ Set (optional)' : '⚠️ Not set (optional)'}');
     // ignore: avoid_print
-    print('Overall Status: ${isConfigured ? '✅ Configured' : '❌ Not Configured'}');
+    debugPrint('Overall Status: ${isConfigured ? '✅ Configured' : '❌ Not Configured'}');
     // ignore: avoid_print
-    print('═══════════════════════════════════════════════════════════');
+    debugPrint('═══════════════════════════════════════════════════════════');
   }
 }

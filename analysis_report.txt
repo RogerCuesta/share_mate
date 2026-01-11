@@ -1,0 +1,1033 @@
+Analyzing sub_mate...                                           
+
+   info • Sort directive sections alphabetically • lib/core/di/injection.dart:30:1 • directives_ordering
+   info • Sort directive sections alphabetically • lib/core/presentation/app_shell.dart:4:1 • directives_ordering
+warning • The declaration '_AnalyticsScreen' isn't referenced • lib/core/presentation/app_shell.dart:68:7 • unused_element
+   info • Don't invoke 'print' in production code • lib/core/storage/hive_service.dart:170:7 • avoid_print
+   info • Use 'package:' imports for files in the 'lib' directory • lib/core/sync/payment_sync_queue.dart:3:8 • always_use_package_imports
+   info • Constructor declarations should be before non-constructor declarations • lib/core/sync/payment_sync_queue.dart:37:3 • sort_constructors_first
+   info • Required named parameters should be before optional named parameters • lib/core/sync/payment_sync_queue.dart:45:19 • always_put_required_named_parameters_first
+   info • Don't invoke 'print' in production code • lib/core/sync/payment_sync_queue.dart:86:5 • avoid_print
+   info • Don't invoke 'print' in production code • lib/core/sync/payment_sync_queue.dart:93:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/core/sync/payment_sync_queue.dart:94:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/core/sync/payment_sync_queue.dart:96:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/core/sync/payment_sync_queue.dart:105:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/core/sync/payment_sync_queue.dart:108:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/core/sync/payment_sync_queue.dart:117:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/core/sync/payment_sync_queue.dart:118:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/core/sync/payment_sync_queue.dart:120:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/core/sync/payment_sync_queue.dart:132:9 • avoid_print
+   info • Don't invoke 'print' in production code • lib/core/sync/payment_sync_queue.dart:135:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/core/sync/payment_sync_queue.dart:145:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/core/sync/payment_sync_queue.dart:147:7 • avoid_print
+   info • Use 'package:' imports for files in the 'lib' directory • lib/core/theme/app_theme.dart:4:8 • always_use_package_imports
+   info • Use 'package:' imports for files in the 'lib' directory • lib/core/theme/app_theme.dart:5:8 • always_use_package_imports
+   info • Use 'package:' imports for files in the 'lib' directory • lib/core/theme/app_theme.dart:6:8 • always_use_package_imports
+   info • The value of the argument is redundant because it matches the default value • lib/core/theme/app_theme.dart:25:19 • avoid_redundant_argument_values
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/core/theme/app_theme.dart:125:43 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/core/theme/app_theme.dart:247:42 • deprecated_member_use
+   info • Use 'package:' imports for files in the 'lib' directory • lib/core/theme/theme_extensions.dart:4:8 • always_use_package_imports
+   info • Constructor declarations should be before non-constructor declarations • lib/core/theme/theme_extensions.dart:40:9 • sort_constructors_first
+   info • Use 'const' with the constructor to improve performance • lib/core/theme/theme_extensions.dart:62:24 • prefer_const_constructors
+   info • Use 'const' literals as arguments to constructors of '@immutable' classes • lib/core/theme/theme_extensions.dart:68:17 • prefer_const_literals_to_create_immutables
+   info • Use 'const' with the constructor to improve performance • lib/core/theme/theme_extensions.dart:69:7 • prefer_const_constructors
+   info • Use 'const' literals as arguments to constructors of '@immutable' classes • lib/core/theme/theme_extensions.dart:75:19 • prefer_const_literals_to_create_immutables
+   info • Use 'const' with the constructor to improve performance • lib/core/theme/theme_extensions.dart:76:7 • prefer_const_constructors
+   info • Use 'const' literals as arguments to constructors of '@immutable' classes • lib/core/theme/theme_extensions.dart:82:22 • prefer_const_literals_to_create_immutables
+   info • Use 'const' with the constructor to improve performance • lib/core/theme/theme_extensions.dart:83:7 • prefer_const_constructors
+   info • Use 'const' with the constructor to improve performance • lib/core/theme/theme_extensions.dart:102:23 • prefer_const_constructors
+   info • Use 'const' literals as arguments to constructors of '@immutable' classes • lib/core/theme/theme_extensions.dart:108:17 • prefer_const_literals_to_create_immutables
+   info • Use 'const' with the constructor to improve performance • lib/core/theme/theme_extensions.dart:109:7 • prefer_const_constructors
+   info • Use 'const' literals as arguments to constructors of '@immutable' classes • lib/core/theme/theme_extensions.dart:115:19 • prefer_const_literals_to_create_immutables
+   info • Use 'const' with the constructor to improve performance • lib/core/theme/theme_extensions.dart:116:7 • prefer_const_constructors
+   info • Use 'const' literals as arguments to constructors of '@immutable' classes • lib/core/theme/theme_extensions.dart:122:22 • prefer_const_literals_to_create_immutables
+   info • Use 'const' with the constructor to improve performance • lib/core/theme/theme_extensions.dart:123:7 • prefer_const_constructors
+   info • Don't invoke 'print' in production code • lib/core/utils/dev_utils.dart:39:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/core/utils/dev_utils.dart:40:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/core/utils/dev_utils.dart:41:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/core/utils/dev_utils.dart:43:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/core/utils/dev_utils.dart:52:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/core/utils/dev_utils.dart:54:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/core/utils/dev_utils.dart:64:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/core/utils/dev_utils.dart:66:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/core/utils/dev_utils.dart:80:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/core/utils/dev_utils.dart:82:7 • avoid_print
+   info • Unnecessary use of a 'double' literal • lib/core/widgets/custom_bottom_nav_bar.dart:25:20 • prefer_int_literals
+   info • Constructor declarations should be before non-constructor declarations • lib/core/widgets/custom_bottom_nav_bar.dart:94:9 • sort_constructors_first
+   info • Unnecessary use of a 'double' literal • lib/core/widgets/custom_bottom_nav_bar.dart:122:14 • prefer_int_literals
+   info • Constructor declarations should be before non-constructor declarations • lib/features/auth/data/datasources/auth_remote_datasource.dart:66:9 • sort_constructors_first
+   info • Constructor declarations should be before non-constructor declarations • lib/features/auth/data/datasources/auth_remote_datasource.dart:279:9 • sort_constructors_first
+   info • Constructor declarations should be before non-constructor declarations • lib/features/auth/data/datasources/auth_remote_datasource.dart:293:9 • sort_constructors_first
+   info • Constructor declarations should be before non-constructor declarations • lib/features/auth/data/repositories/auth_repository_impl.dart:30:3 • sort_constructors_first
+   info • The value of the argument is redundant because it matches the default value • lib/features/auth/data/repositories/auth_repository_impl.dart:123:9 • avoid_redundant_argument_values
+   info • Constructor declarations should be before non-constructor declarations • lib/features/contacts/data/datasources/contact_local_datasource.dart:14:9 • sort_constructors_first
+warning • Unnecessary cast • lib/features/contacts/data/datasources/contact_local_datasource.dart:31:15 • unnecessary_cast
+   info • Constructor declarations should be before non-constructor declarations • lib/features/contacts/data/datasources/contact_remote_datasource.dart:14:9 • sort_constructors_first
+   info • Required named parameters should be before optional named parameters • lib/features/contacts/data/models/contact_model.dart:23:37 • always_put_required_named_parameters_first
+   info • Required named parameters should be before optional named parameters • lib/features/contacts/data/models/contact_model.dart:24:37 • always_put_required_named_parameters_first
+   info • Constructor declarations should be before non-constructor declarations • lib/features/contacts/data/models/contact_model.dart:72:11 • sort_constructors_first
+   info • Constructor declarations should be before non-constructor declarations • lib/features/contacts/data/repositories/contact_repository_impl.dart:20:9 • sort_constructors_first
+   info • Required named parameters should be before optional named parameters • lib/features/contacts/domain/entities/contact.dart:33:23 • always_put_required_named_parameters_first
+   info • Required named parameters should be before optional named parameters • lib/features/contacts/domain/entities/contact.dart:36:23 • always_put_required_named_parameters_first
+   info • Constructor declarations should be before non-constructor declarations • lib/features/contacts/domain/usecases/add_contact.dart:15:9 • sort_constructors_first
+   info • Constructor declarations should be before non-constructor declarations • lib/features/contacts/domain/usecases/delete_contact.dart:13:9 • sort_constructors_first
+   info • Constructor declarations should be before non-constructor declarations • lib/features/contacts/domain/usecases/get_my_contacts.dart:15:9 • sort_constructors_first
+   info • Unnecessary 'await' • lib/features/contacts/domain/usecases/get_my_contacts.dart:24:12 • unnecessary_await_in_return
+   info • Constructor declarations should be before non-constructor declarations • lib/features/contacts/domain/usecases/update_contact.dart:15:9 • sort_constructors_first
+   info • 'ContactsListRef' is deprecated and shouldn't be used. Will be removed in 3.0. Use Ref instead • lib/features/contacts/presentation/providers/contacts_provider.dart:16:36 • deprecated_member_use_from_same_package
+   info • Don't invoke 'print' in production code • lib/features/contacts/presentation/providers/contacts_provider.dart:29:11 • avoid_print
+   info • Constructor declarations should be before non-constructor declarations • lib/features/contacts/presentation/widgets/contact_list_item.dart:14:9 • sort_constructors_first
+   info • Constructor declarations should be before non-constructor declarations • lib/features/contacts/presentation/widgets/edit_contact_dialog.dart:11:9 • sort_constructors_first
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/home/presentation/screens/home_screen.dart:4:8 • always_use_package_imports
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/home/presentation/screens/home_screen.dart:5:8 • always_use_package_imports
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/home/presentation/screens/home_screen.dart:6:8 • always_use_package_imports
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/home/presentation/screens/home_screen.dart:7:8 • always_use_package_imports
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/home/presentation/screens/home_screen.dart:8:8 • always_use_package_imports
+   info • Unnecessary use of a 'double' literal • lib/features/home/presentation/screens/home_screen.dart:32:53 • prefer_int_literals
+   info • Unnecessary use of a 'double' literal • lib/features/home/presentation/screens/home_screen.dart:32:66 • prefer_int_literals
+   info • Unnecessary use of a 'double' literal • lib/features/home/presentation/screens/home_screen.dart:44:56 • prefer_int_literals
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/home/presentation/widgets/action_required_section.dart:3:8 • always_use_package_imports
+   info • Constructor declarations should be before non-constructor declarations • lib/features/home/presentation/widgets/action_required_section.dart:18:9 • sort_constructors_first
+   info • Required named parameters should be before optional named parameters • lib/features/home/presentation/widgets/action_required_section.dart:20:19 • always_put_required_named_parameters_first
+   info • Constructor declarations should be before non-constructor declarations • lib/features/home/presentation/widgets/action_required_section.dart:66:9 • sort_constructors_first
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/features/home/presentation/widgets/action_required_section.dart:102:50 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/features/home/presentation/widgets/action_required_section.dart:109:48 • deprecated_member_use
+   info • Constructor declarations should be before non-constructor declarations • lib/features/home/presentation/widgets/action_required_section.dart:127:9 • sort_constructors_first
+   info • Unnecessary use of a 'double' literal • lib/features/home/presentation/widgets/action_required_section.dart:154:14 • prefer_int_literals
+   info • Unnecessary use of a 'double' literal • lib/features/home/presentation/widgets/action_required_section.dart:155:12 • prefer_int_literals
+   info • Constructor declarations should be before non-constructor declarations • lib/features/home/presentation/widgets/action_required_section.dart:206:9 • sort_constructors_first
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/features/home/presentation/widgets/action_required_section.dart:221:30 • deprecated_member_use
+   info • The value of the argument is redundant because it matches the default value • lib/features/home/presentation/widgets/action_required_section.dart:222:18 • avoid_redundant_argument_values
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/features/home/presentation/widgets/action_required_section.dart:226:32 • deprecated_member_use
+   info • Constructor declarations should be before non-constructor declarations • lib/features/home/presentation/widgets/action_required_section.dart:265:9 • sort_constructors_first
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/features/home/presentation/widgets/action_required_section.dart:278:34 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/features/home/presentation/widgets/action_required_section.dart:284:42 • deprecated_member_use
+   info • Constructor declarations should be before non-constructor declarations • lib/features/home/presentation/widgets/action_required_section.dart:336:9 • sort_constructors_first
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/features/home/presentation/widgets/action_required_section.dart:367:48 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/features/home/presentation/widgets/action_required_section.dart:373:50 • deprecated_member_use
+   info • Constructor declarations should be before non-constructor declarations • lib/features/home/presentation/widgets/action_required_section.dart:406:9 • sort_constructors_first
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/features/home/presentation/widgets/action_required_section.dart:436:49 • deprecated_member_use
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/home/presentation/widgets/active_subscriptions_section.dart:7:8 • always_use_package_imports
+   info • Constructor declarations should be before non-constructor declarations • lib/features/home/presentation/widgets/active_subscriptions_section.dart:21:9 • sort_constructors_first
+   info • Required named parameters should be before optional named parameters • lib/features/home/presentation/widgets/active_subscriptions_section.dart:23:19 • always_put_required_named_parameters_first
+   info • Constructor declarations should be before non-constructor declarations • lib/features/home/presentation/widgets/active_subscriptions_section.dart:76:9 • sort_constructors_first
+   info • Constructor declarations should be before non-constructor declarations • lib/features/home/presentation/widgets/active_subscriptions_section.dart:139:9 • sort_constructors_first
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/features/home/presentation/widgets/active_subscriptions_section.dart:159:21 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/features/home/presentation/widgets/active_subscriptions_section.dart:165:28 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/features/home/presentation/widgets/active_subscriptions_section.dart:181:34 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/features/home/presentation/widgets/active_subscriptions_section.dart:182:34 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/features/home/presentation/widgets/active_subscriptions_section.dart:223:47 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/features/home/presentation/widgets/active_subscriptions_section.dart:230:49 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/features/home/presentation/widgets/active_subscriptions_section.dart:260:45 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/features/home/presentation/widgets/active_subscriptions_section.dart:266:47 • deprecated_member_use
+   info • Unnecessary braces in a string interpolation • lib/features/home/presentation/widgets/active_subscriptions_section.dart:305:23 • unnecessary_brace_in_string_interps
+   info • Constructor declarations should be before non-constructor declarations • lib/features/home/presentation/widgets/active_subscriptions_section.dart:320:9 • sort_constructors_first
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/features/home/presentation/widgets/active_subscriptions_section.dart:328:29 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/features/home/presentation/widgets/active_subscriptions_section.dart:346:43 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/features/home/presentation/widgets/active_subscriptions_section.dart:363:27 • deprecated_member_use
+   info • Constructor declarations should be before non-constructor declarations • lib/features/home/presentation/widgets/active_subscriptions_section.dart:376:9 • sort_constructors_first
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/features/home/presentation/widgets/active_subscriptions_section.dart:383:29 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/features/home/presentation/widgets/active_subscriptions_section.dart:391:33 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/features/home/presentation/widgets/active_subscriptions_section.dart:398:35 • deprecated_member_use
+   info • Use 'const' with the constructor to improve performance • lib/features/home/presentation/widgets/active_subscriptions_section.dart:425:25 • prefer_const_constructors
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/home/presentation/widgets/home_header.dart:4:8 • always_use_package_imports
+   info • Constructor declarations should be before non-constructor declarations • lib/features/home/presentation/widgets/home_header.dart:67:9 • sort_constructors_first
+   info • Use 'const' with the constructor to improve performance • lib/features/home/presentation/widgets/home_header.dart:122:15 • prefer_const_constructors
+   info • Use 'const' literals as arguments to constructors of '@immutable' classes • lib/features/home/presentation/widgets/home_header.dart:124:21 • prefer_const_literals_to_create_immutables
+   info • Use 'const' with the constructor to improve performance • lib/features/home/presentation/widgets/home_header.dart:133:15 • prefer_const_constructors
+   info • Use 'const' with the constructor to improve performance • lib/features/home/presentation/widgets/home_header.dart:136:24 • prefer_const_constructors
+   info • Constructor declarations should be before non-constructor declarations • lib/features/home/presentation/widgets/home_header.dart:156:9 • sort_constructors_first
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/home/presentation/widgets/stats_cards.dart:5:8 • always_use_package_imports
+   info • Constructor declarations should be before non-constructor declarations • lib/features/home/presentation/widgets/stats_cards.dart:17:9 • sort_constructors_first
+   info • Required named parameters should be before optional named parameters • lib/features/home/presentation/widgets/stats_cards.dart:17:46 • always_put_required_named_parameters_first
+   info • Constructor declarations should be before non-constructor declarations • lib/features/home/presentation/widgets/stats_cards.dart:71:9 • sort_constructors_first
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/features/home/presentation/widgets/stats_cards.dart:89:43 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/features/home/presentation/widgets/stats_cards.dart:90:43 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/features/home/presentation/widgets/stats_cards.dart:104:32 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/features/home/presentation/widgets/stats_cards.dart:105:32 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/features/home/presentation/widgets/stats_cards.dart:123:47 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/features/home/presentation/widgets/stats_cards.dart:134:45 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/features/home/presentation/widgets/stats_cards.dart:146:43 • deprecated_member_use
+   info • Use 'const' with the constructor to improve performance • lib/features/home/presentation/widgets/stats_cards.dart:185:12 • prefer_const_constructors
+   info • Use 'const' with the constructor to improve performance • lib/features/home/presentation/widgets/stats_cards.dart:187:14 • prefer_const_constructors
+   info • Use 'const' literals as arguments to constructors of '@immutable' classes • lib/features/home/presentation/widgets/stats_cards.dart:188:19 • prefer_const_literals_to_create_immutables
+   info • Use 'const' with the constructor to improve performance • lib/features/home/presentation/widgets/stats_cards.dart:189:11 • prefer_const_constructors
+   info • Use 'const' with the constructor to improve performance • lib/features/home/presentation/widgets/stats_cards.dart:190:20 • prefer_const_constructors
+   info • Use 'const' with the constructor to improve performance • lib/features/home/presentation/widgets/stats_cards.dart:199:11 • prefer_const_constructors
+   info • Use 'const' with the constructor to improve performance • lib/features/home/presentation/widgets/stats_cards.dart:200:20 • prefer_const_constructors
+   info • Constructor declarations should be before non-constructor declarations • lib/features/home/presentation/widgets/stats_cards.dart:217:9 • sort_constructors_first
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/features/home/presentation/widgets/stats_cards.dart:235:32 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/features/home/presentation/widgets/stats_cards.dart:236:32 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/features/home/presentation/widgets/stats_cards.dart:244:37 • deprecated_member_use
+   info • Constructor declarations should be before non-constructor declarations • lib/features/home/presentation/widgets/stats_cards.dart:262:9 • sort_constructors_first
+   info • Required named parameters should be before optional named parameters • lib/features/home/presentation/widgets/stats_cards.dart:262:51 • always_put_required_named_parameters_first
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/features/home/presentation/widgets/stats_cards.dart:274:44 • deprecated_member_use
+   info • The value of the argument is redundant because it matches the default value • lib/features/home/presentation/widgets/stats_cards.dart:275:20 • avoid_redundant_argument_values
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/features/home/presentation/widgets/stats_cards.dart:283:48 • deprecated_member_use
+   info • Constructor declarations should be before non-constructor declarations • lib/features/settings/data/datasources/account_remote_datasource.dart:17:3 • sort_constructors_first
+   info • Constructor declarations should be before non-constructor declarations • lib/features/settings/data/datasources/account_remote_datasource.dart:78:3 • sort_constructors_first
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/settings/data/datasources/profile_local_datasource.dart:6:8 • always_use_package_imports
+   info • Constructor declarations should be before non-constructor declarations • lib/features/settings/data/datasources/profile_local_datasource.dart:73:3 • sort_constructors_first
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/settings/data/datasources/profile_remote_datasource.dart:7:8 • always_use_package_imports
+   info • Constructor declarations should be before non-constructor declarations • lib/features/settings/data/datasources/profile_remote_datasource.dart:21:3 • sort_constructors_first
+   info • Use 'const' for final variables initialized to a constant value • lib/features/settings/data/datasources/profile_remote_datasource.dart:57:7 • prefer_const_declarations
+   info • Constructor declarations should be before non-constructor declarations • lib/features/settings/data/datasources/profile_remote_datasource.dart:92:3 • sort_constructors_first
+   info • Constructor declarations should be before non-constructor declarations • lib/features/settings/data/datasources/profile_remote_datasource.dart:101:3 • sort_constructors_first
+   info • Constructor declarations should be before non-constructor declarations • lib/features/settings/data/datasources/profile_remote_datasource.dart:110:3 • sort_constructors_first
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/settings/data/datasources/settings_local_datasource.dart:6:8 • always_use_package_imports
+   info • Constructor declarations should be before non-constructor declarations • lib/features/settings/data/datasources/settings_local_datasource.dart:65:3 • sort_constructors_first
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/settings/data/models/app_settings_model.dart:5:8 • always_use_package_imports
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/settings/data/models/app_settings_model.dart:6:8 • always_use_package_imports
+   info • Constructor declarations should be before non-constructor declarations • lib/features/settings/data/models/app_settings_model.dart:40:3 • sort_constructors_first
+   info • Constructor declarations should be before non-constructor declarations • lib/features/settings/data/models/app_settings_model.dart:52:11 • sort_constructors_first
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/settings/data/models/user_profile_model.dart:5:8 • always_use_package_imports
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/settings/data/models/user_profile_model.dart:6:8 • always_use_package_imports
+   info • Constructor declarations should be before non-constructor declarations • lib/features/settings/data/models/user_profile_model.dart:39:3 • sort_constructors_first
+   info • Required named parameters should be before optional named parameters • lib/features/settings/data/models/user_profile_model.dart:46:19 • always_put_required_named_parameters_first
+   info • Constructor declarations should be before non-constructor declarations • lib/features/settings/data/models/user_profile_model.dart:51:11 • sort_constructors_first
+   info • Constructor declarations should be before non-constructor declarations • lib/features/settings/data/models/user_profile_model.dart:75:11 • sort_constructors_first
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/settings/data/repositories/account_repository_impl.dart:5:8 • always_use_package_imports
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/settings/data/repositories/account_repository_impl.dart:6:8 • always_use_package_imports
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/settings/data/repositories/account_repository_impl.dart:7:8 • always_use_package_imports
+   info • Constructor declarations should be before non-constructor declarations • lib/features/settings/data/repositories/account_repository_impl.dart:15:3 • sort_constructors_first
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/settings/data/repositories/profile_repository_impl.dart:8:8 • always_use_package_imports
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/settings/data/repositories/profile_repository_impl.dart:9:8 • always_use_package_imports
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/settings/data/repositories/profile_repository_impl.dart:10:8 • always_use_package_imports
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/settings/data/repositories/profile_repository_impl.dart:11:8 • always_use_package_imports
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/settings/data/repositories/profile_repository_impl.dart:12:8 • always_use_package_imports
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/settings/data/repositories/profile_repository_impl.dart:13:8 • always_use_package_imports
+   info • Constructor declarations should be before non-constructor declarations • lib/features/settings/data/repositories/profile_repository_impl.dart:25:3 • sort_constructors_first
+   info • Use 'const' with the constructor to improve performance • lib/features/settings/data/repositories/profile_repository_impl.dart:49:16 • prefer_const_constructors
+   info • Use 'const' with the constructor to improve performance • lib/features/settings/data/repositories/profile_repository_impl.dart:49:21 • prefer_const_constructors
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/settings/data/repositories/settings_repository_impl.dart:5:8 • always_use_package_imports
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/settings/data/repositories/settings_repository_impl.dart:6:8 • always_use_package_imports
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/settings/data/repositories/settings_repository_impl.dart:7:8 • always_use_package_imports
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/settings/data/repositories/settings_repository_impl.dart:8:8 • always_use_package_imports
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/settings/data/repositories/settings_repository_impl.dart:9:8 • always_use_package_imports
+   info • Constructor declarations should be before non-constructor declarations • lib/features/settings/data/repositories/settings_repository_impl.dart:18:3 • sort_constructors_first
+   info • Required named parameters should be before optional named parameters • lib/features/settings/domain/entities/user_profile.dart:20:23 • always_put_required_named_parameters_first
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/settings/domain/repositories/account_repository.dart:5:8 • always_use_package_imports
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/settings/domain/repositories/profile_repository.dart:7:8 • always_use_package_imports
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/settings/domain/repositories/profile_repository.dart:8:8 • always_use_package_imports
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/settings/domain/repositories/settings_repository.dart:5:8 • always_use_package_imports
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/settings/domain/repositories/settings_repository.dart:6:8 • always_use_package_imports
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/settings/domain/usecases/change_password.dart:5:8 • always_use_package_imports
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/settings/domain/usecases/change_password.dart:6:8 • always_use_package_imports
+   info • Constructor declarations should be before non-constructor declarations • lib/features/settings/domain/usecases/change_password.dart:17:3 • sort_constructors_first
+   info • Use 'const' with the constructor to improve performance • lib/features/settings/domain/usecases/change_password.dart:24:14 • prefer_const_constructors
+   info • Use 'const' with the constructor to improve performance • lib/features/settings/domain/usecases/change_password.dart:25:9 • prefer_const_constructors
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/settings/domain/usecases/delete_account.dart:5:8 • always_use_package_imports
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/settings/domain/usecases/delete_account.dart:6:8 • always_use_package_imports
+   info • Constructor declarations should be before non-constructor declarations • lib/features/settings/domain/usecases/delete_account.dart:15:3 • sort_constructors_first
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/settings/domain/usecases/delete_avatar.dart:5:8 • always_use_package_imports
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/settings/domain/usecases/delete_avatar.dart:6:8 • always_use_package_imports
+   info • Constructor declarations should be before non-constructor declarations • lib/features/settings/domain/usecases/delete_avatar.dart:14:3 • sort_constructors_first
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/settings/domain/usecases/get_profile.dart:5:8 • always_use_package_imports
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/settings/domain/usecases/get_profile.dart:6:8 • always_use_package_imports
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/settings/domain/usecases/get_profile.dart:7:8 • always_use_package_imports
+   info • Constructor declarations should be before non-constructor declarations • lib/features/settings/domain/usecases/get_profile.dart:15:3 • sort_constructors_first
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/settings/domain/usecases/get_settings.dart:5:8 • always_use_package_imports
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/settings/domain/usecases/get_settings.dart:6:8 • always_use_package_imports
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/settings/domain/usecases/get_settings.dart:7:8 • always_use_package_imports
+   info • Constructor declarations should be before non-constructor declarations • lib/features/settings/domain/usecases/get_settings.dart:15:3 • sort_constructors_first
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/settings/domain/usecases/save_settings.dart:5:8 • always_use_package_imports
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/settings/domain/usecases/save_settings.dart:6:8 • always_use_package_imports
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/settings/domain/usecases/save_settings.dart:7:8 • always_use_package_imports
+   info • Constructor declarations should be before non-constructor declarations • lib/features/settings/domain/usecases/save_settings.dart:15:3 • sort_constructors_first
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/settings/domain/usecases/send_email_verification.dart:5:8 • always_use_package_imports
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/settings/domain/usecases/send_email_verification.dart:6:8 • always_use_package_imports
+   info • Constructor declarations should be before non-constructor declarations • lib/features/settings/domain/usecases/send_email_verification.dart:14:3 • sort_constructors_first
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/settings/domain/usecases/update_profile.dart:5:8 • always_use_package_imports
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/settings/domain/usecases/update_profile.dart:6:8 • always_use_package_imports
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/settings/domain/usecases/update_profile.dart:7:8 • always_use_package_imports
+   info • Constructor declarations should be before non-constructor declarations • lib/features/settings/domain/usecases/update_profile.dart:15:3 • sort_constructors_first
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/settings/domain/usecases/upload_avatar.dart:7:8 • always_use_package_imports
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/settings/domain/usecases/upload_avatar.dart:8:8 • always_use_package_imports
+   info • Constructor declarations should be before non-constructor declarations • lib/features/settings/domain/usecases/upload_avatar.dart:19:3 • sort_constructors_first
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/settings/presentation/providers/account_actions_provider.dart:5:8 • always_use_package_imports
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/settings/presentation/providers/account_actions_provider.dart:6:8 • always_use_package_imports
+   info • Constructor declarations should be before non-constructor declarations • lib/features/settings/presentation/providers/account_actions_provider.dart:28:9 • sort_constructors_first
+   info • Constructor declarations should be before non-constructor declarations • lib/features/settings/presentation/providers/account_actions_provider.dart:33:9 • sort_constructors_first
+   info • 'EmailVerificationStatusRef' is deprecated and shouldn't be used. Will be removed in 3.0. Use Ref instead • lib/features/settings/presentation/providers/account_actions_provider.dart:146:38 • deprecated_member_use_from_same_package
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/settings/presentation/providers/settings_provider.dart:5:8 • always_use_package_imports
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/settings/presentation/providers/settings_provider.dart:6:8 • always_use_package_imports
+   info • 'bool' parameters should be named parameters • lib/features/settings/presentation/providers/settings_provider.dart:57:39 • avoid_positional_boolean_parameters
+   info • 'bool' parameters should be named parameters • lib/features/settings/presentation/providers/settings_provider.dart:65:42 • avoid_positional_boolean_parameters
+   info • 'bool' parameters should be named parameters • lib/features/settings/presentation/providers/settings_provider.dart:73:37 • avoid_positional_boolean_parameters
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/settings/presentation/providers/theme_provider.dart:6:8 • always_use_package_imports
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/settings/presentation/providers/theme_provider.dart:7:8 • always_use_package_imports
+   info • Sort directive sections alphabetically • lib/features/settings/presentation/screens/settings_screen.dart:8:1 • directives_ordering
+   info • Method invocation or property access on a 'dynamic' target • lib/features/settings/presentation/screens/settings_screen.dart:249:19 • avoid_dynamic_calls
+   info • Method invocation or property access on a 'dynamic' target • lib/features/settings/presentation/screens/settings_screen.dart:262:23 • avoid_dynamic_calls
+   info • Method invocation or property access on a 'dynamic' target • lib/features/settings/presentation/screens/settings_screen.dart:267:23 • avoid_dynamic_calls
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/features/settings/presentation/screens/settings_screen.dart:269:60 • deprecated_member_use
+   info • Required named parameters should be before optional named parameters • lib/features/settings/presentation/screens/settings_screen.dart:296:27 • always_put_required_named_parameters_first
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/features/settings/presentation/screens/settings_screen.dart:326:54 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/features/settings/presentation/screens/settings_screen.dart:387:44 • deprecated_member_use
+   info • Method invocation or property access on a 'dynamic' target • lib/features/settings/presentation/screens/settings_screen.dart:443:18 • avoid_dynamic_calls
+   info • Method invocation or property access on a 'dynamic' target • lib/features/settings/presentation/screens/settings_screen.dart:445:36 • avoid_dynamic_calls
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/subscriptions/data/datasources/subscription_local_datasource.dart:3:8 • always_use_package_imports
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/subscriptions/data/datasources/subscription_local_datasource.dart:4:8 • always_use_package_imports
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/subscriptions/data/datasources/subscription_local_datasource.dart:5:8 • always_use_package_imports
+   info • Constructor declarations should be before non-constructor declarations • lib/features/subscriptions/data/datasources/subscription_local_datasource.dart:10:3 • sort_constructors_first
+   info • Unnecessary type annotation on a local variable • lib/features/subscriptions/data/datasources/subscription_local_datasource.dart:165:13 • omit_local_variable_types
+   info • The variable 'subscription' should be final • lib/features/subscriptions/data/datasources/subscription_local_datasource.dart:166:18 • prefer_final_in_for_each
+   info • Unnecessary type annotation on a local variable • lib/features/subscriptions/data/datasources/subscription_local_datasource.dart:284:13 • omit_local_variable_types
+   info • The variable 'member' should be final • lib/features/subscriptions/data/datasources/subscription_local_datasource.dart:285:18 • prefer_final_in_for_each
+   info • Unnecessary type annotation on a local variable • lib/features/subscriptions/data/datasources/subscription_local_datasource.dart:401:13 • omit_local_variable_types
+   info • The variable 'history' should be final • lib/features/subscriptions/data/datasources/subscription_local_datasource.dart:402:18 • prefer_final_in_for_each
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:4:8 • always_use_package_imports
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:5:8 • always_use_package_imports
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:6:8 • always_use_package_imports
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:7:8 • always_use_package_imports
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:8:8 • always_use_package_imports
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:9:8 • always_use_package_imports
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:10:8 • always_use_package_imports
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:11:8 • always_use_package_imports
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:12:8 • always_use_package_imports
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:13:8 • always_use_package_imports
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:14:8 • always_use_package_imports
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:15:8 • always_use_package_imports
+   info • Constructor declarations should be before non-constructor declarations • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:20:3 • sort_constructors_first
+   info • Constructor declarations should be before non-constructor declarations • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:128:3 • sort_constructors_first
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:134:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:143:7 • avoid_print
+   info • Unnecessary type annotation on a local variable • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:145:13 • omit_local_variable_types
+   info • The variable 'json' should be final • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:149:16 • prefer_final_in_for_each
+   info • Method invocation or property access on a 'dynamic' target • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:150:32 • avoid_dynamic_calls
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:151:9 • avoid_print
+   info • Method invocation or property access on a 'dynamic' target • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:151:49 • avoid_dynamic_calls
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:160:11 • avoid_print
+   info • Method invocation or property access on a 'dynamic' target • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:160:80 • avoid_dynamic_calls
+   info • Method invocation or property access on a 'dynamic' target • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:163:11 • avoid_dynamic_calls
+   info • Method invocation or property access on a 'dynamic' target • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:164:27 • avoid_dynamic_calls
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:171:11 • avoid_print
+   info • Method invocation or property access on a 'dynamic' target • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:173:11 • avoid_dynamic_calls
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:180:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:183:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:188:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:198:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:206:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:217:9 • avoid_print
+   info • Method invocation or property access on a 'dynamic' target • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:221:25 • avoid_dynamic_calls
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:224:9 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:228:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:231:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:236:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:246:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:253:9 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:257:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:266:7 • avoid_print
+   info • Unnecessary type annotation on a local variable • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:268:13 • omit_local_variable_types
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:274:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:277:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:282:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:294:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:302:7 • avoid_print
+   info • Unnecessary type annotation on a local variable • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:304:13 • omit_local_variable_types
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:310:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:313:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:318:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:328:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:336:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:340:7 • avoid_print
+   info • Unnecessary use of a 'double' literal • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:344:9 • prefer_int_literals
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:358:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:359:7 • avoid_print
+   info • Unnecessary use of a 'double' literal • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:362:9 • prefer_int_literals
+   info • Unnecessary use of a 'double' literal • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:367:9 • prefer_int_literals
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:375:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:387:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:390:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:395:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:407:7 • avoid_print
+   info • Unnecessary duplication of receiver • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:411:7 • cascade_invocations
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:413:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:421:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:426:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:429:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:434:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:446:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:461:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:470:7 • avoid_print
+   info • Method invocation or property access on a 'dynamic' target • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:482:25 • avoid_dynamic_calls
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:485:9 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:489:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:492:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:497:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:507:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:511:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:517:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:520:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:522:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:527:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:541:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:542:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:557:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:561:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:564:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:569:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:581:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:582:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:583:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:591:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:595:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:598:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:603:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:613:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:617:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:619:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:624:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:638:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:639:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:641:9 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:657:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:661:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:666:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:683:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:684:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:685:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:686:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:689:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:700:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:707:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:727:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:732:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:747:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:748:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:749:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:752:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:763:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:766:9 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:773:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:783:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:786:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:803:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:807:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:812:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:829:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:830:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:831:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:834:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:844:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:845:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:861:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:880:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:885:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:899:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:900:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:902:9 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:905:9 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:933:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:937:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:942:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:960:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:961:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:962:30 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:963:28 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:966:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:973:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:1001:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:1002:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:1003:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:1007:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:1010:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:1013:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:1016:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:1027:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:1028:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:1029:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:1033:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:1055:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:1058:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:1063:7 • avoid_print
+   info • Unnecessary use of a 'double' literal • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:1081:7 • prefer_int_literals
+   info • Unnecessary type annotation on a local variable • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:1123:11 • omit_local_variable_types
+   info • The variable 'record' should be final • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:1125:14 • prefer_final_in_for_each
+   info • The variable 's' should be final • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:1164:39 • prefer_final_in_for_each
+   info • Unnecessary type annotation on a local variable • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:1180:11 • omit_local_variable_types
+   info • The variable 'record' should be final • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:1182:14 • prefer_final_in_for_each
+   info • Unnecessary use of a 'double' literal • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:1248:25 • prefer_int_literals
+   info • Unnecessary use of a 'double' literal • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:1251:28 • prefer_int_literals
+   info • Unnecessary use of a 'double' literal • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:1252:31 • prefer_int_literals
+   info • Unnecessary type annotation on a local variable • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:1259:5 • omit_local_variable_types
+   info • Unnecessary type annotation on a local variable • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:1260:5 • omit_local_variable_types
+   info • Unnecessary use of a 'double' literal • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:1260:33 • prefer_int_literals
+   info • Unnecessary type annotation on a local variable • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:1261:11 • omit_local_variable_types
+   info • The variable 'record' should be final • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:1263:14 • prefer_final_in_for_each
+   info • Unnecessary use of a 'double' literal • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:1311:23 • prefer_int_literals
+   info • Constructor declarations should be before non-constructor declarations • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:1329:3 • sort_constructors_first
+   info • Constructor declarations should be before non-constructor declarations • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:1343:3 • sort_constructors_first
+   info • Constructor declarations should be before non-constructor declarations • lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart:1357:3 • sort_constructors_first
+   info • Classes should define instance members • lib/features/subscriptions/data/datasources/subscription_seed_data.dart:7:1 • avoid_classes_with_only_static_members
+   info • The value of the argument is redundant because it matches the default value • lib/features/subscriptions/data/datasources/subscription_seed_data.dart:33:9 • avoid_redundant_argument_values
+   info • The value of the argument is redundant because it matches the default value • lib/features/subscriptions/data/datasources/subscription_seed_data.dart:40:9 • avoid_redundant_argument_values
+   info • The value of the argument is redundant because it matches the default value • lib/features/subscriptions/data/datasources/subscription_seed_data.dart:48:9 • avoid_redundant_argument_values
+   info • The value of the argument is redundant because it matches the default value • lib/features/subscriptions/data/datasources/subscription_seed_data.dart:55:9 • avoid_redundant_argument_values
+   info • The value of the argument is redundant because it matches the default value • lib/features/subscriptions/data/datasources/subscription_seed_data.dart:63:9 • avoid_redundant_argument_values
+   info • The value of the argument is redundant because it matches the default value • lib/features/subscriptions/data/datasources/subscription_seed_data.dart:70:9 • avoid_redundant_argument_values
+   info • The value of the argument is redundant because it matches the default value • lib/features/subscriptions/data/datasources/subscription_seed_data.dart:78:9 • avoid_redundant_argument_values
+   info • The value of the argument is redundant because it matches the default value • lib/features/subscriptions/data/datasources/subscription_seed_data.dart:85:9 • avoid_redundant_argument_values
+   info • The value of the argument is redundant because it matches the default value • lib/features/subscriptions/data/datasources/subscription_seed_data.dart:93:9 • avoid_redundant_argument_values
+   info • The value of the argument is redundant because it matches the default value • lib/features/subscriptions/data/datasources/subscription_seed_data.dart:100:9 • avoid_redundant_argument_values
+   info • The value of the argument is redundant because it matches the default value • lib/features/subscriptions/data/datasources/subscription_seed_data.dart:108:9 • avoid_redundant_argument_values
+   info • The value of the argument is redundant because it matches the default value • lib/features/subscriptions/data/datasources/subscription_seed_data.dart:115:9 • avoid_redundant_argument_values
+   info • The value of the argument is redundant because it matches the default value • lib/features/subscriptions/data/datasources/subscription_seed_data.dart:123:9 • avoid_redundant_argument_values
+   info • The value of the argument is redundant because it matches the default value • lib/features/subscriptions/data/datasources/subscription_seed_data.dart:130:9 • avoid_redundant_argument_values
+   info • The value of the argument is redundant because it matches the default value • lib/features/subscriptions/data/datasources/subscription_seed_data.dart:138:9 • avoid_redundant_argument_values
+   info • The value of the argument is redundant because it matches the default value • lib/features/subscriptions/data/datasources/subscription_seed_data.dart:145:9 • avoid_redundant_argument_values
+   info • The value of the argument is redundant because it matches the default value • lib/features/subscriptions/data/datasources/subscription_seed_data.dart:166:9 • avoid_redundant_argument_values
+   info • The value of the argument is redundant because it matches the default value • lib/features/subscriptions/data/datasources/subscription_seed_data.dart:168:9 • avoid_redundant_argument_values
+   info • The value of the argument is redundant because it matches the default value • lib/features/subscriptions/data/datasources/subscription_seed_data.dart:181:9 • avoid_redundant_argument_values
+   info • Unnecessary use of a 'double' literal • lib/features/subscriptions/data/datasources/subscription_seed_data.dart:182:22 • prefer_int_literals
+   info • The value of the argument is redundant because it matches the default value • lib/features/subscriptions/data/datasources/subscription_seed_data.dart:183:9 • avoid_redundant_argument_values
+   info • The value of the argument is redundant because it matches the default value • lib/features/subscriptions/data/datasources/subscription_seed_data.dart:196:9 • avoid_redundant_argument_values
+   info • The value of the argument is redundant because it matches the default value • lib/features/subscriptions/data/datasources/subscription_seed_data.dart:198:9 • avoid_redundant_argument_values
+   info • The value of the argument is redundant because it matches the default value • lib/features/subscriptions/data/datasources/subscription_seed_data.dart:199:9 • avoid_redundant_argument_values
+   info • The value of the argument is redundant because it matches the default value • lib/features/subscriptions/data/datasources/subscription_seed_data.dart:211:9 • avoid_redundant_argument_values
+   info • The value of the argument is redundant because it matches the default value • lib/features/subscriptions/data/datasources/subscription_seed_data.dart:213:9 • avoid_redundant_argument_values
+   info • The value of the argument is redundant because it matches the default value • lib/features/subscriptions/data/datasources/subscription_seed_data.dart:214:9 • avoid_redundant_argument_values
+   info • The value of the argument is redundant because it matches the default value • lib/features/subscriptions/data/datasources/subscription_seed_data.dart:226:9 • avoid_redundant_argument_values
+   info • Unnecessary use of a 'double' literal • lib/features/subscriptions/data/datasources/subscription_seed_data.dart:227:22 • prefer_int_literals
+   info • The value of the argument is redundant because it matches the default value • lib/features/subscriptions/data/datasources/subscription_seed_data.dart:228:9 • avoid_redundant_argument_values
+   info • The value of the argument is redundant because it matches the default value • lib/features/subscriptions/data/datasources/subscription_seed_data.dart:241:9 • avoid_redundant_argument_values
+   info • Unnecessary use of a 'double' literal • lib/features/subscriptions/data/datasources/subscription_seed_data.dart:242:22 • prefer_int_literals
+   info • The value of the argument is redundant because it matches the default value • lib/features/subscriptions/data/datasources/subscription_seed_data.dart:243:9 • avoid_redundant_argument_values
+   info • The value of the argument is redundant because it matches the default value • lib/features/subscriptions/data/datasources/subscription_seed_data.dart:244:9 • avoid_redundant_argument_values
+   info • The value of the argument is redundant because it matches the default value • lib/features/subscriptions/data/datasources/subscription_seed_data.dart:256:9 • avoid_redundant_argument_values
+   info • Unnecessary use of a 'double' literal • lib/features/subscriptions/data/datasources/subscription_seed_data.dart:257:22 • prefer_int_literals
+   info • The value of the argument is redundant because it matches the default value • lib/features/subscriptions/data/datasources/subscription_seed_data.dart:258:9 • avoid_redundant_argument_values
+   info • The value of the argument is redundant because it matches the default value • lib/features/subscriptions/data/datasources/subscription_seed_data.dart:271:9 • avoid_redundant_argument_values
+   info • The value of the argument is redundant because it matches the default value • lib/features/subscriptions/data/datasources/subscription_seed_data.dart:273:9 • avoid_redundant_argument_values
+   info • The value of the argument is redundant because it matches the default value • lib/features/subscriptions/data/datasources/subscription_seed_data.dart:274:9 • avoid_redundant_argument_values
+   info • The value of the argument is redundant because it matches the default value • lib/features/subscriptions/data/datasources/subscription_seed_data.dart:286:9 • avoid_redundant_argument_values
+   info • The value of the argument is redundant because it matches the default value • lib/features/subscriptions/data/datasources/subscription_seed_data.dart:288:9 • avoid_redundant_argument_values
+   info • The value of the argument is redundant because it matches the default value • lib/features/subscriptions/data/datasources/subscription_seed_data.dart:289:9 • avoid_redundant_argument_values
+   info • The value of the argument is redundant because it matches the default value • lib/features/subscriptions/data/datasources/subscription_seed_data.dart:301:9 • avoid_redundant_argument_values
+   info • The value of the argument is redundant because it matches the default value • lib/features/subscriptions/data/datasources/subscription_seed_data.dart:303:9 • avoid_redundant_argument_values
+   info • The value of the argument is redundant because it matches the default value • lib/features/subscriptions/data/datasources/subscription_seed_data.dart:304:9 • avoid_redundant_argument_values
+   info • The value of the argument is redundant because it matches the default value • lib/features/subscriptions/data/datasources/subscription_seed_data.dart:316:9 • avoid_redundant_argument_values
+   info • The value of the argument is redundant because it matches the default value • lib/features/subscriptions/data/datasources/subscription_seed_data.dart:318:9 • avoid_redundant_argument_values
+   info • The value of the argument is redundant because it matches the default value • lib/features/subscriptions/data/datasources/subscription_seed_data.dart:319:9 • avoid_redundant_argument_values
+   info • Unnecessary use of a 'double' literal • lib/features/subscriptions/data/datasources/subscription_seed_data.dart:332:25 • prefer_int_literals
+   info • Unnecessary use of a 'double' literal • lib/features/subscriptions/data/datasources/subscription_seed_data.dart:335:24 • prefer_int_literals
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/subscriptions/data/models/analytics_data_model.dart:3:8 • always_use_package_imports
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/subscriptions/data/models/analytics_data_model.dart:4:8 • always_use_package_imports
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/subscriptions/data/models/analytics_data_model.dart:5:8 • always_use_package_imports
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/subscriptions/data/models/analytics_data_model.dart:6:8 • always_use_package_imports
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/subscriptions/data/models/analytics_data_model.dart:7:8 • always_use_package_imports
+   info • Constructor declarations should be before non-constructor declarations • lib/features/subscriptions/data/models/analytics_data_model.dart:16:9 • sort_constructors_first
+   info • Constructor declarations should be before non-constructor declarations • lib/features/subscriptions/data/models/analytics_data_model.dart:34:11 • sort_constructors_first
+   info • Constructor declarations should be before non-constructor declarations • lib/features/subscriptions/data/models/analytics_data_model.dart:48:11 • sort_constructors_first
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/subscriptions/data/models/analytics_overview_model.dart:3:8 • always_use_package_imports
+   info • Constructor declarations should be before non-constructor declarations • lib/features/subscriptions/data/models/analytics_overview_model.dart:12:9 • sort_constructors_first
+   info • Constructor declarations should be before non-constructor declarations • lib/features/subscriptions/data/models/analytics_overview_model.dart:30:11 • sort_constructors_first
+   info • Constructor declarations should be before non-constructor declarations • lib/features/subscriptions/data/models/analytics_overview_model.dart:40:11 • sort_constructors_first
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/subscriptions/data/models/monthly_spending_model.dart:3:8 • always_use_package_imports
+   info • Constructor declarations should be before non-constructor declarations • lib/features/subscriptions/data/models/monthly_spending_model.dart:11:9 • sort_constructors_first
+   info • Constructor declarations should be before non-constructor declarations • lib/features/subscriptions/data/models/monthly_spending_model.dart:27:11 • sort_constructors_first
+   info • Constructor declarations should be before non-constructor declarations • lib/features/subscriptions/data/models/monthly_spending_model.dart:36:11 • sort_constructors_first
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/subscriptions/data/models/monthly_stats_model.dart:1:8 • always_use_package_imports
+   info • Constructor declarations should be before non-constructor declarations • lib/features/subscriptions/data/models/monthly_stats_model.dart:16:3 • sort_constructors_first
+   info • Constructor declarations should be before non-constructor declarations • lib/features/subscriptions/data/models/monthly_stats_model.dart:40:11 • sort_constructors_first
+   info • Constructor declarations should be before non-constructor declarations • lib/features/subscriptions/data/models/monthly_stats_model.dart:53:11 • sort_constructors_first
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/subscriptions/data/models/payment_analytics_model.dart:3:8 • always_use_package_imports
+   info • Constructor declarations should be before non-constructor declarations • lib/features/subscriptions/data/models/payment_analytics_model.dart:12:9 • sort_constructors_first
+   info • Constructor declarations should be before non-constructor declarations • lib/features/subscriptions/data/models/payment_analytics_model.dart:30:11 • sort_constructors_first
+   info • Constructor declarations should be before non-constructor declarations • lib/features/subscriptions/data/models/payment_analytics_model.dart:40:11 • sort_constructors_first
+   info • Constructor declarations should be before non-constructor declarations • lib/features/subscriptions/data/models/payment_analytics_model.dart:68:9 • sort_constructors_first
+   info • Constructor declarations should be before non-constructor declarations • lib/features/subscriptions/data/models/payment_analytics_model.dart:84:11 • sort_constructors_first
+   info • Constructor declarations should be before non-constructor declarations • lib/features/subscriptions/data/models/payment_analytics_model.dart:93:11 • sort_constructors_first
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/subscriptions/data/models/payment_history_model.dart:3:8 • always_use_package_imports
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/subscriptions/data/models/payment_history_model.dart:4:8 • always_use_package_imports
+   info • Constructor declarations should be before non-constructor declarations • lib/features/subscriptions/data/models/payment_history_model.dart:53:3 • sort_constructors_first
+   info • Required named parameters should be before optional named parameters • lib/features/subscriptions/data/models/payment_history_model.dart:66:19 • always_put_required_named_parameters_first
+   info • Constructor declarations should be before non-constructor declarations • lib/features/subscriptions/data/models/payment_history_model.dart:89:11 • sort_constructors_first
+   info • Constructor declarations should be before non-constructor declarations • lib/features/subscriptions/data/models/payment_history_model.dart:108:11 • sort_constructors_first
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/subscriptions/data/models/subscription_member_model.dart:3:8 • always_use_package_imports
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/subscriptions/data/models/subscription_member_model.dart:4:8 • always_use_package_imports
+   info • Constructor declarations should be before non-constructor declarations • lib/features/subscriptions/data/models/subscription_member_model.dart:47:3 • sort_constructors_first
+   info • Required named parameters should be before optional named parameters • lib/features/subscriptions/data/models/subscription_member_model.dart:54:19 • always_put_required_named_parameters_first
+   info • Required named parameters should be before optional named parameters • lib/features/subscriptions/data/models/subscription_member_model.dart:55:19 • always_put_required_named_parameters_first
+   info • Required named parameters should be before optional named parameters • lib/features/subscriptions/data/models/subscription_member_model.dart:57:19 • always_put_required_named_parameters_first
+   info • Required named parameters should be before optional named parameters • lib/features/subscriptions/data/models/subscription_member_model.dart:58:19 • always_put_required_named_parameters_first
+   info • Constructor declarations should be before non-constructor declarations • lib/features/subscriptions/data/models/subscription_member_model.dart:80:11 • sort_constructors_first
+   info • Constructor declarations should be before non-constructor declarations • lib/features/subscriptions/data/models/subscription_member_model.dart:98:11 • sort_constructors_first
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/subscriptions/data/models/subscription_model.dart:3:8 • always_use_package_imports
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/subscriptions/data/models/subscription_model.dart:4:8 • always_use_package_imports
+   info • Constructor declarations should be before non-constructor declarations • lib/features/subscriptions/data/models/subscription_model.dart:47:3 • sort_constructors_first
+   info • Required named parameters should be before optional named parameters • lib/features/subscriptions/data/models/subscription_model.dart:51:19 • always_put_required_named_parameters_first
+   info • Required named parameters should be before optional named parameters • lib/features/subscriptions/data/models/subscription_model.dart:52:19 • always_put_required_named_parameters_first
+   info • Required named parameters should be before optional named parameters • lib/features/subscriptions/data/models/subscription_model.dart:53:19 • always_put_required_named_parameters_first
+   info • Required named parameters should be before optional named parameters • lib/features/subscriptions/data/models/subscription_model.dart:54:19 • always_put_required_named_parameters_first
+   info • Required named parameters should be before optional named parameters • lib/features/subscriptions/data/models/subscription_model.dart:55:19 • always_put_required_named_parameters_first
+   info • Required named parameters should be before optional named parameters • lib/features/subscriptions/data/models/subscription_model.dart:56:19 • always_put_required_named_parameters_first
+   info • Required named parameters should be before optional named parameters • lib/features/subscriptions/data/models/subscription_model.dart:57:19 • always_put_required_named_parameters_first
+   info • Required named parameters should be before optional named parameters • lib/features/subscriptions/data/models/subscription_model.dart:58:19 • always_put_required_named_parameters_first
+   info • Constructor declarations should be before non-constructor declarations • lib/features/subscriptions/data/models/subscription_model.dart:80:11 • sort_constructors_first
+   info • Constructor declarations should be before non-constructor declarations • lib/features/subscriptions/data/models/subscription_model.dart:98:11 • sort_constructors_first
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/subscriptions/data/models/subscription_spending_model.dart:3:8 • always_use_package_imports
+   info • Constructor declarations should be before non-constructor declarations • lib/features/subscriptions/data/models/subscription_spending_model.dart:13:9 • sort_constructors_first
+   info • Constructor declarations should be before non-constructor declarations • lib/features/subscriptions/data/models/subscription_spending_model.dart:33:11 • sort_constructors_first
+   info • Constructor declarations should be before non-constructor declarations • lib/features/subscriptions/data/models/subscription_spending_model.dart:44:11 • sort_constructors_first
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/subscriptions/data/repositories/subscription_repository_impl.dart:4:8 • always_use_package_imports
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/subscriptions/data/repositories/subscription_repository_impl.dart:5:8 • always_use_package_imports
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/subscriptions/data/repositories/subscription_repository_impl.dart:6:8 • always_use_package_imports
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/subscriptions/data/repositories/subscription_repository_impl.dart:7:8 • always_use_package_imports
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/subscriptions/data/repositories/subscription_repository_impl.dart:8:8 • always_use_package_imports
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/subscriptions/data/repositories/subscription_repository_impl.dart:9:8 • always_use_package_imports
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/subscriptions/data/repositories/subscription_repository_impl.dart:10:8 • always_use_package_imports
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/subscriptions/data/repositories/subscription_repository_impl.dart:11:8 • always_use_package_imports
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/subscriptions/data/repositories/subscription_repository_impl.dart:12:8 • always_use_package_imports
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/subscriptions/data/repositories/subscription_repository_impl.dart:13:8 • always_use_package_imports
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/subscriptions/data/repositories/subscription_repository_impl.dart:14:8 • always_use_package_imports
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/subscriptions/data/repositories/subscription_repository_impl.dart:15:8 • always_use_package_imports
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/subscriptions/data/repositories/subscription_repository_impl.dart:16:8 • always_use_package_imports
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/subscriptions/data/repositories/subscription_repository_impl.dart:17:8 • always_use_package_imports
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/subscriptions/data/repositories/subscription_repository_impl.dart:18:8 • always_use_package_imports
+warning • Unused import: '../models/analytics_data_model.dart' • lib/features/subscriptions/data/repositories/subscription_repository_impl.dart:18:8 • unused_import
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/subscriptions/data/repositories/subscription_repository_impl.dart:19:8 • always_use_package_imports
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/subscriptions/data/repositories/subscription_repository_impl.dart:20:8 • always_use_package_imports
+   info • Constructor declarations should be before non-constructor declarations • lib/features/subscriptions/data/repositories/subscription_repository_impl.dart:29:3 • sort_constructors_first
+   info • Unnecessary use of a 'double' literal • lib/features/subscriptions/data/repositories/subscription_repository_impl.dart:55:11 • prefer_int_literals
+   info • Unnecessary use of a 'double' literal • lib/features/subscriptions/data/repositories/subscription_repository_impl.dart:69:11 • prefer_int_literals
+   info • Unnecessary use of a 'double' literal • lib/features/subscriptions/data/repositories/subscription_repository_impl.dart:74:11 • prefer_int_literals
+   info • Use 'const' with the constructor to improve performance • lib/features/subscriptions/data/repositories/subscription_repository_impl.dart:274:14 • prefer_const_constructors
+   info • Use 'const' with the constructor to improve performance • lib/features/subscriptions/data/repositories/subscription_repository_impl.dart:274:19 • prefer_const_constructors
+   info • Use 'const' with the constructor to improve performance • lib/features/subscriptions/data/repositories/subscription_repository_impl.dart:298:14 • prefer_const_constructors
+   info • Use 'const' with the constructor to improve performance • lib/features/subscriptions/data/repositories/subscription_repository_impl.dart:298:19 • prefer_const_constructors
+   info • Use 'const' with the constructor to improve performance • lib/features/subscriptions/data/repositories/subscription_repository_impl.dart:317:14 • prefer_const_constructors
+   info • Use 'const' with the constructor to improve performance • lib/features/subscriptions/data/repositories/subscription_repository_impl.dart:317:19 • prefer_const_constructors
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/repositories/subscription_repository_impl.dart:333:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/repositories/subscription_repository_impl.dart:334:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/repositories/subscription_repository_impl.dart:360:9 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/repositories/subscription_repository_impl.dart:376:9 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/repositories/subscription_repository_impl.dart:381:9 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/repositories/subscription_repository_impl.dart:407:9 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/repositories/subscription_repository_impl.dart:411:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/repositories/subscription_repository_impl.dart:424:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/repositories/subscription_repository_impl.dart:425:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/repositories/subscription_repository_impl.dart:432:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/repositories/subscription_repository_impl.dart:452:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/repositories/subscription_repository_impl.dart:463:9 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/repositories/subscription_repository_impl.dart:467:9 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/repositories/subscription_repository_impl.dart:480:9 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/repositories/subscription_repository_impl.dart:484:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/repositories/subscription_repository_impl.dart:499:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/repositories/subscription_repository_impl.dart:500:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/repositories/subscription_repository_impl.dart:526:9 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/repositories/subscription_repository_impl.dart:542:9 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/repositories/subscription_repository_impl.dart:547:9 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/repositories/subscription_repository_impl.dart:573:9 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/repositories/subscription_repository_impl.dart:577:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/repositories/subscription_repository_impl.dart:588:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/repositories/subscription_repository_impl.dart:589:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/repositories/subscription_repository_impl.dart:600:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/repositories/subscription_repository_impl.dart:606:9 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/repositories/subscription_repository_impl.dart:613:9 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/repositories/subscription_repository_impl.dart:620:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/repositories/subscription_repository_impl.dart:653:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/repositories/subscription_repository_impl.dart:655:7 • avoid_print
+   info • The value of the argument is redundant because it matches the default value • lib/features/subscriptions/data/repositories/subscription_repository_impl.dart:684:13 • avoid_redundant_argument_values
+   info • The value of the argument is redundant because it matches the default value • lib/features/subscriptions/data/repositories/subscription_repository_impl.dart:685:13 • avoid_redundant_argument_values
+   info • Use 'const' with the constructor to improve performance • lib/features/subscriptions/data/repositories/subscription_repository_impl.dart:702:14 • prefer_const_constructors
+   info • Use 'const' with the constructor to improve performance • lib/features/subscriptions/data/repositories/subscription_repository_impl.dart:702:19 • prefer_const_constructors
+   info • Use 'const' with the constructor to improve performance • lib/features/subscriptions/data/repositories/subscription_repository_impl.dart:721:14 • prefer_const_constructors
+   info • Use 'const' with the constructor to improve performance • lib/features/subscriptions/data/repositories/subscription_repository_impl.dart:721:19 • prefer_const_constructors
+   info • Use 'const' with the constructor to improve performance • lib/features/subscriptions/data/repositories/subscription_repository_impl.dart:746:14 • prefer_const_constructors
+   info • Use 'const' with the constructor to improve performance • lib/features/subscriptions/data/repositories/subscription_repository_impl.dart:746:19 • prefer_const_constructors
+   info • Use 'const' with the constructor to improve performance • lib/features/subscriptions/data/repositories/subscription_repository_impl.dart:768:14 • prefer_const_constructors
+   info • Use 'const' with the constructor to improve performance • lib/features/subscriptions/data/repositories/subscription_repository_impl.dart:768:19 • prefer_const_constructors
+   info • Use 'const' with the constructor to improve performance • lib/features/subscriptions/data/repositories/subscription_repository_impl.dart:781:12 • prefer_const_constructors
+   info • Use 'const' with the constructor to improve performance • lib/features/subscriptions/data/repositories/subscription_repository_impl.dart:781:17 • prefer_const_constructors
+   info • Use 'const' with the constructor to improve performance • lib/features/subscriptions/data/repositories/subscription_repository_impl.dart:791:12 • prefer_const_constructors
+   info • Use 'const' with the constructor to improve performance • lib/features/subscriptions/data/repositories/subscription_repository_impl.dart:791:17 • prefer_const_constructors
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/repositories/subscription_repository_impl.dart:800:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/repositories/subscription_repository_impl.dart:801:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/repositories/subscription_repository_impl.dart:802:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/repositories/subscription_repository_impl.dart:813:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/repositories/subscription_repository_impl.dart:817:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/repositories/subscription_repository_impl.dart:818:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/repositories/subscription_repository_impl.dart:825:9 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/repositories/subscription_repository_impl.dart:828:9 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/data/repositories/subscription_repository_impl.dart:832:7 • avoid_print
+   info • Unnecessary use of a 'double' literal • lib/features/subscriptions/data/repositories/subscription_repository_impl.dart:852:7 • prefer_int_literals
+   info • The value of the argument is redundant because it matches the default value • lib/features/subscriptions/data/repositories/subscription_repository_mock.dart:485:13 • avoid_redundant_argument_values
+   info • The value of the argument is redundant because it matches the default value • lib/features/subscriptions/data/repositories/subscription_repository_mock.dart:486:13 • avoid_redundant_argument_values
+   info • Unnecessary use of a 'double' literal • lib/features/subscriptions/data/repositories/subscription_repository_mock.dart:568:7 • prefer_int_literals
+   info • Unnecessary use of a 'double' literal • lib/features/subscriptions/data/repositories/subscription_repository_mock.dart:577:7 • prefer_int_literals
+   info • Unnecessary use of a 'double' literal • lib/features/subscriptions/data/repositories/subscription_repository_mock.dart:582:7 • prefer_int_literals
+   info • Unnecessary use of a 'double' literal • lib/features/subscriptions/data/repositories/subscription_repository_mock.dart:634:56 • prefer_int_literals
+   info • Unnecessary use of a 'double' literal • lib/features/subscriptions/data/repositories/subscription_repository_mock.dart:635:60 • prefer_int_literals
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/subscriptions/domain/entities/analytics_data.dart:5:8 • always_use_package_imports
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/subscriptions/domain/entities/analytics_data.dart:6:8 • always_use_package_imports
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/subscriptions/domain/entities/analytics_data.dart:7:8 • always_use_package_imports
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/subscriptions/domain/entities/analytics_data.dart:8:8 • always_use_package_imports
+   info • Unnecessary use of a 'double' literal • lib/features/subscriptions/domain/entities/monthly_stats.dart:36:36 • prefer_int_literals
+   info • Unnecessary use of a 'double' literal • lib/features/subscriptions/domain/entities/monthly_stats.dart:53:47 • prefer_int_literals
+   info • Unnecessary use of a 'double' literal • lib/features/subscriptions/domain/entities/payment_analytics.dart:29:28 • prefer_int_literals
+   info • Unnecessary use of a 'double' literal • lib/features/subscriptions/domain/entities/payment_analytics.dart:30:31 • prefer_int_literals
+   info • Unnecessary use of a 'double' literal • lib/features/subscriptions/domain/entities/payment_analytics.dart:32:24 • prefer_int_literals
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/subscriptions/domain/entities/payment_filter.dart:5:8 • always_use_package_imports
+   info • The value of the argument is redundant because it matches the default value • lib/features/subscriptions/domain/entities/payment_filter.dart:63:56 • avoid_redundant_argument_values
+   info • Required named parameters should be before optional named parameters • lib/features/subscriptions/domain/entities/payment_history.dart:74:23 • always_put_required_named_parameters_first
+   info • Unnecessary use of a 'double' literal • lib/features/subscriptions/domain/entities/payment_stats.dart:38:26 • prefer_int_literals
+   info • Unnecessary use of a 'double' literal • lib/features/subscriptions/domain/entities/payment_stats.dart:39:28 • prefer_int_literals
+   info • Unnecessary use of a 'double' literal • lib/features/subscriptions/domain/entities/payment_stats.dart:70:14 • prefer_int_literals
+   info • Constructor declarations should be before non-constructor declarations • lib/features/subscriptions/domain/entities/predefined_services.dart:10:9 • sort_constructors_first
+   info • Required named parameters should be before optional named parameters • lib/features/subscriptions/domain/entities/subscription.dart:67:21 • always_put_required_named_parameters_first
+   info • Required named parameters should be before optional named parameters • lib/features/subscriptions/domain/entities/subscription.dart:70:21 • always_put_required_named_parameters_first
+   info • Required named parameters should be before optional named parameters • lib/features/subscriptions/domain/entities/subscription.dart:73:27 • always_put_required_named_parameters_first
+   info • Required named parameters should be before optional named parameters • lib/features/subscriptions/domain/entities/subscription.dart:76:23 • always_put_required_named_parameters_first
+   info • Required named parameters should be before optional named parameters • lib/features/subscriptions/domain/entities/subscription.dart:79:21 • always_put_required_named_parameters_first
+   info • Required named parameters should be before optional named parameters • lib/features/subscriptions/domain/entities/subscription.dart:88:23 • always_put_required_named_parameters_first
+   info • Required named parameters should be before optional named parameters • lib/features/subscriptions/domain/entities/subscription_member.dart:28:21 • always_put_required_named_parameters_first
+   info • Required named parameters should be before optional named parameters • lib/features/subscriptions/domain/entities/subscription_member.dart:37:23 • always_put_required_named_parameters_first
+   info • Required named parameters should be before optional named parameters • lib/features/subscriptions/domain/entities/subscription_member.dart:40:23 • always_put_required_named_parameters_first
+   info • Unnecessary use of a 'double' literal • lib/features/subscriptions/domain/entities/subscription_spending.dart:31:36 • prefer_int_literals
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/subscriptions/domain/repositories/subscription_repository.dart:3:8 • always_use_package_imports
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/subscriptions/domain/repositories/subscription_repository.dart:4:8 • always_use_package_imports
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/subscriptions/domain/repositories/subscription_repository.dart:5:8 • always_use_package_imports
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/subscriptions/domain/repositories/subscription_repository.dart:6:8 • always_use_package_imports
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/subscriptions/domain/repositories/subscription_repository.dart:7:8 • always_use_package_imports
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/subscriptions/domain/repositories/subscription_repository.dart:8:8 • always_use_package_imports
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/subscriptions/domain/repositories/subscription_repository.dart:9:8 • always_use_package_imports
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/subscriptions/domain/repositories/subscription_repository.dart:10:8 • always_use_package_imports
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/subscriptions/domain/usecases/create_subscription.dart:3:8 • always_use_package_imports
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/subscriptions/domain/usecases/create_subscription.dart:4:8 • always_use_package_imports
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/subscriptions/domain/usecases/create_subscription.dart:5:8 • always_use_package_imports
+   info • Constructor declarations should be before non-constructor declarations • lib/features/subscriptions/domain/usecases/create_subscription.dart:13:3 • sort_constructors_first
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/subscriptions/domain/usecases/delete_subscription.dart:3:8 • always_use_package_imports
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/subscriptions/domain/usecases/delete_subscription.dart:4:8 • always_use_package_imports
+   info • Constructor declarations should be before non-constructor declarations • lib/features/subscriptions/domain/usecases/delete_subscription.dart:12:3 • sort_constructors_first
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/subscriptions/domain/usecases/get_active_subscriptions.dart:3:8 • always_use_package_imports
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/subscriptions/domain/usecases/get_active_subscriptions.dart:4:8 • always_use_package_imports
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/subscriptions/domain/usecases/get_active_subscriptions.dart:5:8 • always_use_package_imports
+   info • Constructor declarations should be before non-constructor declarations • lib/features/subscriptions/domain/usecases/get_active_subscriptions.dart:13:3 • sort_constructors_first
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/subscriptions/domain/usecases/get_analytics_data.dart:5:8 • always_use_package_imports
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/subscriptions/domain/usecases/get_analytics_data.dart:6:8 • always_use_package_imports
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/subscriptions/domain/usecases/get_analytics_data.dart:7:8 • always_use_package_imports
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/subscriptions/domain/usecases/get_analytics_data.dart:8:8 • always_use_package_imports
+   info • Constructor declarations should be before non-constructor declarations • lib/features/subscriptions/domain/usecases/get_analytics_data.dart:20:3 • sort_constructors_first
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/subscriptions/domain/usecases/get_monthly_stats.dart:3:8 • always_use_package_imports
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/subscriptions/domain/usecases/get_monthly_stats.dart:4:8 • always_use_package_imports
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/subscriptions/domain/usecases/get_monthly_stats.dart:5:8 • always_use_package_imports
+   info • Constructor declarations should be before non-constructor declarations • lib/features/subscriptions/domain/usecases/get_monthly_stats.dart:14:3 • sort_constructors_first
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/subscriptions/domain/usecases/get_payment_stats.dart:5:8 • always_use_package_imports
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/subscriptions/domain/usecases/get_payment_stats.dart:6:8 • always_use_package_imports
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/subscriptions/domain/usecases/get_payment_stats.dart:7:8 • always_use_package_imports
+   info • Constructor declarations should be before non-constructor declarations • lib/features/subscriptions/domain/usecases/get_payment_stats.dart:21:3 • sort_constructors_first
+   info • Unnecessary 'await' • lib/features/subscriptions/domain/usecases/get_payment_stats.dart:32:12 • unnecessary_await_in_return
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/subscriptions/domain/usecases/get_pending_payments.dart:3:8 • always_use_package_imports
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/subscriptions/domain/usecases/get_pending_payments.dart:4:8 • always_use_package_imports
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/subscriptions/domain/usecases/get_pending_payments.dart:5:8 • always_use_package_imports
+   info • Constructor declarations should be before non-constructor declarations • lib/features/subscriptions/domain/usecases/get_pending_payments.dart:13:3 • sort_constructors_first
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/subscriptions/domain/usecases/get_subscription_details.dart:3:8 • always_use_package_imports
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/subscriptions/domain/usecases/get_subscription_details.dart:4:8 • always_use_package_imports
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/subscriptions/domain/usecases/get_subscription_details.dart:5:8 • always_use_package_imports
+   info • Constructor declarations should be before non-constructor declarations • lib/features/subscriptions/domain/usecases/get_subscription_details.dart:13:3 • sort_constructors_first
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/subscriptions/domain/usecases/mark_all_payments_as_paid.dart:3:8 • always_use_package_imports
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/subscriptions/domain/usecases/mark_all_payments_as_paid.dart:4:8 • always_use_package_imports
+   info • Constructor declarations should be before non-constructor declarations • lib/features/subscriptions/domain/usecases/mark_all_payments_as_paid.dart:14:3 • sort_constructors_first
+   info • Required named parameters should be before optional named parameters • lib/features/subscriptions/domain/usecases/mark_all_payments_as_paid.dart:28:21 • always_put_required_named_parameters_first
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/subscriptions/domain/usecases/mark_payment_as_paid.dart:3:8 • always_use_package_imports
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/subscriptions/domain/usecases/mark_payment_as_paid.dart:4:8 • always_use_package_imports
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/subscriptions/domain/usecases/mark_payment_as_paid.dart:5:8 • always_use_package_imports
+   info • Constructor declarations should be before non-constructor declarations • lib/features/subscriptions/domain/usecases/mark_payment_as_paid.dart:14:3 • sort_constructors_first
+   info • Required named parameters should be before optional named parameters • lib/features/subscriptions/domain/usecases/mark_payment_as_paid.dart:32:21 • always_put_required_named_parameters_first
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/subscriptions/domain/usecases/unmark_payment.dart:3:8 • always_use_package_imports
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/subscriptions/domain/usecases/unmark_payment.dart:4:8 • always_use_package_imports
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/subscriptions/domain/usecases/unmark_payment.dart:5:8 • always_use_package_imports
+   info • Constructor declarations should be before non-constructor declarations • lib/features/subscriptions/domain/usecases/unmark_payment.dart:15:3 • sort_constructors_first
+   info • Required named parameters should be before optional named parameters • lib/features/subscriptions/domain/usecases/unmark_payment.dart:33:21 • always_put_required_named_parameters_first
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/subscriptions/domain/usecases/update_subscription.dart:3:8 • always_use_package_imports
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/subscriptions/domain/usecases/update_subscription.dart:4:8 • always_use_package_imports
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/subscriptions/domain/usecases/update_subscription.dart:5:8 • always_use_package_imports
+   info • Constructor declarations should be before non-constructor declarations • lib/features/subscriptions/domain/usecases/update_subscription.dart:13:3 • sort_constructors_first
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/subscriptions/presentation/providers/analytics_provider.dart:5:8 • always_use_package_imports
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/subscriptions/presentation/providers/analytics_provider.dart:6:8 • always_use_package_imports
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/subscriptions/presentation/providers/analytics_provider.dart:7:8 • always_use_package_imports
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/subscriptions/presentation/providers/analytics_provider.dart:8:8 • always_use_package_imports
+warning • Unused import: '../../domain/usecases/get_analytics_data.dart' • lib/features/subscriptions/presentation/providers/analytics_provider.dart:8:8 • unused_import
+   info • Sort directive sections alphabetically • lib/features/subscriptions/presentation/providers/analytics_provider.dart:9:1 • directives_ordering
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/subscriptions/presentation/providers/analytics_provider.dart:9:8 • always_use_package_imports
+   info • The method is used to change a property • lib/features/subscriptions/presentation/providers/analytics_provider.dart:22:8 • use_setters_to_change_properties
+   info • 'AnalyticsDataRef' is deprecated and shouldn't be used. Will be removed in 3.0. Use Ref instead • lib/features/subscriptions/presentation/providers/analytics_provider.dart:33:37 • deprecated_member_use_from_same_package
+   info • Don't throw instances of classes that don't extend either 'Exception' or 'Error' • lib/features/subscriptions/presentation/providers/analytics_provider.dart:54:28 • only_throw_errors
+   info • Constructor declarations should be before non-constructor declarations • lib/features/subscriptions/presentation/providers/create_group_subscription_form_provider.dart:21:9 • sort_constructors_first
+   info • Constructor declarations should be before non-constructor declarations • lib/features/subscriptions/presentation/providers/create_group_subscription_form_provider.dart:39:3 • sort_constructors_first
+   info • Unnecessary use of a 'double' literal • lib/features/subscriptions/presentation/providers/create_group_subscription_form_provider.dart:89:57 • prefer_int_literals
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/presentation/providers/create_group_subscription_form_provider.dart:180:5 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/presentation/providers/create_group_subscription_form_provider.dart:186:5 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/presentation/providers/create_group_subscription_form_provider.dart:192:5 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/presentation/providers/create_group_subscription_form_provider.dart:202:5 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/presentation/providers/create_group_subscription_form_provider.dart:207:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/presentation/providers/create_group_subscription_form_provider.dart:213:5 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/presentation/providers/create_group_subscription_form_provider.dart:219:5 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/presentation/providers/create_group_subscription_form_provider.dart:225:5 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/presentation/providers/create_group_subscription_form_provider.dart:230:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/presentation/providers/create_group_subscription_form_provider.dart:241:5 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/presentation/providers/create_group_subscription_form_provider.dart:242:5 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/presentation/providers/create_group_subscription_form_provider.dart:247:5 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/presentation/providers/create_group_subscription_form_provider.dart:258:5 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/presentation/providers/create_group_subscription_form_provider.dart:261:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/presentation/providers/create_group_subscription_form_provider.dart:263:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/presentation/providers/create_group_subscription_form_provider.dart:269:5 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/presentation/providers/create_group_subscription_form_provider.dart:276:5 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/presentation/providers/create_group_subscription_form_provider.dart:282:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/presentation/providers/create_group_subscription_form_provider.dart:289:5 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/presentation/providers/create_group_subscription_form_provider.dart:298:5 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/presentation/providers/create_group_subscription_form_provider.dart:299:5 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/presentation/providers/create_group_subscription_form_provider.dart:300:5 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/presentation/providers/create_group_subscription_form_provider.dart:301:5 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/presentation/providers/create_group_subscription_form_provider.dart:324:5 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/presentation/providers/create_group_subscription_form_provider.dart:340:5 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/presentation/providers/create_group_subscription_form_provider.dart:341:5 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/presentation/providers/create_group_subscription_form_provider.dart:342:5 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/presentation/providers/create_group_subscription_form_provider.dart:343:5 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/presentation/providers/create_group_subscription_form_provider.dart:348:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/presentation/providers/create_group_subscription_form_provider.dart:353:5 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/presentation/providers/create_group_subscription_form_provider.dart:367:9 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/presentation/providers/create_group_subscription_form_provider.dart:375:7 • avoid_print
+   info • The value of the argument is redundant because it matches the default value • lib/features/subscriptions/presentation/providers/create_group_subscription_form_provider.dart:384:9 • avoid_redundant_argument_values
+   info • The value of the argument is redundant because it matches the default value • lib/features/subscriptions/presentation/providers/create_group_subscription_form_provider.dart:391:9 • avoid_redundant_argument_values
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/presentation/providers/create_group_subscription_form_provider.dart:395:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/presentation/providers/create_group_subscription_form_provider.dart:404:11 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/presentation/providers/create_group_subscription_form_provider.dart:421:11 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/presentation/providers/create_group_subscription_form_provider.dart:422:11 • avoid_print
+   info • Unnecessary type annotation on a local variable • lib/features/subscriptions/presentation/providers/create_group_subscription_form_provider.dart:426:11 • omit_local_variable_types
+   info • Unnecessary type annotation on a local variable • lib/features/subscriptions/presentation/providers/create_group_subscription_form_provider.dart:427:11 • omit_local_variable_types
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/presentation/providers/create_group_subscription_form_provider.dart:430:13 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/presentation/providers/create_group_subscription_form_provider.dart:442:17 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/presentation/providers/create_group_subscription_form_provider.dart:446:17 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/presentation/providers/create_group_subscription_form_provider.dart:452:11 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/presentation/providers/create_group_subscription_form_provider.dart:455:11 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/presentation/providers/create_group_subscription_form_provider.dart:465:11 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/presentation/providers/create_group_subscription_form_provider.dart:466:11 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/presentation/providers/create_group_subscription_form_provider.dart:468:13 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/presentation/providers/create_group_subscription_form_provider.dart:473:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/presentation/providers/create_group_subscription_form_provider.dart:474:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/presentation/providers/create_group_subscription_form_provider.dart:484:5 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/presentation/providers/create_group_subscription_form_provider.dart:489:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/presentation/providers/create_group_subscription_form_provider.dart:499:5 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/presentation/providers/create_group_subscription_form_provider.dart:500:5 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/presentation/providers/create_group_subscription_form_provider.dart:504:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/presentation/providers/create_group_subscription_form_provider.dart:533:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/presentation/providers/create_group_subscription_form_provider.dart:539:11 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/presentation/providers/create_group_subscription_form_provider.dart:549:11 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/presentation/providers/create_group_subscription_form_provider.dart:561:11 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/presentation/providers/create_group_subscription_form_provider.dart:568:11 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/presentation/providers/create_group_subscription_form_provider.dart:572:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/presentation/providers/create_group_subscription_form_provider.dart:573:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/presentation/providers/create_group_subscription_form_provider.dart:613:5 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/presentation/providers/create_group_subscription_form_provider.dart:622:5 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/presentation/providers/create_group_subscription_form_provider.dart:625:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/presentation/providers/create_group_subscription_form_provider.dart:633:9 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/presentation/providers/create_group_subscription_form_provider.dart:643:9 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/presentation/providers/create_group_subscription_form_provider.dart:659:9 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/presentation/providers/create_group_subscription_form_provider.dart:667:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/presentation/providers/create_group_subscription_form_provider.dart:671:9 • avoid_print
+   info • The value of the argument is redundant because it matches the default value • lib/features/subscriptions/presentation/providers/create_group_subscription_form_provider.dart:675:25 • avoid_redundant_argument_values
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/presentation/providers/create_group_subscription_form_provider.dart:680:5 • avoid_print
+   info • Sort directive sections alphabetically • lib/features/subscriptions/presentation/providers/create_subscription_form_provider.dart:6:1 • directives_ordering
+   info • Constructor declarations should be before non-constructor declarations • lib/features/subscriptions/presentation/providers/create_subscription_form_provider.dart:24:3 • sort_constructors_first
+   info • Unnecessary use of a 'double' literal • lib/features/subscriptions/presentation/providers/create_subscription_form_provider.dart:65:33 • prefer_int_literals
+   info • The value of the argument is redundant because it matches the default value • lib/features/subscriptions/presentation/providers/create_subscription_form_provider.dart:124:54 • avoid_redundant_argument_values
+   info • The value of the argument is redundant because it matches the default value • lib/features/subscriptions/presentation/providers/create_subscription_form_provider.dart:129:54 • avoid_redundant_argument_values
+   info • The value of the argument is redundant because it matches the default value • lib/features/subscriptions/presentation/providers/create_subscription_form_provider.dart:134:63 • avoid_redundant_argument_values
+   info • The value of the argument is redundant because it matches the default value • lib/features/subscriptions/presentation/providers/create_subscription_form_provider.dart:139:57 • avoid_redundant_argument_values
+   info • The value of the argument is redundant because it matches the default value • lib/features/subscriptions/presentation/providers/create_subscription_form_provider.dart:144:56 • avoid_redundant_argument_values
+   info • The value of the argument is redundant because it matches the default value • lib/features/subscriptions/presentation/providers/create_subscription_form_provider.dart:149:56 • avoid_redundant_argument_values
+   info • The value of the argument is redundant because it matches the default value • lib/features/subscriptions/presentation/providers/create_subscription_form_provider.dart:155:67 • avoid_redundant_argument_values
+   info • The value of the argument is redundant because it matches the default value • lib/features/subscriptions/presentation/providers/create_subscription_form_provider.dart:161:67 • avoid_redundant_argument_values
+   info • The value of the argument is redundant because it matches the default value • lib/features/subscriptions/presentation/providers/create_subscription_form_provider.dart:179:59 • avoid_redundant_argument_values
+   info • The value of the argument is redundant because it matches the default value • lib/features/subscriptions/presentation/providers/create_subscription_form_provider.dart:210:9 • avoid_redundant_argument_values
+   info • The value of the argument is redundant because it matches the default value • lib/features/subscriptions/presentation/providers/create_subscription_form_provider.dart:211:9 • avoid_redundant_argument_values
+   info • The value of the argument is redundant because it matches the default value • lib/features/subscriptions/presentation/providers/create_subscription_form_provider.dart:260:27 • avoid_redundant_argument_values
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/presentation/providers/payment_provider.dart:73:5 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/presentation/providers/payment_provider.dart:74:5 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/presentation/providers/payment_provider.dart:75:5 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/presentation/providers/payment_provider.dart:76:5 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/presentation/providers/payment_provider.dart:90:9 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/presentation/providers/payment_provider.dart:113:11 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/presentation/providers/payment_provider.dart:118:11 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/presentation/providers/payment_provider.dart:128:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/presentation/providers/payment_provider.dart:144:5 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/presentation/providers/payment_provider.dart:145:5 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/presentation/providers/payment_provider.dart:159:9 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/presentation/providers/payment_provider.dart:181:11 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/presentation/providers/payment_provider.dart:186:11 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/presentation/providers/payment_provider.dart:196:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/presentation/providers/payment_provider.dart:216:5 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/presentation/providers/payment_provider.dart:217:5 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/presentation/providers/payment_provider.dart:218:5 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/presentation/providers/payment_provider.dart:219:5 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/presentation/providers/payment_provider.dart:233:9 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/presentation/providers/payment_provider.dart:256:11 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/presentation/providers/payment_provider.dart:261:11 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/presentation/providers/payment_provider.dart:271:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/presentation/providers/payment_provider.dart:286:5 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/presentation/providers/payment_provider.dart:300:5 • avoid_print
+   info • 'PaymentStatsRef' is deprecated and shouldn't be used. Will be removed in 3.0. Use Ref instead • lib/features/subscriptions/presentation/providers/payment_stats_provider.dart:24:3 • deprecated_member_use_from_same_package
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/presentation/providers/payment_stats_provider.dart:29:3 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/presentation/providers/payment_stats_provider.dart:31:5 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/presentation/providers/payment_stats_provider.dart:43:7 • avoid_print
+   info • Don't throw instances of classes that don't extend either 'Exception' or 'Error' • lib/features/subscriptions/presentation/providers/payment_stats_provider.dart:44:13 • only_throw_errors
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/presentation/providers/payment_stats_provider.dart:47:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/presentation/providers/payment_stats_provider.dart:48:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/presentation/providers/payment_stats_provider.dart:49:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/presentation/providers/payment_stats_provider.dart:50:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/presentation/providers/payment_stats_provider.dart:51:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/presentation/providers/payment_stats_provider.dart:52:7 • avoid_print
+   info • 'SubscriptionDetailRef' is deprecated and shouldn't be used. Will be removed in 3.0. Use Ref instead • lib/features/subscriptions/presentation/providers/subscription_detail_provider.dart:19:3 • deprecated_member_use_from_same_package
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/presentation/providers/subscription_detail_provider.dart:22:3 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/presentation/providers/subscription_detail_provider.dart:29:7 • avoid_print
+   info • Don't throw instances of classes that don't extend either 'Exception' or 'Error' • lib/features/subscriptions/presentation/providers/subscription_detail_provider.dart:30:13 • only_throw_errors
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/presentation/providers/subscription_detail_provider.dart:33:7 • avoid_print
+   info • 'SubscriptionMembersRef' is deprecated and shouldn't be used. Will be removed in 3.0. Use Ref instead • lib/features/subscriptions/presentation/providers/subscription_detail_provider.dart:48:3 • deprecated_member_use_from_same_package
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/presentation/providers/subscription_detail_provider.dart:51:3 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/presentation/providers/subscription_detail_provider.dart:58:7 • avoid_print
+   info • Don't throw instances of classes that don't extend either 'Exception' or 'Error' • lib/features/subscriptions/presentation/providers/subscription_detail_provider.dart:59:13 • only_throw_errors
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/presentation/providers/subscription_detail_provider.dart:62:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/presentation/providers/subscription_detail_provider.dart:81:5 • avoid_print
+   info • Unnecessary use of a 'double' literal • lib/features/subscriptions/presentation/providers/subscription_detail_provider.dart:96:15 • prefer_int_literals
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/presentation/providers/subscription_detail_provider.dart:107:5 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/presentation/providers/subscription_detail_provider.dart:108:5 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/presentation/providers/subscription_detail_provider.dart:109:5 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/presentation/providers/subscription_detail_provider.dart:110:5 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/presentation/providers/subscription_detail_provider.dart:111:5 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/presentation/providers/subscription_detail_provider.dart:112:5 • avoid_print
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/subscriptions/presentation/providers/subscriptions_provider.dart:3:8 • always_use_package_imports
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/subscriptions/presentation/providers/subscriptions_provider.dart:4:8 • always_use_package_imports
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/subscriptions/presentation/providers/subscriptions_provider.dart:5:8 • always_use_package_imports
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/subscriptions/presentation/providers/subscriptions_provider.dart:6:8 • always_use_package_imports
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/subscriptions/presentation/providers/subscriptions_provider.dart:7:8 • always_use_package_imports
+   info • 'MonthlyStatsRef' is deprecated and shouldn't be used. Will be removed in 3.0. Use Ref instead • lib/features/subscriptions/presentation/providers/subscriptions_provider.dart:19:35 • deprecated_member_use_from_same_package
+   info • Don't throw instances of classes that don't extend either 'Exception' or 'Error' • lib/features/subscriptions/presentation/providers/subscriptions_provider.dart:29:28 • only_throw_errors
+   info • Unnecessary use of a 'double' literal • lib/features/subscriptions/presentation/providers/subscriptions_provider.dart:36:27 • prefer_int_literals
+   info • Unnecessary use of a 'double' literal • lib/features/subscriptions/presentation/providers/subscriptions_provider.dart:37:27 • prefer_int_literals
+   info • 'ActiveSubscriptionsRef' is deprecated and shouldn't be used. Will be removed in 3.0. Use Ref instead • lib/features/subscriptions/presentation/providers/subscriptions_provider.dart:54:3 • deprecated_member_use_from_same_package
+   info • Don't throw instances of classes that don't extend either 'Exception' or 'Error' • lib/features/subscriptions/presentation/providers/subscriptions_provider.dart:65:28 • only_throw_errors
+   info • 'PendingPaymentsRef' is deprecated and shouldn't be used. Will be removed in 3.0. Use Ref instead • lib/features/subscriptions/presentation/providers/subscriptions_provider.dart:82:3 • deprecated_member_use_from_same_package
+   info • Don't throw instances of classes that don't extend either 'Exception' or 'Error' • lib/features/subscriptions/presentation/providers/subscriptions_provider.dart:93:28 • only_throw_errors
+   info • 'OverduePaymentsRef' is deprecated and shouldn't be used. Will be removed in 3.0. Use Ref instead • lib/features/subscriptions/presentation/providers/subscriptions_provider.dart:107:3 • deprecated_member_use_from_same_package
+   info • 'SubscriptionDetailsRef' is deprecated and shouldn't be used. Will be removed in 3.0. Use Ref instead • lib/features/subscriptions/presentation/providers/subscriptions_provider.dart:123:3 • deprecated_member_use_from_same_package
+   info • Don't throw instances of classes that don't extend either 'Exception' or 'Error' • lib/features/subscriptions/presentation/providers/subscriptions_provider.dart:130:24 • only_throw_errors
+   info • The method is used to change a property • lib/features/subscriptions/presentation/providers/subscriptions_provider.dart:149:8 • use_setters_to_change_properties
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/subscriptions/presentation/screens/analytics_screen.dart:6:8 • always_use_package_imports
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/subscriptions/presentation/screens/analytics_screen.dart:7:8 • always_use_package_imports
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/subscriptions/presentation/screens/analytics_screen.dart:8:8 • always_use_package_imports
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/subscriptions/presentation/screens/analytics_screen.dart:9:8 • always_use_package_imports
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/subscriptions/presentation/screens/analytics_screen.dart:10:8 • always_use_package_imports
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/features/subscriptions/presentation/screens/analytics_screen.dart:149:39 • deprecated_member_use
+   info • Constructor declarations should be before non-constructor declarations • lib/features/subscriptions/presentation/screens/analytics_screen.dart:166:9 • sort_constructors_first
+   info • Constructor declarations should be before non-constructor declarations • lib/features/subscriptions/presentation/screens/analytics_screen.dart:200:9 • sort_constructors_first
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/features/subscriptions/presentation/screens/analytics_screen.dart:220:32 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/features/subscriptions/presentation/screens/analytics_screen.dart:228:63 • deprecated_member_use
+warning • The declaration '_OverviewCardsSection' isn't referenced • lib/features/subscriptions/presentation/screens/analytics_screen.dart:243:7 • unused_element
+   info • Constructor declarations should be before non-constructor declarations • lib/features/subscriptions/presentation/screens/analytics_screen.dart:246:9 • sort_constructors_first
+   info • Constructor declarations should be before non-constructor declarations • lib/features/subscriptions/presentation/screens/analytics_screen.dart:309:9 • sort_constructors_first
+   info • Constructor declarations should be before non-constructor declarations • lib/features/subscriptions/presentation/screens/create_group_subscription_screen.dart:19:9 • sort_constructors_first
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/presentation/screens/create_group_subscription_screen.dart:50:11 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/presentation/screens/create_group_subscription_screen.dart:51:11 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/presentation/screens/create_group_subscription_screen.dart:52:11 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/presentation/screens/create_group_subscription_screen.dart:77:13 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/presentation/screens/create_group_subscription_screen.dart:96:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/presentation/screens/create_group_subscription_screen.dart:102:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/presentation/screens/create_group_subscription_screen.dart:112:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/presentation/screens/create_group_subscription_screen.dart:167:7 • avoid_print
+   info • Use a raw string to avoid using escapes • lib/features/subscriptions/presentation/screens/create_group_subscription_screen.dart:278:23 • use_raw_strings
+   info • The value of the argument is redundant because it matches the default value • lib/features/subscriptions/presentation/screens/create_group_subscription_screen.dart:350:40 • avoid_redundant_argument_values
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/features/subscriptions/presentation/screens/create_subscription_screen.dart:275:64 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/features/subscriptions/presentation/screens/create_subscription_screen.dart:436:64 • deprecated_member_use
+   info • Unnecessary use of a 'double' literal • lib/features/subscriptions/presentation/screens/create_subscription_screen.dart:649:39 • prefer_int_literals
+   info • The value of the argument is redundant because it matches the default value • lib/features/subscriptions/presentation/screens/create_subscription_screen.dart:667:9 • avoid_redundant_argument_values
+   info • The value of the argument is redundant because it matches the default value • lib/features/subscriptions/presentation/screens/create_subscription_screen.dart:673:9 • avoid_redundant_argument_values
+   info • The value of the argument is redundant because it matches the default value • lib/features/subscriptions/presentation/screens/create_subscription_screen.dart:679:9 • avoid_redundant_argument_values
+   info • Unnecessary duplication of receiver • lib/features/subscriptions/presentation/screens/subscription_detail_screen.dart:111:21 • cascade_invocations
+   info • Unnecessary duplication of receiver • lib/features/subscriptions/presentation/screens/subscription_detail_screen.dart:112:21 • cascade_invocations
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/presentation/screens/subscription_detail_screen.dart:257:15 • avoid_print
+   info • Unnecessary duplication of receiver • lib/features/subscriptions/presentation/screens/subscription_detail_screen.dart:828:9 • cascade_invocations
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/presentation/widgets/add_member_dialog.dart:41:5 • avoid_print
+   info • The value of the argument is redundant because it matches the default value • lib/features/subscriptions/presentation/widgets/add_member_dialog.dart:48:9 • avoid_redundant_argument_values
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/presentation/widgets/add_member_dialog.dart:51:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/presentation/widgets/add_member_dialog.dart:52:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/presentation/widgets/add_member_dialog.dart:53:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/presentation/widgets/add_member_dialog.dart:54:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/presentation/widgets/add_member_dialog.dart:58:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/presentation/widgets/add_member_dialog.dart:65:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/presentation/widgets/add_member_dialog.dart:70:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/presentation/widgets/add_member_dialog.dart:76:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/presentation/widgets/add_member_dialog.dart:80:5 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/presentation/widgets/add_member_dialog.dart:87:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/presentation/widgets/add_member_dialog.dart:97:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/presentation/widgets/add_member_dialog.dart:101:5 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/presentation/widgets/add_member_dialog.dart:137:25 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/presentation/widgets/add_member_dialog.dart:264:25 • avoid_print
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/subscriptions/presentation/widgets/analytics/overview_cards_section.dart:5:8 • always_use_package_imports
+   info • Constructor declarations should be before non-constructor declarations • lib/features/subscriptions/presentation/widgets/analytics/overview_cards_section.dart:17:9 • sort_constructors_first
+   info • Required named parameters should be before optional named parameters • lib/features/subscriptions/presentation/widgets/analytics/overview_cards_section.dart:19:19 • always_put_required_named_parameters_first
+   info • Constructor declarations should be before non-constructor declarations • lib/features/subscriptions/presentation/widgets/analytics/overview_cards_section.dart:113:9 • sort_constructors_first
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/features/subscriptions/presentation/widgets/analytics/overview_cards_section.dart:128:33 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/features/subscriptions/presentation/widgets/analytics/overview_cards_section.dart:144:37 • deprecated_member_use
+   info • Use 'package:' imports for files in the 'lib' directory • lib/features/subscriptions/presentation/widgets/analytics/spending_distribution_chart.dart:6:8 • always_use_package_imports
+   info • Constructor declarations should be before non-constructor declarations • lib/features/subscriptions/presentation/widgets/analytics/spending_distribution_chart.dart:24:9 • sort_constructors_first
+   info • Required named parameters should be before optional named parameters • lib/features/subscriptions/presentation/widgets/analytics/spending_distribution_chart.dart:26:19 • always_put_required_named_parameters_first
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/features/subscriptions/presentation/widgets/analytics/spending_distribution_chart.dart:49:33 • deprecated_member_use
+   info • Unnecessary use of a 'double' literal • lib/features/subscriptions/presentation/widgets/analytics/spending_distribution_chart.dart:136:7 • prefer_int_literals
+   info • Unnecessary use of a 'double' literal • lib/features/subscriptions/presentation/widgets/analytics/spending_distribution_chart.dart:153:30 • prefer_int_literals
+   info • Use 'const' literals as arguments to constructors of '@immutable' classes • lib/features/subscriptions/presentation/widgets/analytics/spending_distribution_chart.dart:178:20 • prefer_const_literals_to_create_immutables
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/features/subscriptions/presentation/widgets/analytics/spending_distribution_chart.dart:277:53 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/features/subscriptions/presentation/widgets/analytics/spending_distribution_chart.dart:278:42 • deprecated_member_use
+warning • The declaration '_CenterLabel' isn't referenced • lib/features/subscriptions/presentation/widgets/analytics/spending_distribution_chart.dart:316:7 • unused_element
+   info • Constructor declarations should be before non-constructor declarations • lib/features/subscriptions/presentation/widgets/analytics/spending_distribution_chart.dart:319:9 • sort_constructors_first
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/features/subscriptions/presentation/widgets/analytics/spending_distribution_chart.dart:399:35 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/features/subscriptions/presentation/widgets/analytics/spending_distribution_chart.dart:414:37 • deprecated_member_use
+   info • Classes should define instance members • lib/features/subscriptions/presentation/widgets/color_picker_widget.dart:3:1 • avoid_classes_with_only_static_members
+   info • Constructor declarations should be before non-constructor declarations • lib/features/subscriptions/presentation/widgets/color_picker_widget.dart:34:9 • sort_constructors_first
+   info • The value of the argument is redundant because it matches the default value • lib/features/subscriptions/presentation/widgets/color_picker_widget.dart:60:31 • avoid_redundant_argument_values
+   info • Constructor declarations should be before non-constructor declarations • lib/features/subscriptions/presentation/widgets/color_picker_widget.dart:85:9 • sort_constructors_first
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/presentation/widgets/payment_action_buttons.dart:26:5 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/presentation/widgets/payment_action_buttons.dart:27:5 • avoid_print
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/features/subscriptions/presentation/widgets/payment_stats_card.dart:35:31 • deprecated_member_use
+   info • The value of the argument is redundant because it matches the default value • lib/features/subscriptions/presentation/widgets/payment_stats_card.dart:36:18 • avoid_redundant_argument_values
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/features/subscriptions/presentation/widgets/payment_stats_card.dart:49:52 • deprecated_member_use
+   info • Use a raw string to avoid using escapes • lib/features/subscriptions/presentation/widgets/payment_stats_card.dart:110:58 • use_raw_strings
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/features/subscriptions/presentation/widgets/payment_stats_card.dart:218:24 • deprecated_member_use
+   info • The value of the argument is redundant because it matches the default value • lib/features/subscriptions/presentation/widgets/payment_stats_card.dart:219:18 • avoid_redundant_argument_values
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/features/subscriptions/presentation/widgets/payment_stats_card.dart:295:40 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/features/subscriptions/presentation/widgets/payment_stats_card.dart:298:42 • deprecated_member_use
+   info • The value of the argument is redundant because it matches the default value • lib/features/subscriptions/presentation/widgets/payment_stats_card.dart:299:18 • avoid_redundant_argument_values
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/presentation/widgets/payment_status_toggle.dart:53:5 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/presentation/widgets/payment_status_toggle.dart:54:5 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/presentation/widgets/payment_status_toggle.dart:55:5 • avoid_print
+   info • Don't invoke 'print' in production code • lib/features/subscriptions/presentation/widgets/payment_status_toggle.dart:154:5 • avoid_print
+   info • Constructor declarations should be before non-constructor declarations • lib/features/subscriptions/presentation/widgets/subscription_preview_card.dart:17:9 • sort_constructors_first
+   info • The value of the argument is redundant because it matches the default value • lib/features/subscriptions/presentation/widgets/subscription_preview_card.dart:60:31 • avoid_redundant_argument_values
+   info • Sort directive sections alphabetically • lib/main.dart:14:1 • directives_ordering
+   info • Sort directive sections alphabetically • lib/main.dart:18:1 • directives_ordering
+   info • Don't invoke 'print' in production code • lib/main.dart:88:5 • avoid_print
+   info • Don't invoke 'print' in production code • lib/main.dart:94:5 • avoid_print
+   info • Don't invoke 'print' in production code • lib/main.dart:96:5 • avoid_print
+   info • Sort directive sections alphabetically • lib/routing/app_router.dart:9:1 • directives_ordering
+   info • Classes that override '==' should not be implemented • test/features/auth/data/datasources/auth_remote_datasource_test.dart:17:40 • avoid_implementing_value_types
+   info • Classes that override '==' should not be implemented • test/features/auth/data/datasources/auth_remote_datasource_test.dart:19:43 • avoid_implementing_value_types
+   info • Classes that override '==' should not be implemented • test/features/auth/data/datasources/auth_remote_datasource_test.dart:22:50 • avoid_implementing_value_types
+   info • Use 'const' with the constructor to improve performance • test/features/auth/data/datasources/auth_remote_datasource_test.dart:101:9 • prefer_const_constructors
+   info • Use 'const' with the constructor to improve performance • test/features/auth/data/datasources/auth_remote_datasource_test.dart:121:9 • prefer_const_constructors
+   info • Use 'const' with the constructor to improve performance • test/features/auth/data/datasources/auth_remote_datasource_test.dart:202:9 • prefer_const_constructors
+   info • Use 'const' with the constructor to improve performance • test/features/auth/data/datasources/auth_remote_datasource_test.dart:264:9 • prefer_const_constructors
+   info • Use 'const' with the constructor to improve performance • test/features/auth/data/datasources/auth_remote_datasource_test.dart:283:9 • prefer_const_constructors
+   info • Use 'const' with the constructor to improve performance • test/features/auth/data/datasources/auth_remote_datasource_test.dart:302:9 • prefer_const_constructors
+   info • Use 'const' with the constructor to improve performance • test/features/auth/data/datasources/auth_remote_datasource_test.dart:389:9 • prefer_const_constructors
+   info • Classes that override '==' should not be implemented • test/features/auth/data/repositories/auth_repository_impl_test.dart:24:48 • avoid_implementing_value_types
+   info • Classes that override '==' should not be implemented • test/features/auth/data/repositories/auth_repository_impl_test.dart:26:43 • avoid_implementing_value_types
+   info • Classes that override '==' should not be implemented • test/features/auth/data/repositories/auth_repository_impl_test.dart:31:45 • avoid_implementing_value_types
+   info • Classes that override '==' should not be implemented • test/features/auth/data/repositories/auth_repository_impl_test.dart:33:52 • avoid_implementing_value_types
+   info • The value of the argument is redundant because it matches the default value • test/features/auth/domain/entities/user_test.dart:208:11 • avoid_redundant_argument_values
+   info • The value of the argument is redundant because it matches the default value • test/features/subscriptions/domain/usecases/create_subscription_test.dart:34:5 • avoid_redundant_argument_values
+   info • The value of the argument is redundant because it matches the default value • test/features/subscriptions/domain/usecases/create_subscription_test.dart:35:5 • avoid_redundant_argument_values
+   info • Unnecessary use of a 'double' literal • test/features/subscriptions/presentation/providers/member_split_test.dart:26:60 • prefer_int_literals
+   info • Unnecessary use of a 'double' literal • test/features/subscriptions/presentation/providers/member_split_test.dart:38:62 • prefer_int_literals
+
+1029 issues found. (ran in 2.8s)

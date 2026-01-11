@@ -1,27 +1,15 @@
 // lib/features/subscriptions/data/models/monthly_spending_model.dart
 
-import '../../domain/entities/monthly_spending.dart';
+import 'package:flutter_project_agents/features/subscriptions/domain/entities/monthly_spending.dart';
 
 /// Data model for MonthlySpending
 class MonthlySpendingModel {
-  final DateTime month;
-  final double amountPaid;
-  final int paymentCount;
 
   const MonthlySpendingModel({
     required this.month,
     required this.amountPaid,
     required this.paymentCount,
   });
-
-  /// Convert to domain entity
-  MonthlySpending toEntity() {
-    return MonthlySpending(
-      month: month,
-      amountPaid: amountPaid,
-      paymentCount: paymentCount,
-    );
-  }
 
   /// Create from domain entity
   factory MonthlySpendingModel.fromEntity(MonthlySpending entity) {
@@ -40,6 +28,18 @@ class MonthlySpendingModel {
           : DateTime.parse(json['month'] as String),
       amountPaid: (json['amount_paid'] as num).toDouble(),
       paymentCount: json['payment_count'] as int,
+    );
+  }
+  final DateTime month;
+  final double amountPaid;
+  final int paymentCount;
+
+  /// Convert to domain entity
+  MonthlySpending toEntity() {
+    return MonthlySpending(
+      month: month,
+      amountPaid: amountPaid,
+      paymentCount: paymentCount,
     );
   }
 

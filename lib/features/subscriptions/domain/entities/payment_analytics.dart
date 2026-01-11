@@ -26,10 +26,10 @@ class PaymentAnalytics with _$PaymentAnalytics {
 
   /// Create empty analytics
   factory PaymentAnalytics.empty() => const PaymentAnalytics(
-        onTimePaymentRate: 0.0,
-        averageDaysToPayment: 0.0,
+        onTimePaymentRate: 0,
+        averageDaysToPayment: 0,
         topPayers: [],
-        overdueAmount: 0.0,
+        overdueAmount: 0,
       );
 
   /// Check if there are any overdue payments

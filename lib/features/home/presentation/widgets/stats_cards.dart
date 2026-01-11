@@ -2,7 +2,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 
-import '../../../subscriptions/domain/entities/monthly_stats.dart';
+import 'package:flutter_project_agents/features/subscriptions/domain/entities/monthly_stats.dart';
 
 /// Stats cards displaying monthly cost and pending to collect
 ///
@@ -12,9 +12,9 @@ import '../../../subscriptions/domain/entities/monthly_stats.dart';
 ///
 /// Features glassmorphism effect with gradient backgrounds.
 class StatsCards extends StatelessWidget {
-  final MonthlyStats stats;
 
-  const StatsCards({super.key, required this.stats});
+  const StatsCards({required this.stats, super.key});
+  final MonthlyStats stats;
 
   @override
   Widget build(BuildContext context) {
@@ -62,11 +62,6 @@ class StatsCards extends StatelessWidget {
 // ═══════════════════════════════════════════════════════════════════════════
 
 class _StatCard extends StatelessWidget {
-  final String title;
-  final double amount;
-  final IconData icon;
-  final Gradient gradient;
-  final bool isWarning;
 
   const _StatCard({
     required this.title,
@@ -75,6 +70,11 @@ class _StatCard extends StatelessWidget {
     required this.gradient,
     this.isWarning = false,
   });
+  final String title;
+  final double amount;
+  final IconData icon;
+  final Gradient gradient;
+  final bool isWarning;
 
   @override
   Widget build(BuildContext context) {
@@ -86,8 +86,8 @@ class _StatCard extends StatelessWidget {
         boxShadow: [
           BoxShadow(
             color: isWarning
-                ? const Color(0xFFEB4747).withOpacity(0.3)
-                : const Color(0xFF6B4FBB).withOpacity(0.3),
+                ? const Color(0xFFEB4747).withValues(alpha: 0.3)
+                : const Color(0xFF6B4FBB).withValues(alpha: 0.3),
             blurRadius: 20,
             offset: const Offset(0, 10),
           ),
@@ -101,8 +101,8 @@ class _StatCard extends StatelessWidget {
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  Colors.white.withOpacity(0.1),
-                  Colors.white.withOpacity(0.05),
+                  Colors.white.withValues(alpha: 0.1),
+                  Colors.white.withValues(alpha: 0.05),
                 ],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
@@ -120,7 +120,7 @@ class _StatCard extends StatelessWidget {
                       Container(
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.2),
+                          color: Colors.white.withValues(alpha: 0.2),
                           borderRadius: BorderRadius.circular(10),
                         ),
                         child: Icon(
@@ -131,7 +131,7 @@ class _StatCard extends StatelessWidget {
                       ),
                       Icon(
                         Icons.more_horiz,
-                        color: Colors.white.withOpacity(0.7),
+                        color: Colors.white.withValues(alpha: 0.7),
                         size: 20,
                       ),
                     ],
@@ -143,7 +143,7 @@ class _StatCard extends StatelessWidget {
                   Text(
                     title,
                     style: TextStyle(
-                      color: Colors.white.withOpacity(0.9),
+                      color: Colors.white.withValues(alpha: 0.9),
                       fontSize: 12,
                       fontWeight: FontWeight.w500,
                       letterSpacing: 0.5,
@@ -182,23 +182,23 @@ class StatsCardsLoading extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24),
+    return const Padding(
+      padding: EdgeInsets.symmetric(horizontal: 24),
       child: Row(
         children: [
           Expanded(
             child: _LoadingCard(
-              gradient: const LinearGradient(
+              gradient: LinearGradient(
                 colors: [Color(0xFF6B4FBB), Color(0xFF4834DF)],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
             ),
           ),
-          const SizedBox(width: 16),
+          SizedBox(width: 16),
           Expanded(
             child: _LoadingCard(
-              gradient: const LinearGradient(
+              gradient: LinearGradient(
                 colors: [Color(0xFFEB4747), Color(0xFFFF6B6B)],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
@@ -212,9 +212,9 @@ class StatsCardsLoading extends StatelessWidget {
 }
 
 class _LoadingCard extends StatelessWidget {
-  final Gradient gradient;
 
   const _LoadingCard({required this.gradient});
+  final Gradient gradient;
 
   @override
   Widget build(BuildContext context) {
@@ -232,8 +232,8 @@ class _LoadingCard extends StatelessWidget {
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  Colors.white.withOpacity(0.1),
-                  Colors.white.withOpacity(0.05),
+                  Colors.white.withValues(alpha: 0.1),
+                  Colors.white.withValues(alpha: 0.05),
                 ],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
@@ -241,7 +241,7 @@ class _LoadingCard extends StatelessWidget {
             ),
             child: Center(
               child: CircularProgressIndicator(
-                color: Colors.white.withOpacity(0.7),
+                color: Colors.white.withValues(alpha: 0.7),
                 strokeWidth: 2,
               ),
             ),
@@ -257,9 +257,9 @@ class _LoadingCard extends StatelessWidget {
 // ═══════════════════════════════════════════════════════════════════════════
 
 class StatsCardsError extends StatelessWidget {
-  final Object error;
 
-  const StatsCardsError({super.key, required this.error});
+  const StatsCardsError({required this.error, super.key});
+  final Object error;
 
   @override
   Widget build(BuildContext context) {
@@ -271,8 +271,7 @@ class StatsCardsError extends StatelessWidget {
           color: const Color(0xFF2D2D44),
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: const Color(0xFFEB4747).withOpacity(0.3),
-            width: 1,
+            color: const Color(0xFFEB4747).withValues(alpha: 0.3),
           ),
         ),
         child: Row(
@@ -280,7 +279,7 @@ class StatsCardsError extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: const Color(0xFFEB4747).withOpacity(0.2),
+                color: const Color(0xFFEB4747).withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: const Icon(

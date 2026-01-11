@@ -1,16 +1,16 @@
 import 'package:dartz/dartz.dart';
 
-import '../entities/subscription.dart';
-import '../failures/subscription_failure.dart';
-import '../repositories/subscription_repository.dart';
+import 'package:flutter_project_agents/features/subscriptions/domain/entities/subscription.dart';
+import 'package:flutter_project_agents/features/subscriptions/domain/failures/subscription_failure.dart';
+import 'package:flutter_project_agents/features/subscriptions/domain/repositories/subscription_repository.dart';
 
 /// Use case to get details of a specific subscription
 ///
 /// Returns full subscription information including members and payment status.
 class GetSubscriptionDetails {
-  final SubscriptionRepository _repository;
 
   GetSubscriptionDetails(this._repository);
+  final SubscriptionRepository _repository;
 
   /// Execute the use case
   ///

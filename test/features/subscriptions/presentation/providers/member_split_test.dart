@@ -23,7 +23,7 @@ void main() {
     });
 
     test('should handle zero amount', () {
-      const split = MemberSplit(name: 'Test User', amount: 0.0);
+      const split = MemberSplit(name: 'Test User', amount: 0);
 
       expect(split.amount, 0.0);
     });
@@ -35,7 +35,7 @@ void main() {
     });
 
     test('should allow unicode characters in names', () {
-      const split = MemberSplit(name: 'José García', amount: 50.00);
+      const split = MemberSplit(name: 'José García', amount: 50);
 
       expect(split.name, 'José García');
       expect(split.amount, 50.00);

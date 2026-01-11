@@ -272,7 +272,7 @@ class _CreateSubscriptionScreenState
                                 vertical: 12,
                               ),
                               decoration: BoxDecoration(
-                                color: const Color(0xFF6B4FBB).withOpacity(0.2),
+                                color: const Color(0xFF6B4FBB).withValues(alpha: 0.2),
                                 borderRadius: BorderRadius.circular(12),
                                 border: Border.all(
                                   color: const Color(0xFF6B4FBB),
@@ -433,7 +433,7 @@ class _CreateSubscriptionScreenState
                             Container(
                               padding: const EdgeInsets.all(16),
                               decoration: BoxDecoration(
-                                color: const Color(0xFF6B4FBB).withOpacity(0.2),
+                                color: const Color(0xFF6B4FBB).withValues(alpha: 0.2),
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               child: Row(
@@ -646,7 +646,7 @@ class _CreateSubscriptionScreenState
 
   /// Calculate owner's amount (handles remainder from division)
   double _calculateOwnerAmount(CreateSubscriptionFormState state) {
-    if (state.members.isEmpty) return 0.0;
+    if (state.members.isEmpty) return 0;
     final totalCost = double.tryParse(state.cost) ?? 0.0;
     final totalMembers = state.members.length;
     final memberTotal = state.splitAmount * totalMembers;
@@ -664,19 +664,16 @@ class _CreateSubscriptionScreenState
         id: '00000000-0000-0000-0000-000000000001', // Placeholder UUID for Sarah
         name: 'Sarah Jenkins',
         email: 'sarah@email.com',
-        avatar: null,
       ),
       const SubscriptionMemberInput(
         id: '00000000-0000-0000-0000-000000000002', // Placeholder UUID for Mike
         name: 'Mike Thompson',
         email: 'mike@email.com',
-        avatar: null,
       ),
       const SubscriptionMemberInput(
         id: '00000000-0000-0000-0000-000000000003', // Placeholder UUID for Emma
         name: 'Emma Wilson',
         email: 'emma@email.com',
-        avatar: null,
       ),
     ];
 

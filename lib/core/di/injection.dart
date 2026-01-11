@@ -11,33 +11,14 @@ import 'package:flutter_project_agents/features/auth/domain/usecases/get_current
 import 'package:flutter_project_agents/features/auth/domain/usecases/login_user.dart';
 import 'package:flutter_project_agents/features/auth/domain/usecases/logout_user.dart';
 import 'package:flutter_project_agents/features/auth/domain/usecases/register_user.dart';
-import 'package:flutter_project_agents/features/subscriptions/data/datasources/subscription_local_datasource.dart';
-import 'package:flutter_project_agents/features/subscriptions/data/datasources/subscription_remote_datasource.dart';
-import 'package:flutter_project_agents/features/subscriptions/data/repositories/subscription_repository_impl.dart';
-import 'package:flutter_project_agents/features/subscriptions/domain/repositories/subscription_repository.dart';
-import 'package:flutter_project_agents/features/subscriptions/domain/usecases/create_subscription.dart';
-import 'package:flutter_project_agents/features/subscriptions/domain/usecases/delete_subscription.dart';
-import 'package:flutter_project_agents/features/subscriptions/domain/usecases/get_active_subscriptions.dart';
-import 'package:flutter_project_agents/features/subscriptions/domain/usecases/get_analytics_data.dart';
-import 'package:flutter_project_agents/features/subscriptions/domain/usecases/get_monthly_stats.dart';
-import 'package:flutter_project_agents/features/subscriptions/domain/usecases/get_payment_stats.dart';
-import 'package:flutter_project_agents/features/subscriptions/domain/usecases/get_pending_payments.dart';
-import 'package:flutter_project_agents/features/subscriptions/domain/usecases/get_subscription_details.dart';
-import 'package:flutter_project_agents/features/subscriptions/domain/usecases/mark_all_payments_as_paid.dart';
-import 'package:flutter_project_agents/features/subscriptions/domain/usecases/mark_payment_as_paid.dart';
-import 'package:flutter_project_agents/features/subscriptions/domain/usecases/unmark_payment.dart';
-import 'package:flutter_project_agents/features/subscriptions/domain/usecases/update_subscription.dart';
-import 'package:flutter_project_agents/features/friends/data/datasources/friendship_local_datasource.dart';
-import 'package:flutter_project_agents/features/friends/data/datasources/friendship_remote_datasource.dart';
-import 'package:flutter_project_agents/features/friends/data/repositories/friendship_repository_impl.dart';
-import 'package:flutter_project_agents/features/friends/domain/repositories/friendship_repository.dart';
-import 'package:flutter_project_agents/features/friends/domain/usecases/accept_friend_request.dart';
-import 'package:flutter_project_agents/features/friends/domain/usecases/get_friends.dart';
-import 'package:flutter_project_agents/features/friends/domain/usecases/get_pending_requests.dart';
-import 'package:flutter_project_agents/features/friends/domain/usecases/reject_friend_request.dart';
-import 'package:flutter_project_agents/features/friends/domain/usecases/remove_friend.dart';
-import 'package:flutter_project_agents/features/friends/domain/usecases/search_users.dart';
-import 'package:flutter_project_agents/features/friends/domain/usecases/send_friend_request.dart';
+import 'package:flutter_project_agents/features/contacts/data/datasources/contact_local_datasource.dart';
+import 'package:flutter_project_agents/features/contacts/data/datasources/contact_remote_datasource.dart';
+import 'package:flutter_project_agents/features/contacts/data/repositories/contact_repository_impl.dart';
+import 'package:flutter_project_agents/features/contacts/domain/repositories/contact_repository.dart';
+import 'package:flutter_project_agents/features/contacts/domain/usecases/add_contact.dart';
+import 'package:flutter_project_agents/features/contacts/domain/usecases/delete_contact.dart';
+import 'package:flutter_project_agents/features/contacts/domain/usecases/get_my_contacts.dart';
+import 'package:flutter_project_agents/features/contacts/domain/usecases/update_contact.dart';
 import 'package:flutter_project_agents/features/settings/data/datasources/account_remote_datasource.dart';
 import 'package:flutter_project_agents/features/settings/data/datasources/profile_local_datasource.dart';
 import 'package:flutter_project_agents/features/settings/data/datasources/profile_remote_datasource.dart';
@@ -57,6 +38,22 @@ import 'package:flutter_project_agents/features/settings/domain/usecases/save_se
 import 'package:flutter_project_agents/features/settings/domain/usecases/send_email_verification.dart';
 import 'package:flutter_project_agents/features/settings/domain/usecases/update_profile.dart';
 import 'package:flutter_project_agents/features/settings/domain/usecases/upload_avatar.dart';
+import 'package:flutter_project_agents/features/subscriptions/data/datasources/subscription_local_datasource.dart';
+import 'package:flutter_project_agents/features/subscriptions/data/datasources/subscription_remote_datasource.dart';
+import 'package:flutter_project_agents/features/subscriptions/data/repositories/subscription_repository_impl.dart';
+import 'package:flutter_project_agents/features/subscriptions/domain/repositories/subscription_repository.dart';
+import 'package:flutter_project_agents/features/subscriptions/domain/usecases/create_subscription.dart';
+import 'package:flutter_project_agents/features/subscriptions/domain/usecases/delete_subscription.dart';
+import 'package:flutter_project_agents/features/subscriptions/domain/usecases/get_active_subscriptions.dart';
+import 'package:flutter_project_agents/features/subscriptions/domain/usecases/get_analytics_data.dart';
+import 'package:flutter_project_agents/features/subscriptions/domain/usecases/get_monthly_stats.dart';
+import 'package:flutter_project_agents/features/subscriptions/domain/usecases/get_payment_stats.dart';
+import 'package:flutter_project_agents/features/subscriptions/domain/usecases/get_pending_payments.dart';
+import 'package:flutter_project_agents/features/subscriptions/domain/usecases/get_subscription_details.dart';
+import 'package:flutter_project_agents/features/subscriptions/domain/usecases/mark_all_payments_as_paid.dart';
+import 'package:flutter_project_agents/features/subscriptions/domain/usecases/mark_payment_as_paid.dart';
+import 'package:flutter_project_agents/features/subscriptions/domain/usecases/unmark_payment.dart';
+import 'package:flutter_project_agents/features/subscriptions/domain/usecases/update_subscription.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -299,95 +296,73 @@ GetAnalyticsData getAnalyticsData(Ref ref) {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
-// FRIENDS FEATURE - DATA SOURCES
+// CONTACTS FEATURE - DATA SOURCES
 // ═══════════════════════════════════════════════════════════════════════════
 
-/// Provider for FriendshipLocalDataSource (Hive)
+/// Provider for ContactLocalDataSource (Hive)
 ///
-/// This data source manages friendship and profile data in Hive cache.
-/// It MUST be initialized before use via initFriendsDependencies().
-///
-/// Note: This is a singleton that persists across provider rebuilds.
-@Riverpod(keepAlive: true)
-FriendshipLocalDataSource friendshipLocalDataSource(Ref ref) {
-  throw UnimplementedError(
-    'friendshipLocalDataSource provider must be overridden in main.dart with the initialized instance',
-  );
+/// This data source manages contact data in Hive cache.
+/// Simple instantiation - no initialization required.
+@riverpod
+ContactLocalDataSource contactLocalDataSource(Ref ref) {
+  return const ContactLocalDataSource();
 }
 
-/// Provider for FriendshipRemoteDataSource (Supabase)
+/// Provider for ContactRemoteDataSource (Supabase)
 ///
-/// This data source manages friendship operations with Supabase backend.
+/// This data source manages contact operations with Supabase backend.
 /// Requires SupabaseService to be initialized.
 @riverpod
-FriendshipRemoteDataSource friendshipRemoteDataSource(Ref ref) {
+ContactRemoteDataSource contactRemoteDataSource(Ref ref) {
   final client = ref.watch(supabaseClientProvider);
-  return FriendshipRemoteDataSourceImpl(client: client);
+  return ContactRemoteDataSource(client);
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
-// FRIENDS FEATURE - REPOSITORY
+// CONTACTS FEATURE - REPOSITORY
 // ═══════════════════════════════════════════════════════════════════════════
 
-/// Provider for FriendshipRepository implementation
+/// Provider for ContactRepository implementation
 ///
 /// The implementation coordinates between:
-/// - FriendshipRemoteDataSource (Supabase) for remote operations
-/// - FriendshipLocalDataSource (Hive) for local cache
+/// - ContactRemoteDataSource (Supabase) for remote operations
+/// - ContactLocalDataSource (Hive) for local cache
 ///
 /// Implements offline-first strategy: tries Supabase first, falls back to cache.
 @riverpod
-FriendshipRepository friendshipRepository(Ref ref) {
-  return FriendshipRepositoryImpl(
-    remoteDataSource: ref.watch(friendshipRemoteDataSourceProvider),
-    localDataSource: ref.watch(friendshipLocalDataSourceProvider),
+ContactRepository contactRepository(Ref ref) {
+  return ContactRepositoryImpl(
+    ref.watch(contactRemoteDataSourceProvider),
+    ref.watch(contactLocalDataSourceProvider),
   );
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
-// FRIENDS FEATURE - USE CASES
+// CONTACTS FEATURE - USE CASES
 // ═══════════════════════════════════════════════════════════════════════════
 
-/// Use case: Send friend request
+/// Use case: Get my contacts
 @riverpod
-SendFriendRequest sendFriendRequest(Ref ref) {
-  return SendFriendRequest(ref.watch(friendshipRepositoryProvider));
+GetMyContacts getMyContacts(Ref ref) {
+  return GetMyContacts(ref.watch(contactRepositoryProvider));
 }
 
-/// Use case: Accept friend request
+/// Use case: Add contact
 @riverpod
-AcceptFriendRequest acceptFriendRequest(Ref ref) {
-  return AcceptFriendRequest(ref.watch(friendshipRepositoryProvider));
+AddContact addContact(Ref ref) {
+  return AddContact(ref.watch(contactRepositoryProvider));
 }
 
-/// Use case: Reject friend request
+/// Use case: Update contact
 @riverpod
-RejectFriendRequest rejectFriendRequest(Ref ref) {
-  return RejectFriendRequest(ref.watch(friendshipRepositoryProvider));
+UpdateContact updateContact(Ref ref) {
+  return UpdateContact(ref.watch(contactRepositoryProvider));
 }
 
-/// Use case: Remove friend
+/// Use case: Delete contact
 @riverpod
-RemoveFriend removeFriend(Ref ref) {
-  return RemoveFriend(ref.watch(friendshipRepositoryProvider));
-}
-
-/// Use case: Get friends list
-@riverpod
-GetFriends getFriends(Ref ref) {
-  return GetFriends(ref.watch(friendshipRepositoryProvider));
-}
-
-/// Use case: Get pending friend requests
-@riverpod
-GetPendingRequests getPendingRequests(Ref ref) {
-  return GetPendingRequests(ref.watch(friendshipRepositoryProvider));
-}
-
-/// Use case: Search users by email
-@riverpod
-SearchUsers searchUsers(Ref ref) {
-  return SearchUsers(ref.watch(friendshipRepositoryProvider));
+DeleteContact deleteContact(Ref ref) {
+  return DeleteContact(ref.watch(contactRepositoryProvider));
 }
 
 // ═══════════════════════════════════════════════════════════════════════════

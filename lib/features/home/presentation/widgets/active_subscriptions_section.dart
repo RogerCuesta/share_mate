@@ -1,10 +1,9 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_project_agents/features/subscriptions/domain/entities/subscription.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
-
-import '../../../subscriptions/domain/entities/subscription.dart';
 
 /// Active Subscriptions section for home screen
 ///
@@ -16,12 +15,11 @@ import '../../../subscriptions/domain/entities/subscription.dart';
 /// - Price and due date
 /// - Shadow with subscription color
 class ActiveSubscriptionsSection extends StatelessWidget {
-  final List<Subscription> subscriptions;
 
   const ActiveSubscriptionsSection({
-    super.key,
-    required this.subscriptions,
+    required this.subscriptions, super.key,
   });
+  final List<Subscription> subscriptions;
 
   @override
   Widget build(BuildContext context) {
@@ -70,13 +68,13 @@ class ActiveSubscriptionsSection extends StatelessWidget {
 // ═══════════════════════════════════════════════════════════════════════════
 
 class _SectionHeader extends StatelessWidget {
-  final int subscriptionCount;
-  final VoidCallback onSort;
 
   const _SectionHeader({
     required this.subscriptionCount,
     required this.onSort,
   });
+  final int subscriptionCount;
+  final VoidCallback onSort;
 
   @override
   Widget build(BuildContext context) {
@@ -134,9 +132,9 @@ class _SectionHeader extends StatelessWidget {
 // ═══════════════════════════════════════════════════════════════════════════
 
 class _SubscriptionCard extends StatelessWidget {
-  final Subscription subscription;
 
   const _SubscriptionCard({required this.subscription});
+  final Subscription subscription;
 
   @override
   Widget build(BuildContext context) {
@@ -156,13 +154,13 @@ class _SubscriptionCard extends StatelessWidget {
             end: Alignment.bottomRight,
             colors: [
               color,
-              color.withOpacity(0.7),
+              color.withValues(alpha: 0.7),
             ],
           ),
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-              color: color.withOpacity(0.4),
+              color: color.withValues(alpha: 0.4),
               blurRadius: 20,
               offset: const Offset(0, 10),
             ),
@@ -178,8 +176,8 @@ class _SubscriptionCard extends StatelessWidget {
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                   colors: [
-                    Colors.white.withOpacity(0.15),
-                    Colors.white.withOpacity(0.05),
+                    Colors.white.withValues(alpha: 0.15),
+                    Colors.white.withValues(alpha: 0.05),
                   ],
                 ),
               ),
@@ -220,14 +218,14 @@ class _SubscriptionCard extends StatelessWidget {
                       children: [
                         Icon(
                           _getDueDateIcon(isDueSoon, isOverdue),
-                          color: Colors.white.withOpacity(0.9),
+                          color: Colors.white.withValues(alpha: 0.9),
                           size: 12,
                         ),
                         const SizedBox(width: 4),
                         Text(
                           _formatDueDate(subscription.dueDate),
                           style: TextStyle(
-                            color: Colors.white.withOpacity(0.9),
+                            color: Colors.white.withValues(alpha: 0.9),
                             fontSize: 12,
                             fontWeight: FontWeight.w500,
                           ),
@@ -257,13 +255,13 @@ class _SubscriptionCard extends StatelessWidget {
                         vertical: 4,
                       ),
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.2),
+                        color: Colors.white.withValues(alpha: 0.2),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(
                         subscription.billingCycle.name.toUpperCase(),
                         style: TextStyle(
-                          color: Colors.white.withOpacity(0.9),
+                          color: Colors.white.withValues(alpha: 0.9),
                           fontSize: 10,
                           fontWeight: FontWeight.bold,
                           letterSpacing: 0.5,
@@ -302,7 +300,7 @@ class _SubscriptionCard extends StatelessWidget {
     if (diff == 1) return 'Due Tomorrow';
     if (diff < 0) {
       final absDiff = diff.abs();
-      return 'Overdue ${absDiff} ${absDiff == 1 ? 'day' : 'days'}';
+      return 'Overdue $absDiff ${absDiff == 1 ? 'day' : 'days'}';
     }
     if (diff <= 7) return 'Due in $diff ${diff == 1 ? 'day' : 'days'}';
 
@@ -315,9 +313,9 @@ class _SubscriptionCard extends StatelessWidget {
 // ═══════════════════════════════════════════════════════════════════════════
 
 class _SubscriptionLogo extends StatelessWidget {
-  final String? iconUrl;
 
   const _SubscriptionLogo({this.iconUrl});
+  final String? iconUrl;
 
   @override
   Widget build(BuildContext context) {
@@ -325,7 +323,7 @@ class _SubscriptionLogo extends StatelessWidget {
       width: 50,
       height: 50,
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.2),
+        color: Colors.white.withValues(alpha: 0.2),
         borderRadius: BorderRadius.circular(12),
       ),
       child: ClipRRect(
@@ -343,7 +341,7 @@ class _SubscriptionLogo extends StatelessWidget {
                           ? loadingProgress.cumulativeBytesLoaded /
                               loadingProgress.expectedTotalBytes!
                           : null,
-                      color: Colors.white.withOpacity(0.5),
+                      color: Colors.white.withValues(alpha: 0.5),
                       strokeWidth: 2,
                     ),
                   );
@@ -360,7 +358,7 @@ class _DefaultIcon extends StatelessWidget {
   Widget build(BuildContext context) {
     return Icon(
       Icons.subscriptions_outlined,
-      color: Colors.white.withOpacity(0.7),
+      color: Colors.white.withValues(alpha: 0.7),
       size: 28,
     );
   }
@@ -371,16 +369,16 @@ class _DefaultIcon extends StatelessWidget {
 // ═══════════════════════════════════════════════════════════════════════════
 
 class _MembersIndicator extends StatelessWidget {
-  final int memberCount;
 
   const _MembersIndicator({required this.memberCount});
+  final int memberCount;
 
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.25),
+        color: Colors.white.withValues(alpha: 0.25),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Row(
@@ -388,14 +386,14 @@ class _MembersIndicator extends StatelessWidget {
         children: [
           Icon(
             Icons.people_outline,
-            color: Colors.white.withOpacity(0.9),
+            color: Colors.white.withValues(alpha: 0.9),
             size: 14,
           ),
           const SizedBox(width: 4),
           Text(
             memberCount.toString(),
             style: TextStyle(
-              color: Colors.white.withOpacity(0.9),
+              color: Colors.white.withValues(alpha: 0.9),
               fontSize: 12,
               fontWeight: FontWeight.bold,
             ),
@@ -422,8 +420,8 @@ class _EmptySubscriptionsView extends StatelessWidget {
           // Empty icon
           Container(
             padding: const EdgeInsets.all(24),
-            decoration: BoxDecoration(
-              color: const Color(0xFF2A2A3E),
+            decoration: const BoxDecoration(
+              color: Color(0xFF2A2A3E),
               shape: BoxShape.circle,
             ),
             child: Icon(

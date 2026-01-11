@@ -2,10 +2,6 @@
 
 /// Predefined subscription service with icon and color
 class PredefinedService {
-  final String name;
-  final String color;
-  final String? iconName;
-  final String? iconText;
 
   const PredefinedService({
     required this.name,
@@ -13,6 +9,10 @@ class PredefinedService {
     this.iconName,
     this.iconText,
   });
+  final String name;
+  final String color;
+  final String? iconName;
+  final String? iconText;
 }
 
 /// Helper class with predefined subscription services

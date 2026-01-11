@@ -22,10 +22,6 @@ import 'package:uuid/uuid.dart';
 /// - Online: Use Supabase for auth, cache locally
 /// - Offline: Fallback to local auth (for already registered users)
 class AuthRepositoryImpl implements AuthRepository {
-  final AuthRemoteDataSource remoteDataSource;
-  final UserLocalDataSource userDataSource;
-  final AuthLocalDataSource authDataSource;
-  final Uuid _uuid;
 
   AuthRepositoryImpl({
     required this.remoteDataSource,
@@ -33,6 +29,10 @@ class AuthRepositoryImpl implements AuthRepository {
     required this.authDataSource,
     Uuid? uuid,
   }) : _uuid = uuid ?? const Uuid();
+  final AuthRemoteDataSource remoteDataSource;
+  final UserLocalDataSource userDataSource;
+  final AuthLocalDataSource authDataSource;
+  final Uuid _uuid;
 
   @override
   Future<Either<AuthFailure, User>> registerUser({
@@ -120,7 +120,6 @@ class AuthRepositoryImpl implements AuthRepository {
       final now = DateTime.now();
       final user = User(
         id: _uuid.v4(), // Generate local ID
-        supabaseId: null, // No Supabase ID (offline registration)
         email: email,
         fullName: fullName,
         createdAt: now,

@@ -1,80 +1,19 @@
+import 'package:flutter_project_agents/core/storage/hive_type_ids.dart';
+import 'package:flutter_project_agents/features/subscriptions/domain/entities/subscription.dart';
 import 'package:hive_ce/hive.dart';
-
-import '../../../../core/storage/hive_type_ids.dart';
-import '../../domain/entities/subscription.dart';
 
 part 'subscription_model.g.dart';
 
 /// Data model for Subscription with Hive persistence
 @HiveType(typeId: HiveTypeIds.subscription)
 class SubscriptionModel extends HiveObject {
-  @HiveField(0)
-  final String id;
-
-  @HiveField(1)
-  final String name;
-
-  @HiveField(2)
-  final String? iconUrl;
-
-  @HiveField(3)
-  final String color;
-
-  @HiveField(4)
-  final double totalCost;
-
-  @HiveField(5)
-  final String billingCycle; // 'monthly' or 'yearly'
-
-  @HiveField(6)
-  final DateTime dueDate;
-
-  @HiveField(7)
-  final String ownerId;
-
-  @HiveField(8)
-  final List<String> sharedWith;
-
-  @HiveField(9)
-  final String status; // 'active', 'cancelled', 'paused'
-
-  @HiveField(10)
-  final DateTime createdAt;
-
-  @HiveField(11, defaultValue: null)
-  final DateTime? updatedAt;
 
   SubscriptionModel({
     required this.id,
     required this.name,
-    this.iconUrl,
-    required this.color,
-    required this.totalCost,
-    required this.billingCycle,
-    required this.dueDate,
-    required this.ownerId,
-    required this.sharedWith,
-    required this.status,
-    required this.createdAt,
+    required this.color, required this.totalCost, required this.billingCycle, required this.dueDate, required this.ownerId, required this.sharedWith, required this.status, required this.createdAt, this.iconUrl,
     this.updatedAt,
   });
-
-  /// Convert to domain entity
-  Subscription toEntity() {
-    return Subscription(
-      id: id,
-      name: name,
-      iconUrl: iconUrl,
-      color: color,
-      totalCost: totalCost,
-      billingCycle: _parseBillingCycle(billingCycle),
-      dueDate: dueDate,
-      ownerId: ownerId,
-      sharedWith: sharedWith,
-      status: _parseStatus(status),
-      createdAt: createdAt,
-    );
-  }
 
   /// Create from domain entity
   factory SubscriptionModel.fromEntity(Subscription entity) {
@@ -113,6 +52,58 @@ class SubscriptionModel extends HiveObject {
       updatedAt: json['updated_at'] != null
           ? DateTime.parse(json['updated_at'] as String)
           : null,
+    );
+  }
+  @HiveField(0)
+  final String id;
+
+  @HiveField(1)
+  final String name;
+
+  @HiveField(2)
+  final String? iconUrl;
+
+  @HiveField(3)
+  final String color;
+
+  @HiveField(4)
+  final double totalCost;
+
+  @HiveField(5)
+  final String billingCycle; // 'monthly' or 'yearly'
+
+  @HiveField(6)
+  final DateTime dueDate;
+
+  @HiveField(7)
+  final String ownerId;
+
+  @HiveField(8)
+  final List<String> sharedWith;
+
+  @HiveField(9)
+  final String status; // 'active', 'cancelled', 'paused'
+
+  @HiveField(10)
+  final DateTime createdAt;
+
+  @HiveField(11, defaultValue: null)
+  final DateTime? updatedAt;
+
+  /// Convert to domain entity
+  Subscription toEntity() {
+    return Subscription(
+      id: id,
+      name: name,
+      iconUrl: iconUrl,
+      color: color,
+      totalCost: totalCost,
+      billingCycle: _parseBillingCycle(billingCycle),
+      dueDate: dueDate,
+      ownerId: ownerId,
+      sharedWith: sharedWith,
+      status: _parseStatus(status),
+      createdAt: createdAt,
     );
   }
 

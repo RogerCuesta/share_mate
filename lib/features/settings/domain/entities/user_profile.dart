@@ -14,10 +14,9 @@ class UserProfile with _$UserProfile {
     required String userId,
     required String email,
     required String fullName,
-    String? avatarUrl,
+    required DateTime createdAt, String? avatarUrl,
     String? bio,
     @Default(true) bool isDiscoverable,
-    required DateTime createdAt,
     DateTime? updatedAt,
   }) = _UserProfile;
 

@@ -40,12 +40,9 @@ class HiveTypeIds {
   static const int paymentSyncQueue = 34;
   // Reserve 35-39 for future subscription-related models
 
-  // Feature: Friends (50-59)
-  static const int profile = 50;
-  static const int friendship = 51;
-  static const int friend = 52;
-  static const int friendRequestSyncOperation = 53;
-  // Reserve 54-59 for future friends-related models
+  // Feature: Contacts (50-59) - Replaced Friends feature
+  static const int contact = 50;
+  // Reserve 51-59 for future contacts-related models
 
   // Add new feature ranges here (60-69, 70-79, etc.)
   // Example:
@@ -60,7 +57,7 @@ class HiveTypeIds {
       user, userProfile, authToken,
       appSettings, themeSettings, notificationSettings,
       subscription, subscriptionMember, monthlyStats, paymentHistory, paymentSyncQueue,
-      profile, friendship, friend, friendRequestSyncOperation,
+      contact,
     ];
 
     return !usedIds.contains(typeId);
@@ -72,6 +69,6 @@ class HiveTypeIds {
     user, userProfile, authToken,
     appSettings, themeSettings, notificationSettings,
     subscription, subscriptionMember, monthlyStats, paymentHistory, paymentSyncQueue,
-    profile, friendship, friend, friendRequestSyncOperation,
+    contact,
   ];
 }

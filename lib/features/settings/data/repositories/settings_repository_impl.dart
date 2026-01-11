@@ -1,21 +1,20 @@
 // lib/features/settings/data/repositories/settings_repository_impl.dart
 
 import 'package:dartz/dartz.dart';
-
-import '../../domain/entities/app_settings.dart';
-import '../../domain/failures/settings_failure.dart';
-import '../../domain/repositories/settings_repository.dart';
-import '../datasources/settings_local_datasource.dart';
-import '../models/app_settings_model.dart';
+import 'package:flutter_project_agents/features/settings/data/datasources/settings_local_datasource.dart';
+import 'package:flutter_project_agents/features/settings/data/models/app_settings_model.dart';
+import 'package:flutter_project_agents/features/settings/domain/entities/app_settings.dart';
+import 'package:flutter_project_agents/features/settings/domain/failures/settings_failure.dart';
+import 'package:flutter_project_agents/features/settings/domain/repositories/settings_repository.dart';
 
 /// Settings Repository Implementation
 ///
 /// Manages app settings persistence in local storage (Hive).
 /// Settings are local-only (no remote sync).
 class SettingsRepositoryImpl implements SettingsRepository {
-  final SettingsLocalDataSource localDataSource;
 
   SettingsRepositoryImpl({required this.localDataSource});
+  final SettingsLocalDataSource localDataSource;
 
   @override
   Future<Either<SettingsFailure, AppSettings>> getSettings() async {

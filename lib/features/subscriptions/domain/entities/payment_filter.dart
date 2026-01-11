@@ -1,8 +1,7 @@
 // lib/features/subscriptions/domain/entities/payment_filter.dart
 
+import 'package:flutter_project_agents/features/subscriptions/domain/entities/payment_history.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-
-import 'payment_history.dart';
 
 part 'payment_filter.freezed.dart';
 
@@ -60,7 +59,7 @@ class PaymentFilter with _$PaymentFilter {
   /// Factory for filtering by this month
   factory PaymentFilter.thisMonth() {
     final now = DateTime.now();
-    final startOfMonth = DateTime(now.year, now.month, 1);
+    final startOfMonth = DateTime(now.year, now.month);
     final endOfMonth = DateTime(now.year, now.month + 1, 0, 23, 59, 59);
 
     return PaymentFilter(
