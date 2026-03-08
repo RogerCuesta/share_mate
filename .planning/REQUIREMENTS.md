@@ -25,7 +25,7 @@
 ### Local Contacts
 
 - [x] **CNTC-01**: El usuario puede crear un contacto local (nombre + avatar/color) sin email ni invitación.
-- [ ] **CNTC-02**: El usuario puede seleccionar/editar/eliminar contactos locales dentro del flujo de creación/edición de suscripción.
+- [x] **CNTC-02**: El usuario puede seleccionar/editar/eliminar contactos locales dentro del flujo de creación/edición de suscripción.
 
 ### Split & Billing Rules
 
@@ -101,7 +101,7 @@
 | CATA-02 | Phase 3 | Complete |
 | CATA-03 | Phase 3 | Complete |
 | CNTC-01 | Phase 3 | Complete |
-| CNTC-02 | Phase 3 | Pending |
+| CNTC-02 | Phase 3 | Complete |
 | SPLT-01 | Phase 3 | Pending |
 | SPLT-02 | Phase 3 | Pending |
 | SPLT-03 | Phase 3 | Complete |
