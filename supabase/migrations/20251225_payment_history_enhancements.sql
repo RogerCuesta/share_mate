@@ -46,18 +46,30 @@ RETURNS TABLE(
   subscription_name TEXT
 )
 LANGUAGE plpgsql
-SECURITY DEFINER  -- Ejecuta con permisos del creador
+SECURITY DEFINER
+SET search_path = public, auth
 AS $$
 DECLARE
+  v_actor_id UUID;
+  v_subscription_owner_id UUID;
   v_member_name TEXT;
   v_subscription_name TEXT;
   v_payment_history_id UUID;
 BEGIN
-  -- Obtener nombres para denormalizar
-  SELECT sm.user_name, s.name
-  INTO v_member_name, v_subscription_name
-  FROM subscription_members sm
-  JOIN subscriptions s ON s.id = sm.subscription_id
+  v_actor_id := auth.uid();
+  IF v_actor_id IS NULL THEN
+    RAISE EXCEPTION 'Authentication required';
+  END IF;
+
+  IF p_marked_by IS DISTINCT FROM v_actor_id THEN
+    RAISE EXCEPTION 'Marked-by user does not match auth.uid()';
+  END IF;
+
+  -- Validate ownership and resolve denormalized names.
+  SELECT s.owner_id, sm.user_name, s.name
+  INTO v_subscription_owner_id, v_member_name, v_subscription_name
+  FROM public.subscription_members sm
+  JOIN public.subscriptions s ON s.id = sm.subscription_id
   WHERE sm.id = p_member_id
     AND sm.subscription_id = p_subscription_id;
 
@@ -65,16 +77,25 @@ BEGIN
     RAISE EXCEPTION 'Member or subscription not found';
   END IF;
 
+  IF v_subscription_owner_id IS DISTINCT FROM v_actor_id THEN
+    RAISE EXCEPTION 'Unauthorized subscription access';
+  END IF;
+
   -- OPERACIÓN 1: Update member (dentro de transacción)
-  UPDATE subscription_members
+  UPDATE public.subscription_members
   SET
     has_paid = true,
     last_payment_date = p_payment_date,
     updated_at = NOW()
-  WHERE id = p_member_id;
+  WHERE id = p_member_id
+    AND subscription_id = p_subscription_id;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Subscription member update denied';
+  END IF;
 
   -- OPERACIÓN 2: Insert payment history (dentro de transacción)
-  INSERT INTO payment_history (
+  INSERT INTO public.payment_history (
     id,
     subscription_id,
     member_id,
@@ -95,7 +116,7 @@ BEGIN
     v_subscription_name,
     p_amount,
     p_payment_date,
-    p_marked_by,
+    v_actor_id,
     'paid',
     p_notes,
     p_payment_method,
@@ -125,17 +146,29 @@ CREATE OR REPLACE FUNCTION unmark_payment_atomic(
 RETURNS UUID
 LANGUAGE plpgsql
 SECURITY DEFINER
+SET search_path = public, auth
 AS $$
 DECLARE
+  v_actor_id UUID;
+  v_subscription_owner_id UUID;
   v_member_name TEXT;
   v_subscription_name TEXT;
   v_payment_history_id UUID;
 BEGIN
-  -- Obtener nombres para denormalizar
-  SELECT sm.user_name, s.name
-  INTO v_member_name, v_subscription_name
-  FROM subscription_members sm
-  JOIN subscriptions s ON s.id = sm.subscription_id
+  v_actor_id := auth.uid();
+  IF v_actor_id IS NULL THEN
+    RAISE EXCEPTION 'Authentication required';
+  END IF;
+
+  IF p_marked_by IS DISTINCT FROM v_actor_id THEN
+    RAISE EXCEPTION 'Marked-by user does not match auth.uid()';
+  END IF;
+
+  -- Validate ownership and resolve denormalized names.
+  SELECT s.owner_id, sm.user_name, s.name
+  INTO v_subscription_owner_id, v_member_name, v_subscription_name
+  FROM public.subscription_members sm
+  JOIN public.subscriptions s ON s.id = sm.subscription_id
   WHERE sm.id = p_member_id
     AND sm.subscription_id = p_subscription_id;
 
@@ -143,15 +176,24 @@ BEGIN
     RAISE EXCEPTION 'Member or subscription not found';
   END IF;
 
+  IF v_subscription_owner_id IS DISTINCT FROM v_actor_id THEN
+    RAISE EXCEPTION 'Unauthorized subscription access';
+  END IF;
+
   -- Update member
-  UPDATE subscription_members
+  UPDATE public.subscription_members
   SET
     has_paid = false,
     updated_at = NOW()
-  WHERE id = p_member_id;
+  WHERE id = p_member_id
+    AND subscription_id = p_subscription_id;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Subscription member update denied';
+  END IF;
 
   -- Insert payment history
-  INSERT INTO payment_history (
+  INSERT INTO public.payment_history (
     id,
     subscription_id,
     member_id,
@@ -171,7 +213,7 @@ BEGIN
     v_subscription_name,
     p_amount,
     p_payment_date,
-    p_marked_by,
+    v_actor_id,
     'unpaid',
     p_notes,
     NOW()
@@ -197,14 +239,31 @@ RETURNS TABLE(
 )
 LANGUAGE plpgsql
 SECURITY DEFINER
+SET search_path = public, auth
 AS $$
+DECLARE
+  v_actor_id UUID;
 BEGIN
+  v_actor_id := auth.uid();
+  IF v_actor_id IS NULL THEN
+    RAISE EXCEPTION 'Authentication required';
+  END IF;
+
+  IF NOT EXISTS (
+    SELECT 1
+    FROM public.subscriptions s
+    WHERE s.id = p_subscription_id
+      AND s.owner_id = v_actor_id
+  ) THEN
+    RAISE EXCEPTION 'Unauthorized subscription access';
+  END IF;
+
   RETURN QUERY
   WITH payment_method_counts AS (
     SELECT
       payment_method,
       COUNT(*) as method_count
-    FROM payment_history
+    FROM public.payment_history
     WHERE subscription_id = p_subscription_id
       AND action = 'paid'
       AND payment_method IS NOT NULL
@@ -221,7 +280,7 @@ BEGIN
       (SELECT jsonb_object_agg(payment_method, method_count) FROM payment_method_counts),
       '{}'::jsonb
     ) AS payment_methods
-  FROM payment_history
+  FROM public.payment_history
   WHERE subscription_id = p_subscription_id
     AND (p_start_date IS NULL OR payment_date >= p_start_date)
     AND (p_end_date IS NULL OR payment_date <= p_end_date);
