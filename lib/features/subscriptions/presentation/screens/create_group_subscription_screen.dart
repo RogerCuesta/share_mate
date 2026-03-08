@@ -185,7 +185,7 @@ class _CreateGroupSubscriptionScreenState
                 return ContactsSelectionSheet(
                   contacts: contacts,
                   selectedContactIds: selectedContactIds,
-                  onSelectionChanged: (contact, selected) {
+                  onSelectionChanged: (contact, {required selected}) {
                     final notifier = sheetRef.read(
                       createGroupSubscriptionFormProvider.notifier,
                     );

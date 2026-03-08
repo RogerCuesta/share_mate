@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_project_agents/features/contacts/domain/entities/contact.dart';
 import 'package:flutter_project_agents/features/subscriptions/presentation/widgets/quick_contact_form.dart';
 
-typedef ContactSelectionChanged = void Function(Contact contact, bool selected);
+typedef ContactSelectionChanged = void Function(
+  Contact contact, {
+  required bool selected,
+});
 typedef ContactActionCallback = Future<void> Function(Contact contact);
 typedef QuickContactCreateCallback = Future<void> Function(
   QuickContactDraft draft,
@@ -97,7 +100,7 @@ class _ContactsSelectionSheetState extends State<ContactsSelectionSheet> {
       );
 
       if (decision == _DuplicateNameDecision.reuseExisting) {
-        widget.onSelectionChanged(duplicate, true);
+        widget.onSelectionChanged(duplicate, selected: true);
         return;
       }
       if (decision != _DuplicateNameDecision.createAnyway) {
@@ -222,13 +225,15 @@ class _ContactsSelectionSheetState extends State<ContactsSelectionSheet> {
                             value: selected,
                             onChanged: (value) {
                               widget.onSelectionChanged(
-                                  contact, value ?? false);
+                                contact,
+                                selected: value ?? false,
+                              );
                             },
                           ),
                         ],
                       ),
-                      onTap: () =>
-                          widget.onSelectionChanged(contact, !selected),
+                      onTap: () => widget.onSelectionChanged(contact,
+                          selected: !selected),
                     );
                   },
                 ),

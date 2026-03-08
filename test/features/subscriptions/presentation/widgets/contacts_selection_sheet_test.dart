@@ -16,7 +16,7 @@ void main() {
                 _contact(id: '2', name: 'Bob'),
               ],
               selectedContactIds: const {},
-              onSelectionChanged: (_, __) {},
+              onSelectionChanged: (_, {required selected}) {},
               onQuickCreate: (_) async {},
               onEditContact: (_) async {},
               onDeleteContact: (_) async {},
@@ -52,7 +52,7 @@ void main() {
             body: ContactsSelectionSheet(
               contacts: [_contact(id: '1', name: 'Ana')],
               selectedContactIds: const {},
-              onSelectionChanged: (contact, selected) {
+              onSelectionChanged: (contact, {required selected}) {
                 selectedContact = contact;
                 selectedValue = selected;
               },
@@ -83,7 +83,7 @@ void main() {
             body: ContactsSelectionSheet(
               contacts: [_contact(id: '1', name: 'Alex')],
               selectedContactIds: const {},
-              onSelectionChanged: (contact, selected) {
+              onSelectionChanged: (contact, {required selected}) {
                 selectedContact = contact;
                 selectedValue = selected;
               },
@@ -129,7 +129,7 @@ void main() {
             body: ContactsSelectionSheet(
               contacts: [_contact(id: '1', name: 'Alex')],
               selectedContactIds: const {},
-              onSelectionChanged: (_, __) {},
+              onSelectionChanged: (_, {required selected}) {},
               onQuickCreate: (draft) async {
                 createdDraft = draft;
               },

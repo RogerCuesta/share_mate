@@ -6,6 +6,7 @@ import 'package:flutter_project_agents/features/auth/presentation/providers/auth
 import 'package:flutter_project_agents/features/contacts/domain/entities/add_contact_input.dart';
 import 'package:flutter_project_agents/features/contacts/domain/entities/contact.dart';
 import 'package:flutter_project_agents/features/contacts/domain/entities/update_contact_input.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart' show Ref;
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'contacts_provider.g.dart';
@@ -14,7 +15,7 @@ part 'contacts_provider.g.dart';
 ///
 /// Automatically refreshes when user changes or on manual invalidation
 @riverpod
-Future<List<Contact>> contactsList(ContactsListRef ref) async {
+Future<List<Contact>> contactsList(Ref ref) async {
   // Watch auth state to auto-refresh on user change
   final authState = ref.watch(authProvider);
 
