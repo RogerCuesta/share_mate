@@ -15,15 +15,69 @@ import 'package:flutter_project_agents/features/subscriptions/data/models/subscr
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:hive_ce_flutter/hive_flutter.dart';
 
+class HiveKeyFailureException implements Exception {
+  HiveKeyFailureException(this.message, {this.cause});
+
+  final String message;
+  final Object? cause;
+
+  @override
+  String toString() => 'HiveKeyFailureException: $message';
+}
+
+class HiveWriteBlockedException implements Exception {
+  HiveWriteBlockedException(this.message);
+
+  final String message;
+
+  @override
+  String toString() => 'HiveWriteBlockedException: $message';
+}
+
 /// HiveService manages Hive database initialization, box opening, and cleanup
-/// 
+///
 /// Call HiveService.init() in main() before runApp()
 class HiveService {
   HiveService._();
-  
+
   static const _secureStorage = FlutterSecureStorage();
   static const _encryptionKeyName = 'hive_master_encryption_key';
-  
+  static bool _keyFailureSafeMode = false;
+  static String? _keyFailureReason;
+  static Future<List<int>> Function()? _encryptionKeyProviderOverride;
+
+  static const String _safeModeRecovery =
+      'key-failure safe mode active: writes are blocked, guided recovery is required, and plaintext fallback is forbidden.';
+
+  static bool get isKeyFailureSafeModeActive => _keyFailureSafeMode;
+  static String? get keyFailureReason => _keyFailureReason;
+  static String get safeModeRecoveryMessage => _safeModeRecovery;
+
+  static void activateKeyFailureSafeMode(Object cause) {
+    _keyFailureSafeMode = true;
+    _keyFailureReason = cause.toString();
+  }
+
+  static void clearKeyFailureSafeModeForTesting() {
+    _keyFailureSafeMode = false;
+    _keyFailureReason = null;
+  }
+
+  static void setEncryptionKeyProviderForTesting(
+    Future<List<int>> Function()? provider,
+  ) {
+    _encryptionKeyProviderOverride = provider;
+  }
+
+  static void ensureWritesAllowed(String operation) {
+    if (!_keyFailureSafeMode) {
+      return;
+    }
+    throw HiveWriteBlockedException(
+      '$operation blocked because $_safeModeRecovery',
+    );
+  }
+
   /// Initialize Hive and open all required boxes
   ///
   /// This should be called once at app startup in main()
@@ -46,32 +100,46 @@ class HiveService {
       ..registerAdapter(PaymentSyncOperationAdapter())
       ..registerAdapter(ContactModelAdapter());
   }
-  
+
   /// Close all Hive boxes
   ///
   /// Call this when the app is terminating
   static Future<void> closeAll() async {
     await Hive.close();
   }
-  
+
   /// Open a regular box (for small, frequently accessed data)
   static Future<Box<T>> openBox<T>(
     String boxName, {
     bool encrypted = false,
   }) async {
     if (encrypted) {
-      final encryptionKey = await _getEncryptionKey();
-      return Hive.openBox<T>(
-        boxName,
-        encryptionCipher: HiveAesCipher(encryptionKey),
-      );
+      if (_keyFailureSafeMode) {
+        throw HiveWriteBlockedException(_safeModeRecovery);
+      }
+      try {
+        final encryptionKey = await _getEncryptionKey();
+        return Hive.openBox<T>(
+          boxName,
+          encryptionCipher: HiveAesCipher(encryptionKey),
+        );
+      } catch (e) {
+        if (e is HiveWriteBlockedException || e is HiveKeyFailureException) {
+          rethrow;
+        }
+        activateKeyFailureSafeMode(e);
+        throw HiveKeyFailureException(
+          'Unable to open encrypted box "$boxName". $_safeModeRecovery',
+          cause: e,
+        );
+      }
     }
-    
+
     return Hive.openBox<T>(boxName);
   }
-  
+
   /// Open a lazy box (for large objects like files/images)
-  /// 
+  ///
   /// Use LazyBox when:
   /// - Individual items are >100KB
   /// - You don't need all data loaded in memory
@@ -81,35 +149,60 @@ class HiveService {
     bool encrypted = false,
   }) async {
     if (encrypted) {
-      final encryptionKey = await _getEncryptionKey();
-      return Hive.openLazyBox<T>(
-        boxName,
-        encryptionCipher: HiveAesCipher(encryptionKey),
-      );
+      if (_keyFailureSafeMode) {
+        throw HiveWriteBlockedException(_safeModeRecovery);
+      }
+      try {
+        final encryptionKey = await _getEncryptionKey();
+        return Hive.openLazyBox<T>(
+          boxName,
+          encryptionCipher: HiveAesCipher(encryptionKey),
+        );
+      } catch (e) {
+        if (e is HiveWriteBlockedException || e is HiveKeyFailureException) {
+          rethrow;
+        }
+        activateKeyFailureSafeMode(e);
+        throw HiveKeyFailureException(
+          'Unable to open encrypted lazy box "$boxName". $_safeModeRecovery',
+          cause: e,
+        );
+      }
     }
-    
+
     return Hive.openLazyBox<T>(boxName);
   }
-  
+
   /// Get or generate encryption key for Hive
-  /// 
+  ///
   /// The key is stored securely using flutter_secure_storage
   static Future<List<int>> _getEncryptionKey() async {
-    final keyString = await _secureStorage.read(key: _encryptionKeyName);
-    
-    if (keyString == null) {
-      // Generate new encryption key
-      final newKey = Hive.generateSecureKey();
-      await _secureStorage.write(
-        key: _encryptionKeyName,
-        value: base64UrlEncode(newKey),
+    try {
+      if (_encryptionKeyProviderOverride != null) {
+        return _encryptionKeyProviderOverride!.call();
+      }
+
+      final keyString = await _secureStorage.read(key: _encryptionKeyName);
+
+      if (keyString == null) {
+        final newKey = Hive.generateSecureKey();
+        await _secureStorage.write(
+          key: _encryptionKeyName,
+          value: base64UrlEncode(newKey),
+        );
+        return newKey;
+      }
+
+      return base64Url.decode(keyString);
+    } catch (e) {
+      activateKeyFailureSafeMode(e);
+      throw HiveKeyFailureException(
+        'Unable to load local encryption key. $_safeModeRecovery',
+        cause: e,
       );
-      return newKey;
     }
-    
-    return base64Url.decode(keyString);
   }
-  
+
   /// Delete all data (use with caution!)
   ///
   /// This is useful for:
@@ -142,7 +235,7 @@ class HiveService {
       // Ignore errors if boxes don't exist
     }
   }
-  
+
   /// Compact a specific box to reclaim space
   ///
   /// Call this after bulk deletions to reduce box file size
@@ -171,7 +264,7 @@ class HiveService {
       debugPrint('Error deleting box $boxName: $e');
     }
   }
-  
+
   // Example: Open task box with auto-compaction
   // static Future<void> _openTaskBox() async {
   //   await Hive.openBox<TaskModel>(

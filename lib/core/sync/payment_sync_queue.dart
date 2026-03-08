@@ -1,5 +1,6 @@
-import 'package:flutter_project_agents/core/storage/hive_type_ids.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_project_agents/core/storage/hive_service.dart';
+import 'package:flutter_project_agents/core/storage/hive_type_ids.dart';
 import 'package:hive_ce/hive.dart';
 
 part 'payment_sync_queue.g.dart';
@@ -80,7 +81,10 @@ class PaymentSyncQueueService {
   /// Initialize the sync queue service
   Future<void> init() async {
     if (!Hive.isBoxOpen(_boxName)) {
-      await Hive.openBox<PaymentSyncOperation>(_boxName);
+      await HiveService.openBox<PaymentSyncOperation>(
+        _boxName,
+        encrypted: true,
+      );
     }
     debugPrint('🔄 [PaymentSyncQueue] Service initialized');
   }
@@ -88,6 +92,7 @@ class PaymentSyncQueueService {
   /// Enqueue a payment operation for sync
   Future<void> enqueue(PaymentSyncOperation operation) async {
     try {
+      HiveService.ensureWritesAllowed('Payment sync queue enqueue');
       await _box.put(operation.id, operation);
       debugPrint('➕ [PaymentSyncQueue] Enqueued operation: ${operation.id} (action: ${operation.action})');
       debugPrint('   📊 Queue size: ${_box.length}');
@@ -112,6 +117,7 @@ class PaymentSyncQueueService {
   /// Mark an operation as synced (remove from queue)
   Future<void> markSynced(String operationId) async {
     try {
+      HiveService.ensureWritesAllowed('Payment sync queue mark synced');
       await _box.delete(operationId);
       debugPrint('✅ [PaymentSyncQueue] Operation marked as synced: $operationId');
       debugPrint('   📊 Remaining in queue: ${_box.length}');
@@ -124,6 +130,7 @@ class PaymentSyncQueueService {
   /// Increment retry count for an operation
   Future<void> incrementRetry(String operationId) async {
     try {
+      HiveService.ensureWritesAllowed('Payment sync queue increment retry');
       final operation = _box.get(operationId);
       if (operation != null) {
         final updated = operation.copyWith(retryCount: operation.retryCount + 1);
@@ -139,6 +146,7 @@ class PaymentSyncQueueService {
   /// Clear all pending operations (use with caution!)
   Future<void> clearAll() async {
     try {
+      HiveService.ensureWritesAllowed('Payment sync queue clear');
       final count = _box.length;
       await _box.clear();
       debugPrint('🗑️ [PaymentSyncQueue] Cleared all operations (removed $count)');
