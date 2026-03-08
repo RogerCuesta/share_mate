@@ -53,7 +53,7 @@ class Settings extends _$Settings {
   }
 
   /// Toggle payment reminders
-  Future<bool> togglePaymentReminders(bool enabled) async {
+  Future<bool> togglePaymentReminders({required bool enabled}) async {
     final current = state.value ?? const AppSettings();
     return _saveSettings(
       current.copyWith(paymentRemindersEnabled: enabled),
@@ -61,7 +61,7 @@ class Settings extends _$Settings {
   }
 
   /// Toggle subscription changes notifications
-  Future<bool> toggleSubscriptionChanges(bool enabled) async {
+  Future<bool> toggleSubscriptionChanges({required bool enabled}) async {
     final current = state.value ?? const AppSettings();
     return _saveSettings(
       current.copyWith(subscriptionChangesEnabled: enabled),
@@ -69,7 +69,7 @@ class Settings extends _$Settings {
   }
 
   /// Toggle friend requests notifications
-  Future<bool> toggleFriendRequests(bool enabled) async {
+  Future<bool> toggleFriendRequests({required bool enabled}) async {
     final current = state.value ?? const AppSettings();
     return _saveSettings(
       current.copyWith(friendRequestsEnabled: enabled),

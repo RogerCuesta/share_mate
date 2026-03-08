@@ -2,6 +2,7 @@
 
 import 'package:flutter_project_agents/core/di/injection.dart';
 import 'package:flutter_project_agents/features/settings/domain/failures/settings_failure.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart' show Ref;
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'account_actions_provider.g.dart';
@@ -143,7 +144,7 @@ class AccountActions extends _$AccountActions {
 ///
 /// Checks if the current user's email is verified.
 @riverpod
-Future<bool> emailVerificationStatus(EmailVerificationStatusRef ref) async {
+Future<bool> emailVerificationStatus(Ref ref) async {
   // This will be implemented when we integrate with Supabase Auth
   // For now, return false as placeholder
   return false;

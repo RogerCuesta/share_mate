@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_project_agents/core/theme/theme_extensions.dart';
 import 'package:flutter_project_agents/features/auth/presentation/providers/auth_provider.dart';
 import 'package:flutter_project_agents/features/settings/domain/entities/app_settings.dart';
+import 'package:flutter_project_agents/features/settings/domain/entities/user_profile.dart';
 import 'package:flutter_project_agents/features/settings/presentation/providers/account_actions_provider.dart';
 import 'package:flutter_project_agents/features/settings/presentation/providers/profile_provider.dart';
 import 'package:flutter_project_agents/features/settings/presentation/providers/settings_provider.dart';
@@ -227,7 +228,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   }
 
   /// Build profile header section
-  Widget _buildProfileHeader(BuildContext context, AsyncValue profileState) {
+  Widget _buildProfileHeader(
+    BuildContext context,
+    AsyncValue<UserProfile?> profileState,
+  ) {
     final theme = Theme.of(context);
     final customTheme = theme.custom;
 
@@ -431,7 +435,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   }
 
   /// Build discoverable toggle tile
-  Widget _buildDiscoverableTile(BuildContext context, AsyncValue profileState) {
+  Widget _buildDiscoverableTile(
+    BuildContext context,
+    AsyncValue<UserProfile?> profileState,
+  ) {
     final theme = Theme.of(context);
 
     return profileState.when(
