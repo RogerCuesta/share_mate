@@ -672,9 +672,14 @@ class SubscriptionRemoteDataSourceImpl implements SubscriptionRemoteDataSource {
       debugPrint(
           '   💰 Amount to pay: \$${member.amountToPay.toStringAsFixed(2)}');
 
+      final payload = member.toJson();
+      payload['user_email'] = _normalizeOptionalEmail(
+        payload['user_email'] as String?,
+      );
+
       final response = await _client
           .from('subscription_members')
-          .insert(member.toJson())
+          .insert(payload)
           .select()
           .single();
 
@@ -702,6 +707,14 @@ class SubscriptionRemoteDataSourceImpl implements SubscriptionRemoteDataSource {
         'Failed to add member: ${e.toString()}',
       );
     }
+  }
+
+  String? _normalizeOptionalEmail(String? value) {
+    final normalized = value?.trim().toLowerCase();
+    if (normalized == null || normalized.isEmpty) {
+      return null;
+    }
+    return normalized;
   }
 
   @override

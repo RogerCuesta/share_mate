@@ -29,7 +29,7 @@ class SubscriptionMemberModel extends HiveObject {
       subscriptionId: entity.subscriptionId,
       userId: entity.userId,
       userName: entity.userName,
-      userEmail: entity.userEmail,
+      userEmail: _normalizeOptionalEmail(entity.userEmail),
       userAvatar: entity.userAvatar,
       amountToPay: entity.amountToPay,
       hasPaid: entity.hasPaid,
@@ -47,7 +47,7 @@ class SubscriptionMemberModel extends HiveObject {
       subscriptionId: json['subscription_id'] as String,
       userId: json['user_id'] as String,
       userName: json['user_name'] as String,
-      userEmail: json['user_email'] as String?,
+      userEmail: _normalizeOptionalEmail(json['user_email'] as String?),
       userAvatar: json['user_avatar'] as String?,
       amountToPay: (json['amount_to_pay'] as num).toDouble(),
       hasPaid: json['has_paid'] as bool? ?? false,
@@ -120,7 +120,8 @@ class SubscriptionMemberModel extends HiveObject {
       'subscription_id': subscriptionId,
       'user_id': userId,
       'user_name': userName,
-      'user_email': userEmail,
+      // Contract: local contacts without email are persisted as null.
+      'user_email': _normalizeOptionalEmail(userEmail),
       'user_avatar': userAvatar,
       'amount_to_pay': amountToPay,
       'has_paid': hasPaid,
@@ -136,5 +137,13 @@ class SubscriptionMemberModel extends HiveObject {
     }
 
     return json;
+  }
+
+  static String? _normalizeOptionalEmail(String? value) {
+    final normalized = value?.trim().toLowerCase();
+    if (normalized == null || normalized.isEmpty) {
+      return null;
+    }
+    return normalized;
   }
 }

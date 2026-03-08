@@ -1,5 +1,6 @@
 // lib/features/contacts/data/datasources/contact_remote_datasource.dart
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter_project_agents/features/contacts/data/models/contact_model.dart';
 import 'package:flutter_project_agents/features/contacts/domain/entities/add_contact_input.dart';
 import 'package:flutter_project_agents/features/contacts/domain/entities/update_contact_input.dart';
@@ -9,9 +10,59 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 ///
 /// Performs direct CRUD operations on the contacts table (no RPC functions needed)
 class ContactRemoteDataSource {
-
   const ContactRemoteDataSource(this._supabase);
   final SupabaseClient _supabase;
+
+  @visibleForTesting
+  Map<String, dynamic> buildAddContactPayload(
+    String userId,
+    AddContactInput input,
+  ) {
+    final payload = <String, dynamic>{
+      'user_id': userId,
+      'contact_name': input.normalizedName,
+      'contact_email': input.normalizedEmail,
+      'contact_color': input.normalizedColor,
+      if (_normalizeOptionalValue(input.avatar) != null)
+        'contact_avatar': _normalizeOptionalValue(input.avatar),
+      if (_normalizeOptionalValue(input.notes) != null)
+        'notes': _normalizeOptionalValue(input.notes),
+    };
+    return payload;
+  }
+
+  @visibleForTesting
+  Map<String, dynamic> buildUpdateContactPayload(
+    UpdateContactInput input,
+  ) {
+    final payload = <String, dynamic>{
+      'contact_name': input.normalizedName,
+      // Explicitly persist null for local-only contacts.
+      'contact_email': input.normalizedEmail,
+      if (input.normalizedColor != null) 'contact_color': input.normalizedColor,
+      'updated_at': DateTime.now().toIso8601String(),
+    };
+
+    final normalizedAvatar = _normalizeOptionalValue(input.avatar);
+    if (normalizedAvatar != null) {
+      payload['contact_avatar'] = normalizedAvatar;
+    }
+
+    final normalizedNotes = _normalizeOptionalValue(input.notes);
+    if (normalizedNotes != null) {
+      payload['notes'] = normalizedNotes;
+    }
+
+    return payload;
+  }
+
+  String? _normalizeOptionalValue(String? value) {
+    final trimmed = value?.trim();
+    if (trimmed == null || trimmed.isEmpty) {
+      return null;
+    }
+    return trimmed;
+  }
 
   /// Get all contacts for a user
   ///
@@ -42,19 +93,10 @@ class ContactRemoteDataSource {
     AddContactInput input,
   ) async {
     try {
-      final data = {
-        'user_id': userId,
-        'contact_name': input.normalizedName,
-        'contact_email': input.normalizedEmail,
-        if (input.avatar != null) 'contact_avatar': input.avatar,
-        if (input.notes != null) 'notes': input.notes,
-      };
+      final data = buildAddContactPayload(userId, input);
 
-      final response = await _supabase
-          .from('contacts')
-          .insert(data)
-          .select()
-          .single();
+      final response =
+          await _supabase.from('contacts').insert(data).select().single();
 
       return ContactModel.fromJson(response);
     } on PostgrestException catch (e) {
@@ -77,13 +119,7 @@ class ContactRemoteDataSource {
     UpdateContactInput input,
   ) async {
     try {
-      final data = {
-        'contact_name': input.normalizedName,
-        'contact_email': input.normalizedEmail,
-        if (input.avatar != null) 'contact_avatar': input.avatar,
-        if (input.notes != null) 'notes': input.notes,
-        'updated_at': DateTime.now().toIso8601String(),
-      };
+      final data = buildUpdateContactPayload(input);
 
       final response = await _supabase
           .from('contacts')
@@ -114,10 +150,7 @@ class ContactRemoteDataSource {
   /// Throws [Exception] if contact not found or on unexpected errors
   Future<void> deleteContact(String contactId) async {
     try {
-      await _supabase
-          .from('contacts')
-          .delete()
-          .eq('id', contactId);
+      await _supabase.from('contacts').delete().eq('id', contactId);
     } on PostgrestException catch (e) {
       throw Exception('Failed to delete contact: ${e.message}');
     } catch (e) {

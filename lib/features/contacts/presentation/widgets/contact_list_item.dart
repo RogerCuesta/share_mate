@@ -9,7 +9,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// List item widget for displaying a contact
 class ContactListItem extends ConsumerWidget {
-
   const ContactListItem({
     required this.contact,
     super.key,
@@ -46,7 +45,7 @@ class ContactListItem extends ConsumerWidget {
           children: [
             const SizedBox(height: 4),
             Text(
-              contact.email,
+              contact.email ?? 'No email',
               style: TextStyle(color: Colors.grey[400]),
             ),
             if (contact.notes != null) ...[

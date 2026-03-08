@@ -27,9 +27,10 @@ class _AddContactDialogState extends State<AddContactDialog> {
 
   void _handleAdd() {
     if (_formKey.currentState?.validate() ?? false) {
+      final normalizedEmail = _normalizedOptionalEmail(_emailController.text);
       final input = AddContactInput(
         name: _nameController.text.trim(),
-        email: _emailController.text.trim().toLowerCase(),
+        email: normalizedEmail,
         notes: _notesController.text.trim().isEmpty
             ? null
             : _notesController.text.trim(),
@@ -51,7 +52,7 @@ class _AddContactDialogState extends State<AddContactDialog> {
 
   String? _validateEmail(String? value) {
     if (value == null || value.trim().isEmpty) {
-      return 'Email is required';
+      return null;
     }
     final emailRegex = RegExp(
       r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
@@ -60,6 +61,14 @@ class _AddContactDialogState extends State<AddContactDialog> {
       return 'Please enter a valid email address';
     }
     return null;
+  }
+
+  String? _normalizedOptionalEmail(String value) {
+    final trimmed = value.trim().toLowerCase();
+    if (trimmed.isEmpty) {
+      return null;
+    }
+    return trimmed;
   }
 
   @override

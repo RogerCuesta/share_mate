@@ -86,8 +86,9 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
                 // Filter contacts by search query
                 final filteredContacts = contacts.where((contact) {
                   final query = _searchQuery.toLowerCase();
+                  final contactEmail = contact.email?.toLowerCase() ?? '';
                   return contact.name.toLowerCase().contains(query) ||
-                      contact.email.toLowerCase().contains(query) ||
+                      contactEmail.contains(query) ||
                       (contact.notes?.toLowerCase().contains(query) ?? false);
                 }).toList();
 

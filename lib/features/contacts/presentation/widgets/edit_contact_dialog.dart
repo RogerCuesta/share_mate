@@ -6,7 +6,6 @@ import 'package:flutter_project_agents/features/contacts/domain/entities/update_
 
 /// Dialog for editing an existing contact
 class EditContactDialog extends StatefulWidget {
-
   const EditContactDialog({
     required this.contact,
     super.key,
@@ -41,9 +40,10 @@ class _EditContactDialogState extends State<EditContactDialog> {
 
   void _handleSave() {
     if (_formKey.currentState?.validate() ?? false) {
+      final normalizedEmail = _normalizedOptionalEmail(_emailController.text);
       final input = UpdateContactInput(
         name: _nameController.text.trim(),
-        email: _emailController.text.trim().toLowerCase(),
+        email: normalizedEmail,
         notes: _notesController.text.trim().isEmpty
             ? null
             : _notesController.text.trim(),
@@ -65,7 +65,7 @@ class _EditContactDialogState extends State<EditContactDialog> {
 
   String? _validateEmail(String? value) {
     if (value == null || value.trim().isEmpty) {
-      return 'Email is required';
+      return null;
     }
     final emailRegex = RegExp(
       r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
@@ -74,6 +74,14 @@ class _EditContactDialogState extends State<EditContactDialog> {
       return 'Please enter a valid email address';
     }
     return null;
+  }
+
+  String? _normalizedOptionalEmail(String value) {
+    final trimmed = value.trim().toLowerCase();
+    if (trimmed.isEmpty) {
+      return null;
+    }
+    return trimmed;
   }
 
   @override
