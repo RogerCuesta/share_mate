@@ -63,16 +63,44 @@ class AccountRemoteDataSourceImpl implements AccountRemoteDataSource {
   @override
   Future<void> deleteAccount() async {
     try {
-      final user = client.auth.currentUser;
-      if (user == null) {
-        throw AccountRemoteException('No authenticated user');
-      }
+      final response = await client.functions.invoke('delete-account');
+      final data = response.data;
 
-      // Delete currently authenticated user account.
-      await client.auth.admin.deleteUser(user.id);
+      if (data is Map<String, dynamic>) {
+        final success = data['success'] == true;
+        if (!success) {
+          throw AccountRemoteException(
+            _extractErrorMessage(data, fallback: 'Failed to delete account'),
+          );
+        }
+      }
+    } on FunctionException catch (e) {
+      final details = e.details;
+      if (details is Map<String, dynamic>) {
+        throw AccountRemoteException(
+          _extractErrorMessage(details, fallback: 'Failed to delete account'),
+        );
+      }
+      throw AccountRemoteException('Failed to delete account: ${e.reasonPhrase ?? e.details}');
+    } on AccountRemoteException {
+      rethrow;
     } catch (e) {
       throw AccountRemoteException('Failed to delete account: $e');
     }
+  }
+
+  String _extractErrorMessage(
+    Map<String, dynamic> payload, {
+    required String fallback,
+  }) {
+    final message = payload['message']?.toString();
+    final code = payload['code']?.toString();
+
+    if (message != null && message.isNotEmpty) {
+      return code != null && code.isNotEmpty ? '$code: $message' : message;
+    }
+
+    return fallback;
   }
 }
 
