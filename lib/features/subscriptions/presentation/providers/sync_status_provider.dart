@@ -1,10 +1,10 @@
 import 'dart:async';
 
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_project_agents/core/di/injection.dart';
 import 'package:flutter_project_agents/core/sync/payment_sync_orchestrator.dart';
 import 'package:flutter_project_agents/core/sync/payment_sync_queue.dart';
 import 'package:flutter_project_agents/core/sync/sync_status.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 abstract class SyncQueueStatusSource {
   int get pendingCount;
@@ -22,10 +22,10 @@ class _PaymentSyncQueueStatusSource implements SyncQueueStatusSource {
   final PaymentSyncQueueService _queueService;
 
   @override
-  int get pendingCount => _queueService.pendingCount as int;
+  int get pendingCount => _queueService.pendingCount;
 
   @override
-  int get terminalCount => _queueService.terminalCount as int;
+  int get terminalCount => _queueService.terminalCount;
 }
 
 class _PaymentSyncOrchestratorStatusSource
@@ -35,11 +35,10 @@ class _PaymentSyncOrchestratorStatusSource
   final PaymentSyncOrchestrator _orchestrator;
 
   @override
-  bool get isSyncInProgress => _orchestrator.singleFlightInProgress as bool;
+  bool get isSyncInProgress => _orchestrator.singleFlightInProgress;
 
   @override
-  DateTime? get lastSuccessfulSyncAt =>
-      _orchestrator.lastSuccessfulSyncAt as DateTime?;
+  DateTime? get lastSuccessfulSyncAt => _orchestrator.lastSuccessfulSyncAt;
 }
 
 final syncQueueStatusSourceProvider = Provider<SyncQueueStatusSource>((ref) {
