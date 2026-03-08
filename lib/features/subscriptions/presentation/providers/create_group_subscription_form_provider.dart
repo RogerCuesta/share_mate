@@ -282,15 +282,17 @@ class CreateGroupSubscriptionForm extends _$CreateGroupSubscriptionForm {
     debugPrint(
       '📚 [CreateGroupSubscriptionForm] Applying catalog template: ${template.slug}',
     );
+    final keepManualName = state.isServiceNameManuallyEdited &&
+        state.serviceName.trim().isNotEmpty;
 
     state = state.copyWith(
-      serviceName: template.name,
+      serviceName: keepManualName ? state.serviceName : template.name,
       clearSelectedServiceIcon: true,
       selectedTemplateId: template.id,
       selectedTemplateSlug: template.slug,
       selectedTemplateLogoUrl: template.logoUrl,
       selectedTemplateColor: template.brandColor,
-      isServiceNameManuallyEdited: false,
+      isServiceNameManuallyEdited: keepManualName,
       clearError: true,
     );
   }
