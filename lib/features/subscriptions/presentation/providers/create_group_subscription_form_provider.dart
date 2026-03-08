@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_project_agents/core/di/injection.dart';
 import 'package:flutter_project_agents/features/auth/presentation/providers/auth_provider.dart';
 import 'package:flutter_project_agents/features/subscriptions/domain/entities/predefined_services.dart';
+import 'package:flutter_project_agents/features/subscriptions/domain/entities/service_template.dart';
 import 'package:flutter_project_agents/features/subscriptions/domain/entities/subscription.dart';
 import 'package:flutter_project_agents/features/subscriptions/domain/entities/subscription_member.dart';
 import 'package:flutter_project_agents/features/subscriptions/domain/entities/subscription_member_input.dart';
@@ -16,7 +17,6 @@ part 'create_group_subscription_form_provider.g.dart';
 
 /// Helper class for member split breakdown
 class MemberSplit {
-
   const MemberSplit({
     required this.name,
     required this.amount,
@@ -27,10 +27,14 @@ class MemberSplit {
 
 /// Form state for creating a group subscription
 class CreateGroupSubscriptionFormState {
-
   CreateGroupSubscriptionFormState({
     this.serviceName = '',
     this.selectedServiceIcon,
+    this.selectedTemplateId,
+    this.selectedTemplateSlug,
+    this.selectedTemplateLogoUrl,
+    this.selectedTemplateColor,
+    this.isServiceNameManuallyEdited = false,
     this.totalPrice = '',
     this.billingCycle = BillingCycle.monthly,
     DateTime? renewalDate,
@@ -38,9 +42,15 @@ class CreateGroupSubscriptionFormState {
     this.isLoading = false,
     this.errorMessage,
     this.isSuccess = false,
-  }) : renewalDate = renewalDate ?? DateTime.now().add(const Duration(days: 30));
+  }) : renewalDate =
+            renewalDate ?? DateTime.now().add(const Duration(days: 30));
   final String serviceName;
   final String? selectedServiceIcon; // Name of predefined service
+  final String? selectedTemplateId;
+  final String? selectedTemplateSlug;
+  final String? selectedTemplateLogoUrl;
+  final String? selectedTemplateColor;
+  final bool isServiceNameManuallyEdited;
   final String totalPrice;
   final BillingCycle billingCycle;
   final DateTime renewalDate;
@@ -52,6 +62,11 @@ class CreateGroupSubscriptionFormState {
   CreateGroupSubscriptionFormState copyWith({
     String? serviceName,
     String? selectedServiceIcon,
+    String? selectedTemplateId,
+    String? selectedTemplateSlug,
+    String? selectedTemplateLogoUrl,
+    String? selectedTemplateColor,
+    bool? isServiceNameManuallyEdited,
     String? totalPrice,
     BillingCycle? billingCycle,
     DateTime? renewalDate,
@@ -59,11 +74,29 @@ class CreateGroupSubscriptionFormState {
     bool? isLoading,
     String? errorMessage,
     bool? isSuccess,
+    bool clearSelectedServiceIcon = false,
+    bool clearSelectedTemplate = false,
     bool clearError = false,
   }) {
     return CreateGroupSubscriptionFormState(
       serviceName: serviceName ?? this.serviceName,
-      selectedServiceIcon: selectedServiceIcon ?? this.selectedServiceIcon,
+      selectedServiceIcon: clearSelectedServiceIcon
+          ? null
+          : (selectedServiceIcon ?? this.selectedServiceIcon),
+      selectedTemplateId: clearSelectedTemplate
+          ? null
+          : (selectedTemplateId ?? this.selectedTemplateId),
+      selectedTemplateSlug: clearSelectedTemplate
+          ? null
+          : (selectedTemplateSlug ?? this.selectedTemplateSlug),
+      selectedTemplateLogoUrl: clearSelectedTemplate
+          ? null
+          : (selectedTemplateLogoUrl ?? this.selectedTemplateLogoUrl),
+      selectedTemplateColor: clearSelectedTemplate
+          ? null
+          : (selectedTemplateColor ?? this.selectedTemplateColor),
+      isServiceNameManuallyEdited:
+          isServiceNameManuallyEdited ?? this.isServiceNameManuallyEdited,
       totalPrice: totalPrice ?? this.totalPrice,
       billingCycle: billingCycle ?? this.billingCycle,
       renewalDate: renewalDate ?? this.renewalDate,
@@ -76,6 +109,9 @@ class CreateGroupSubscriptionFormState {
 
   /// Get color for the subscription (from predefined service or default)
   String get subscriptionColor {
+    if (selectedTemplateColor != null && selectedTemplateColor!.isNotEmpty) {
+      return selectedTemplateColor!;
+    }
     if (selectedServiceIcon != null) {
       return PredefinedServices.getColorForService(selectedServiceIcon!);
     }
@@ -108,9 +144,9 @@ class CreateGroupSubscriptionFormState {
     return [
       // Members get floor amount
       ...members.map((m) => MemberSplit(
-        name: m.name,
-        amount: floorAmount,
-      )),
+            name: m.name,
+            amount: floorAmount,
+          )),
       // Owner gets the remainder
       MemberSplit(
         name: 'You',
@@ -157,7 +193,10 @@ class CreateGroupSubscriptionFormState {
     // Validate each member has valid email
     final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
     for (final member in members) {
-      if (!emailRegex.hasMatch(member.email)) {
+      final normalizedEmail = member.email?.trim();
+      if (normalizedEmail != null &&
+          normalizedEmail.isNotEmpty &&
+          !emailRegex.hasMatch(normalizedEmail)) {
         return 'Invalid email for member: ${member.name}';
       }
     }
@@ -178,22 +217,49 @@ class CreateGroupSubscriptionForm extends _$CreateGroupSubscriptionForm {
 
   @override
   CreateGroupSubscriptionFormState build() {
-    debugPrint('🏗️ [CreateGroupSubscriptionForm] Initializing with empty members list');
+    debugPrint(
+        '🏗️ [CreateGroupSubscriptionForm] Initializing with empty members list');
     return CreateGroupSubscriptionFormState(); // ✅ No hardcoded members
   }
 
   /// Update service name
   void updateServiceName(String name) {
     debugPrint('📝 [CreateGroupSubscriptionForm] Updating service name: $name');
-    state = state.copyWith(serviceName: name, clearError: true);
+    state = state.copyWith(
+      serviceName: name,
+      isServiceNameManuallyEdited: state.selectedTemplateId != null,
+      clearError: true,
+    );
   }
 
   /// Select a predefined service icon
   void selectServiceIcon(String serviceName) {
-    debugPrint('🎨 [CreateGroupSubscriptionForm] Selecting service icon: $serviceName');
+    debugPrint(
+        '🎨 [CreateGroupSubscriptionForm] Selecting service icon: $serviceName');
     state = state.copyWith(
       selectedServiceIcon: serviceName,
+      selectedTemplateColor: PredefinedServices.getColorForService(serviceName),
       serviceName: serviceName == 'Custom' ? '' : serviceName,
+      isServiceNameManuallyEdited: false,
+      clearSelectedTemplate: true,
+      clearError: true,
+    );
+  }
+
+  /// Apply catalog template values to the form.
+  void applyServiceTemplate(ServiceTemplate template) {
+    debugPrint(
+      '📚 [CreateGroupSubscriptionForm] Applying catalog template: ${template.slug}',
+    );
+
+    state = state.copyWith(
+      serviceName: template.name,
+      clearSelectedServiceIcon: true,
+      selectedTemplateId: template.id,
+      selectedTemplateSlug: template.slug,
+      selectedTemplateLogoUrl: template.logoUrl,
+      selectedTemplateColor: template.brandColor,
+      isServiceNameManuallyEdited: false,
       clearError: true,
     );
   }
@@ -205,31 +271,44 @@ class CreateGroupSubscriptionForm extends _$CreateGroupSubscriptionForm {
 
     // Log new split amount if members exist
     if (state.members.isNotEmpty) {
-      debugPrint('   📊 New split: \$${state.splitAmount.toStringAsFixed(2)} per person');
+      debugPrint(
+          '   📊 New split: \$${state.splitAmount.toStringAsFixed(2)} per person');
     }
   }
 
   /// Update billing cycle
   void updateBillingCycle(BillingCycle cycle) {
-    debugPrint('🔄 [CreateGroupSubscriptionForm] Updating billing cycle: $cycle');
+    debugPrint(
+        '🔄 [CreateGroupSubscriptionForm] Updating billing cycle: $cycle');
     state = state.copyWith(billingCycle: cycle, clearError: true);
   }
 
   /// Update renewal date
   void updateRenewalDate(DateTime date) {
-    debugPrint('📅 [CreateGroupSubscriptionForm] Updating renewal date: ${date.toIso8601String()}');
+    debugPrint(
+        '📅 [CreateGroupSubscriptionForm] Updating renewal date: ${date.toIso8601String()}');
     state = state.copyWith(renewalDate: date, clearError: true);
   }
 
   /// Add a member to the subscription
   void addMember(SubscriptionMemberInput member) {
-    debugPrint('➕ [CreateGroupSubscriptionForm] Adding member: ${member.name} (${member.email})');
+    debugPrint(
+        '➕ [CreateGroupSubscriptionForm] Adding member: ${member.name} (${member.email})');
 
     // ✅ Validate that email doesn't exist already
-    final emailExists = state.members.any((m) => m.email == member.email);
+    final normalizedEmail = member.email?.trim().toLowerCase();
+    var emailExists = false;
+    if (normalizedEmail != null && normalizedEmail.isNotEmpty) {
+      emailExists = state.members.any((existingMember) {
+        return existingMember.email?.trim().toLowerCase() == normalizedEmail;
+      });
+    }
+
     if (emailExists) {
-      debugPrint('⚠️ [CreateGroupSubscriptionForm] Email already exists: ${member.email}');
-      state = state.copyWith(errorMessage: 'This email is already in the group');
+      debugPrint(
+          '⚠️ [CreateGroupSubscriptionForm] Email already exists: ${member.email}');
+      state =
+          state.copyWith(errorMessage: 'This email is already in the group');
       return;
     }
 
@@ -239,29 +318,32 @@ class CreateGroupSubscriptionForm extends _$CreateGroupSubscriptionForm {
       clearError: true,
     );
 
-    debugPrint('✅ [CreateGroupSubscriptionForm] Member added. Total members: ${updatedMembers.length}');
-    debugPrint('💰 [CreateGroupSubscriptionForm] New split: \$${state.splitAmount.toStringAsFixed(2)} per person');
+    debugPrint(
+        '✅ [CreateGroupSubscriptionForm] Member added. Total members: ${updatedMembers.length}');
+    debugPrint(
+        '💰 [CreateGroupSubscriptionForm] New split: \$${state.splitAmount.toStringAsFixed(2)} per person');
   }
 
   /// Remove a member from the subscription
   void removeMember(String memberId) {
     debugPrint('➖ [CreateGroupSubscriptionForm] Removing member: $memberId');
 
-    final updatedMembers = state.members
-        .where((member) => member.id != memberId)
-        .toList();
+    final updatedMembers =
+        state.members.where((member) => member.id != memberId).toList();
 
     state = state.copyWith(
       members: updatedMembers,
       clearError: true,
     );
 
-    debugPrint('✅ [CreateGroupSubscriptionForm] Member removed. Total members: ${updatedMembers.length}');
+    debugPrint(
+        '✅ [CreateGroupSubscriptionForm] Member removed. Total members: ${updatedMembers.length}');
 
     if (updatedMembers.isEmpty) {
       debugPrint('⚠️ [CreateGroupSubscriptionForm] No members left in group');
     } else {
-      debugPrint('💰 [CreateGroupSubscriptionForm] New split: \$${state.splitAmount.toStringAsFixed(2)} per person');
+      debugPrint(
+          '💰 [CreateGroupSubscriptionForm] New split: \$${state.splitAmount.toStringAsFixed(2)} per person');
     }
   }
 
@@ -287,7 +369,8 @@ class CreateGroupSubscriptionForm extends _$CreateGroupSubscriptionForm {
 
   /// Reset form to initial state
   void reset() {
-    debugPrint('🔄 [CreateGroupSubscriptionForm] Resetting form to initial state');
+    debugPrint(
+        '🔄 [CreateGroupSubscriptionForm] Resetting form to initial state');
     state = CreateGroupSubscriptionFormState();
   }
 
@@ -296,7 +379,8 @@ class CreateGroupSubscriptionForm extends _$CreateGroupSubscriptionForm {
     Subscription subscription,
     List<SubscriptionMember> members,
   ) {
-    debugPrint('📝 [CreateGroupSubscriptionForm] Initializing with existing subscription');
+    debugPrint(
+        '📝 [CreateGroupSubscriptionForm] Initializing with existing subscription');
     debugPrint('   ID: ${subscription.id}');
     debugPrint('   Name: ${subscription.name}');
     debugPrint('   Members: ${members.length}');
@@ -316,13 +400,16 @@ class CreateGroupSubscriptionForm extends _$CreateGroupSubscriptionForm {
     state = CreateGroupSubscriptionFormState(
       serviceName: subscription.name,
       selectedServiceIcon: selectedIcon,
+      selectedTemplateColor: selectedIcon == null ? subscription.color : null,
       totalPrice: subscription.totalCost.toString(),
       billingCycle: subscription.billingCycle,
       renewalDate: subscription.dueDate,
-      members: members.map((m) => SubscriptionMemberInput.fromMember(m)).toList(),
+      members:
+          members.map((m) => SubscriptionMemberInput.fromMember(m)).toList(),
     );
 
-    debugPrint('✅ [CreateGroupSubscriptionForm] Initialized with ${state.members.length} members');
+    debugPrint(
+        '✅ [CreateGroupSubscriptionForm] Initialized with ${state.members.length} members');
   }
 
   /// Submit the form (create or update depending on subscriptionId)
@@ -346,7 +433,8 @@ class CreateGroupSubscriptionForm extends _$CreateGroupSubscriptionForm {
     // Validate form
     final validationError = state.validate();
     if (validationError != null) {
-      debugPrint('❌ [CreateGroupSubscriptionForm] Validation failed: $validationError');
+      debugPrint(
+          '❌ [CreateGroupSubscriptionForm] Validation failed: $validationError');
       state = state.copyWith(errorMessage: validationError);
       return;
     }
@@ -373,7 +461,8 @@ class CreateGroupSubscriptionForm extends _$CreateGroupSubscriptionForm {
         return;
       }
 
-      debugPrint('👤 [CreateGroupSubscriptionForm] Current user: ${currentUser.id}');
+      debugPrint(
+          '👤 [CreateGroupSubscriptionForm] Current user: ${currentUser.id}');
 
       // Parse total price
       final parsedPrice = double.parse(state.totalPrice);
@@ -400,7 +489,8 @@ class CreateGroupSubscriptionForm extends _$CreateGroupSubscriptionForm {
       await result.fold(
         (failure) async {
           // Handle failure
-          debugPrint('❌ [CreateGroupSubscriptionForm] Failed to create subscription: $failure');
+          debugPrint(
+              '❌ [CreateGroupSubscriptionForm] Failed to create subscription: $failure');
           final errorMsg = failure.maybeWhen(
             serverError: (message) => message,
             networkError: () => 'Network error. Please check your connection.',
@@ -417,8 +507,10 @@ class CreateGroupSubscriptionForm extends _$CreateGroupSubscriptionForm {
           );
         },
         (createdSubscription) async {
-          debugPrint('✅ [CreateGroupSubscriptionForm] Subscription created: ${createdSubscription.id}');
-          debugPrint('👥 [CreateGroupSubscriptionForm] Adding ${state.members.length} members...');
+          debugPrint(
+              '✅ [CreateGroupSubscriptionForm] Subscription created: ${createdSubscription.id}');
+          debugPrint(
+              '👥 [CreateGroupSubscriptionForm] Adding ${state.members.length} members...');
 
           // Add members to the subscription
           final repository = ref.read(subscriptionRepositoryProvider);
@@ -426,7 +518,8 @@ class CreateGroupSubscriptionForm extends _$CreateGroupSubscriptionForm {
           var failCount = 0;
 
           for (final memberInput in state.members) {
-            debugPrint('   ➕ Adding member: ${memberInput.name} (${memberInput.email})');
+            debugPrint(
+                '   ➕ Adding member: ${memberInput.name} (${memberInput.email})');
 
             final result = await repository.addMemberToSubscription(
               subscriptionId: createdSubscription.id,
@@ -442,18 +535,22 @@ class CreateGroupSubscriptionForm extends _$CreateGroupSubscriptionForm {
                 failCount++;
               },
               (addedMember) {
-                debugPrint('   ✅ Added member: ${addedMember.userName} (\$${addedMember.amountToPay.toStringAsFixed(2)})');
+                debugPrint(
+                    '   ✅ Added member: ${addedMember.userName} (\$${addedMember.amountToPay.toStringAsFixed(2)})');
                 successCount++;
               },
             );
           }
 
-          debugPrint('📊 [CreateGroupSubscriptionForm] Members added: $successCount success, $failCount failed');
+          debugPrint(
+              '📊 [CreateGroupSubscriptionForm] Members added: $successCount success, $failCount failed');
 
           // Success - invalidate providers to refresh data
-          debugPrint('🔄 [CreateGroupSubscriptionForm] Invalidating providers...');
-          ref.invalidate(monthlyStatsProvider);
-          ref.invalidate(activeSubscriptionsProvider);
+          debugPrint(
+              '🔄 [CreateGroupSubscriptionForm] Invalidating providers...');
+          ref
+            ..invalidate(monthlyStatsProvider)
+            ..invalidate(activeSubscriptionsProvider);
 
           state = state.copyWith(
             isLoading: false,
@@ -461,10 +558,12 @@ class CreateGroupSubscriptionForm extends _$CreateGroupSubscriptionForm {
             clearError: true,
           );
 
-          debugPrint('✅ [CreateGroupSubscriptionForm] Group subscription created successfully!');
+          debugPrint(
+              '✅ [CreateGroupSubscriptionForm] Group subscription created successfully!');
           debugPrint('📊 [CreateGroupSubscriptionForm] Breakdown:');
           for (final split in state.breakdown) {
-            debugPrint('   ${split.name}: \$${split.amount.toStringAsFixed(2)}');
+            debugPrint(
+                '   ${split.name}: \$${split.amount.toStringAsFixed(2)}');
           }
         },
       );
@@ -480,23 +579,27 @@ class CreateGroupSubscriptionForm extends _$CreateGroupSubscriptionForm {
 
   /// Update existing subscription (Edit Mode)
   Future<void> _updateSubscription(String subscriptionId) async {
-    debugPrint('📝 [CreateGroupSubscriptionForm] Updating subscription: $subscriptionId');
+    debugPrint(
+        '📝 [CreateGroupSubscriptionForm] Updating subscription: $subscriptionId');
 
     // Validate form
     final validationError = state.validate();
     if (validationError != null) {
-      debugPrint('❌ [CreateGroupSubscriptionForm] Validation failed: $validationError');
+      debugPrint(
+          '❌ [CreateGroupSubscriptionForm] Validation failed: $validationError');
       state = state.copyWith(errorMessage: validationError);
       return;
     }
 
     // Detect changes
-    final priceChanged = _originalSubscription!.totalCost != double.parse(state.totalPrice);
+    final priceChanged =
+        _originalSubscription!.totalCost != double.parse(state.totalPrice);
     final membersChanges = _detectMembersChanges();
     final membersChanged = membersChanges.added || membersChanges.removed;
 
     debugPrint('   Price changed: $priceChanged');
-    debugPrint('   Members changed: $membersChanged (added: ${membersChanges.added}, removed: ${membersChanges.removed})');
+    debugPrint(
+        '   Members changed: $membersChanged (added: ${membersChanges.added}, removed: ${membersChanges.removed})');
 
     // Check if there are any changes
     if (!_hasChanges()) {
@@ -516,7 +619,8 @@ class CreateGroupSubscriptionForm extends _$CreateGroupSubscriptionForm {
       );
 
       if (currentUser == null) {
-        state = state.copyWith(isLoading: false, errorMessage: 'User not authenticated');
+        state = state.copyWith(
+            isLoading: false, errorMessage: 'User not authenticated');
         return;
       }
 
@@ -535,7 +639,8 @@ class CreateGroupSubscriptionForm extends _$CreateGroupSubscriptionForm {
 
       await updateResult.fold(
         (failure) async {
-          debugPrint('❌ [CreateGroupSubscriptionForm] Failed to update: $failure');
+          debugPrint(
+              '❌ [CreateGroupSubscriptionForm] Failed to update: $failure');
           final errorMsg = failure.maybeWhen(
             serverError: (message) => message,
             networkError: () => 'Network error. Please check your connection.',
@@ -557,14 +662,18 @@ class CreateGroupSubscriptionForm extends _$CreateGroupSubscriptionForm {
           }
 
           // Invalidate providers to refresh data
-          debugPrint('🔄 [CreateGroupSubscriptionForm] Invalidating providers...');
-          ref.invalidate(subscriptionDetailProvider(subscriptionId));
-          ref.invalidate(subscriptionMembersProvider(subscriptionId));
-          ref.invalidate(monthlyStatsProvider);
-          ref.invalidate(activeSubscriptionsProvider);
+          debugPrint(
+              '🔄 [CreateGroupSubscriptionForm] Invalidating providers...');
+          ref
+            ..invalidate(subscriptionDetailProvider(subscriptionId))
+            ..invalidate(subscriptionMembersProvider(subscriptionId))
+            ..invalidate(monthlyStatsProvider)
+            ..invalidate(activeSubscriptionsProvider);
 
-          state = state.copyWith(isLoading: false, isSuccess: true, clearError: true);
-          debugPrint('✅ [CreateGroupSubscriptionForm] Update completed successfully!');
+          state = state.copyWith(
+              isLoading: false, isSuccess: true, clearError: true);
+          debugPrint(
+              '✅ [CreateGroupSubscriptionForm] Update completed successfully!');
         },
       );
     } catch (e, stackTrace) {
@@ -579,12 +688,13 @@ class CreateGroupSubscriptionForm extends _$CreateGroupSubscriptionForm {
 
   /// Detect changes in members (added/removed)
   ({bool added, bool removed}) _detectMembersChanges() {
-    final currentEmails = state.members.map((m) => m.email.toLowerCase()).toSet();
-    final originalEmails = _originalMembers.map((m) => m.userEmail.toLowerCase()).toSet();
+    final currentKeys = state.members.map(_memberIdentityKeyFromInput).toSet();
+    final originalKeys =
+        _originalMembers.map(_memberIdentityKeyFromExisting).toSet();
 
     return (
-      added: currentEmails.difference(originalEmails).isNotEmpty,
-      removed: originalEmails.difference(currentEmails).isNotEmpty,
+      added: currentKeys.difference(originalKeys).isNotEmpty,
+      removed: originalKeys.difference(currentKeys).isNotEmpty,
     );
   }
 
@@ -592,8 +702,7 @@ class CreateGroupSubscriptionForm extends _$CreateGroupSubscriptionForm {
   bool _hasChanges() {
     if (_originalSubscription == null) return true; // Create mode
 
-    final metadataChanged =
-        _originalSubscription!.name != state.serviceName ||
+    final metadataChanged = _originalSubscription!.name != state.serviceName ||
         _originalSubscription!.color != state.subscriptionColor ||
         _originalSubscription!.totalCost != double.tryParse(state.totalPrice) ||
         _originalSubscription!.billingCycle != state.billingCycle ||
@@ -625,7 +734,11 @@ class CreateGroupSubscriptionForm extends _$CreateGroupSubscriptionForm {
 
       // Remove deleted members
       final removedMembers = _originalMembers.where(
-        (om) => !state.members.any((sm) => sm.email.toLowerCase() == om.userEmail.toLowerCase()),
+        (om) => !state.members.any(
+          (sm) =>
+              _memberIdentityKeyFromInput(sm) ==
+              _memberIdentityKeyFromExisting(om),
+        ),
       );
 
       for (final member in removedMembers) {
@@ -635,7 +748,11 @@ class CreateGroupSubscriptionForm extends _$CreateGroupSubscriptionForm {
 
       // Add new members
       final addedMembers = state.members.where(
-        (sm) => !_originalMembers.any((om) => om.userEmail.toLowerCase() == sm.email.toLowerCase()),
+        (sm) => !_originalMembers.any(
+          (om) =>
+              _memberIdentityKeyFromExisting(om) ==
+              _memberIdentityKeyFromInput(sm),
+        ),
       );
 
       for (final member in addedMembers) {
@@ -651,7 +768,11 @@ class CreateGroupSubscriptionForm extends _$CreateGroupSubscriptionForm {
 
       // Update existing members with new amount and reset payment
       final remainingMembers = _originalMembers.where(
-        (om) => state.members.any((sm) => sm.email.toLowerCase() == om.userEmail.toLowerCase()),
+        (om) => state.members.any(
+          (sm) =>
+              _memberIdentityKeyFromInput(sm) ==
+              _memberIdentityKeyFromExisting(om),
+        ),
       );
 
       for (final member in remainingMembers) {
@@ -667,7 +788,8 @@ class CreateGroupSubscriptionForm extends _$CreateGroupSubscriptionForm {
 
       // Update all existing members with new amount (keep has_paid)
       for (final member in _originalMembers) {
-        debugPrint('   🔄 Updating member: ${member.userName} (keep payment status)');
+        debugPrint(
+            '   🔄 Updating member: ${member.userName} (keep payment status)');
         await repository.updateMemberAmount(
           memberId: member.id,
           newAmountToPay: floorAmount,
@@ -676,5 +798,21 @@ class CreateGroupSubscriptionForm extends _$CreateGroupSubscriptionForm {
     }
 
     debugPrint('✅ [CreateGroupSubscriptionForm] Members update completed');
+  }
+
+  String _memberIdentityKeyFromInput(SubscriptionMemberInput member) {
+    final normalizedEmail = member.email?.trim().toLowerCase();
+    if (normalizedEmail != null && normalizedEmail.isNotEmpty) {
+      return 'email:$normalizedEmail';
+    }
+    return 'id:${member.id}';
+  }
+
+  String _memberIdentityKeyFromExisting(SubscriptionMember member) {
+    final normalizedEmail = member.userEmail?.trim().toLowerCase();
+    if (normalizedEmail != null && normalizedEmail.isNotEmpty) {
+      return 'email:$normalizedEmail';
+    }
+    return 'id:${member.userId}';
   }
 }

@@ -2,22 +2,23 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_project_agents/features/subscriptions/domain/entities/service_template.dart';
 import 'package:flutter_project_agents/features/subscriptions/presentation/providers/create_group_subscription_form_provider.dart';
 import 'package:flutter_project_agents/features/subscriptions/presentation/providers/subscription_detail_provider.dart';
 import 'package:flutter_project_agents/features/subscriptions/presentation/widgets/billing_cycle_selector.dart';
 import 'package:flutter_project_agents/features/subscriptions/presentation/widgets/members_list_section.dart';
-import 'package:flutter_project_agents/features/subscriptions/presentation/widgets/service_icon_picker.dart';
+import 'package:flutter_project_agents/features/subscriptions/presentation/widgets/service_template_sheet.dart';
 import 'package:flutter_project_agents/features/subscriptions/presentation/widgets/split_bill_preview_card.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 /// Screen for creating/editing a group subscription with split billing
 class CreateGroupSubscriptionScreen extends ConsumerStatefulWidget {
-
   const CreateGroupSubscriptionScreen({
     this.subscriptionId,
     super.key,
   });
+
   /// Subscription ID - null for create mode, non-null for edit mode
   final String? subscriptionId;
 
@@ -47,6 +48,15 @@ class _CreateGroupSubscriptionScreenState
       ref.listenManual(
         createGroupSubscriptionFormProvider,
         (previous, next) {
+          if (_serviceNameController.text != next.serviceName) {
+            _serviceNameController.value = TextEditingValue(
+              text: next.serviceName,
+              selection: TextSelection.collapsed(
+                offset: next.serviceName.length,
+              ),
+            );
+          }
+
           debugPrint('📊 [CreateGroupSubscriptionScreen] State changed');
           debugPrint('   isSuccess: ${next.isSuccess}');
           debugPrint('   errorMessage: ${next.errorMessage}');
@@ -74,7 +84,8 @@ class _CreateGroupSubscriptionScreenState
             });
           } else if (next.errorMessage != null) {
             // Show error
-            debugPrint('❌ [CreateGroupSubscriptionScreen] Showing error: ${next.errorMessage}');
+            debugPrint(
+                '❌ [CreateGroupSubscriptionScreen] Showing error: ${next.errorMessage}');
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(next.errorMessage!),
@@ -93,23 +104,29 @@ class _CreateGroupSubscriptionScreenState
     final subscriptionId = widget.subscriptionId!;
 
     try {
-      debugPrint('📝 [CreateGroupSubscriptionScreen] Loading subscription: $subscriptionId');
+      debugPrint(
+          '📝 [CreateGroupSubscriptionScreen] Loading subscription: $subscriptionId');
 
       // Fetch subscription and members
-      final subscription = await ref.read(subscriptionDetailProvider(subscriptionId).future);
-      final members = await ref.read(subscriptionMembersProvider(subscriptionId).future);
+      final subscription =
+          await ref.read(subscriptionDetailProvider(subscriptionId).future);
+      final members =
+          await ref.read(subscriptionMembersProvider(subscriptionId).future);
 
-      debugPrint('✅ [CreateGroupSubscriptionScreen] Loaded: ${subscription.name} with ${members.length} members');
+      debugPrint(
+          '✅ [CreateGroupSubscriptionScreen] Loaded: ${subscription.name} with ${members.length} members');
 
       // Initialize form provider
-      ref.read(createGroupSubscriptionFormProvider.notifier)
+      ref
+          .read(createGroupSubscriptionFormProvider.notifier)
           .initializeWithSubscription(subscription, members);
 
       // Pre-fill text controllers
       _serviceNameController.text = subscription.name;
       _priceController.text = subscription.totalCost.toString();
     } catch (e) {
-      debugPrint('❌ [CreateGroupSubscriptionScreen] Error loading subscription: $e');
+      debugPrint(
+          '❌ [CreateGroupSubscriptionScreen] Error loading subscription: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -120,6 +137,23 @@ class _CreateGroupSubscriptionScreenState
         context.pop();
       }
     }
+  }
+
+  Future<void> _openServiceTemplateSheet() async {
+    final selectedTemplate = await showModalBottomSheet<ServiceTemplate>(
+      context: context,
+      isScrollControlled: true,
+      showDragHandle: true,
+      builder: (context) => const ServiceTemplateSheet(),
+    );
+
+    if (!mounted || selectedTemplate == null) {
+      return;
+    }
+
+    ref
+        .read(createGroupSubscriptionFormProvider.notifier)
+        .applyServiceTemplate(selectedTemplate);
   }
 
   /// Show confirmation dialog before removing a member
@@ -164,9 +198,22 @@ class _CreateGroupSubscriptionScreenState
     );
 
     if (confirmed == true) {
-      debugPrint('🗑️ [CreateGroupSubscriptionScreen] Removing member: $memberName');
-      ref.read(createGroupSubscriptionFormProvider.notifier).removeMember(memberId);
+      debugPrint(
+          '🗑️ [CreateGroupSubscriptionScreen] Removing member: $memberName');
+      ref
+          .read(createGroupSubscriptionFormProvider.notifier)
+          .removeMember(memberId);
     }
+  }
+
+  Color _parseColor(String value) {
+    final normalized = value.replaceAll('#', '');
+    final hex = normalized.length == 6 ? 'FF$normalized' : normalized;
+    final parsed = int.tryParse(hex, radix: 16);
+    if (parsed == null) {
+      return const Color(0xFF6C63FF);
+    }
+    return Color(parsed);
   }
 
   @override
@@ -205,10 +252,74 @@ class _CreateGroupSubscriptionScreenState
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Service Icon Picker
-              ServiceIconPicker(
-                selectedService: formState.selectedServiceIcon,
-                onServiceSelected: formNotifier.selectServiceIcon,
+              // Service catalog sheet trigger
+              const Text(
+                'Service Catalog',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Material(
+                color: const Color(0xFF2D2D44),
+                borderRadius: BorderRadius.circular(12),
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(12),
+                  onTap: _openServiceTemplateSheet,
+                  child: Padding(
+                    padding: const EdgeInsets.all(14),
+                    child: Row(
+                      children: [
+                        CircleAvatar(
+                          backgroundColor:
+                              _parseColor(formState.subscriptionColor)
+                                  .withValues(alpha: 0.25),
+                          foregroundColor:
+                              _parseColor(formState.subscriptionColor),
+                          child: Text(
+                            formState.serviceName.isEmpty
+                                ? '?'
+                                : formState.serviceName[0].toUpperCase(),
+                            style: const TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                formState.selectedTemplateSlug == null
+                                    ? 'Browse catalog templates'
+                                    : 'Template: ${formState.selectedTemplateSlug}',
+                                style: TextStyle(
+                                  color: Colors.grey[300],
+                                  fontSize: 13,
+                                ),
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                formState.serviceName.isEmpty
+                                    ? 'No template selected'
+                                    : formState.serviceName,
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const Icon(
+                          Icons.search,
+                          color: Color(0xFF6C63FF),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
               ),
               const SizedBox(height: 24),
 
@@ -264,7 +375,8 @@ class _CreateGroupSubscriptionScreenState
               const SizedBox(height: 8),
               TextField(
                 controller: _priceController,
-                keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                keyboardType:
+                    const TextInputType.numberWithOptions(decimal: true),
                 inputFormatters: [
                   FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}')),
                 ],
@@ -403,7 +515,8 @@ class _CreateGroupSubscriptionScreenState
               const SizedBox(height: 32),
 
               // Split Bill Preview - Reactive with provider breakdown
-              if (formState.members.isNotEmpty && formState.totalPrice.isNotEmpty)
+              if (formState.members.isNotEmpty &&
+                  formState.totalPrice.isNotEmpty)
                 SplitBillPreviewCard(
                   totalAmount: double.tryParse(formState.totalPrice) ?? 0,
                   totalMembers: formState.totalMembers,

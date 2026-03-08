@@ -189,8 +189,8 @@ class SubscriptionRepositoryMock implements SubscriptionRepository {
           SubscriptionSeedData.getMockSubscriptions('current-user');
 
       // Find and update
-      final index = _cachedSubscriptions!
-          .indexWhere((sub) => sub.id == subscription.id);
+      final index =
+          _cachedSubscriptions!.indexWhere((sub) => sub.id == subscription.id);
 
       if (index == -1) {
         return const Left(SubscriptionFailure.notFound());
@@ -259,7 +259,8 @@ class SubscriptionRepositoryMock implements SubscriptionRepository {
       _cachedMembers![index] = updatedMember;
 
       // Get subscription for denormalization
-      _cachedSubscriptions ??= SubscriptionSeedData.getMockSubscriptions('current-user');
+      _cachedSubscriptions ??=
+          SubscriptionSeedData.getMockSubscriptions('current-user');
       final subscription = _cachedSubscriptions!.firstWhere(
         (s) => s.id == subscriptionId,
         orElse: () => _cachedSubscriptions!.first,
@@ -317,7 +318,8 @@ class SubscriptionRepositoryMock implements SubscriptionRepository {
       const uuid = Uuid();
 
       // Get subscription for denormalization
-      _cachedSubscriptions ??= SubscriptionSeedData.getMockSubscriptions('current-user');
+      _cachedSubscriptions ??=
+          SubscriptionSeedData.getMockSubscriptions('current-user');
       final subscription = _cachedSubscriptions!.firstWhere(
         (s) => s.id == subscriptionId,
         orElse: () => _cachedSubscriptions!.first,
@@ -392,7 +394,8 @@ class SubscriptionRepositoryMock implements SubscriptionRepository {
       _cachedMembers![index] = updatedMember;
 
       // Get subscription for denormalization
-      _cachedSubscriptions ??= SubscriptionSeedData.getMockSubscriptions('current-user');
+      _cachedSubscriptions ??=
+          SubscriptionSeedData.getMockSubscriptions('current-user');
       final subscription = _cachedSubscriptions!.firstWhere(
         (s) => s.id == subscriptionId,
         orElse: () => _cachedSubscriptions!.first,
@@ -459,7 +462,7 @@ class SubscriptionRepositoryMock implements SubscriptionRepository {
     required String subscriptionId,
     required String userId,
     required String userName,
-    required String userEmail,
+    String? userEmail,
     String? userAvatar,
   }) async {
     await _simulateDelay();
@@ -581,9 +584,8 @@ class SubscriptionRepositoryMock implements SubscriptionRepository {
       (sum, member) => sum + member.amountToPay,
     );
 
-    final overduePaymentsCount = unpaidMembers
-        .where((m) => m.dueDate.isBefore(now))
-        .length;
+    final overduePaymentsCount =
+        unpaidMembers.where((m) => m.dueDate.isBefore(now)).length;
 
     _cachedStats = MonthlyStats(
       totalMonthlyCost: totalMonthlyCost,
@@ -614,23 +616,31 @@ class SubscriptionRepositoryMock implements SubscriptionRepository {
 
       if (startDate != null) {
         history = history
-            .where((h) => h.paymentDate.isAfter(startDate) || h.paymentDate.isAtSameMomentAs(startDate))
+            .where((h) =>
+                h.paymentDate.isAfter(startDate) ||
+                h.paymentDate.isAtSameMomentAs(startDate))
             .toList();
       }
 
       if (endDate != null) {
         history = history
-            .where((h) => h.paymentDate.isBefore(endDate) || h.paymentDate.isAtSameMomentAs(endDate))
+            .where((h) =>
+                h.paymentDate.isBefore(endDate) ||
+                h.paymentDate.isAtSameMomentAs(endDate))
             .toList();
       }
 
       // Calculate stats
-      final paidHistory = history.where((h) => h.action == PaymentAction.paid).toList();
-      final unpaidHistory = history.where((h) => h.action == PaymentAction.unpaid).toList();
+      final paidHistory =
+          history.where((h) => h.action == PaymentAction.paid).toList();
+      final unpaidHistory =
+          history.where((h) => h.action == PaymentAction.unpaid).toList();
 
       final totalPayments = paidHistory.length;
-      final totalAmountPaid = paidHistory.fold<double>(0, (sum, h) => sum + h.amount);
-      final totalAmountUnpaid = unpaidHistory.fold<double>(0, (sum, h) => sum + h.amount);
+      final totalAmountPaid =
+          paidHistory.fold<double>(0, (sum, h) => sum + h.amount);
+      final totalAmountUnpaid =
+          unpaidHistory.fold<double>(0, (sum, h) => sum + h.amount);
       final uniquePayers = paidHistory.map((h) => h.memberId).toSet().length;
 
       // Calculate payment methods breakdown

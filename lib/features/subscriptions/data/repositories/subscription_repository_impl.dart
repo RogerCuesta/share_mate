@@ -873,7 +873,7 @@ class SubscriptionRepositoryImpl implements SubscriptionRepository {
     required String subscriptionId,
     required String userId,
     required String userName,
-    required String userEmail,
+    String? userEmail,
     String? userAvatar,
   }) async {
     try {

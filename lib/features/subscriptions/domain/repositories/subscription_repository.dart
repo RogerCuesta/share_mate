@@ -26,7 +26,8 @@ abstract class SubscriptionRepository {
   ///
   /// Returns a list of [Subscription] entities with status = active.
   /// Returns [SubscriptionFailure] if operation fails.
-  Future<Either<SubscriptionFailure, List<Subscription>>> getActiveSubscriptions(
+  Future<Either<SubscriptionFailure, List<Subscription>>>
+      getActiveSubscriptions(
     String userId,
   );
 
@@ -50,7 +51,8 @@ abstract class SubscriptionRepository {
   ///
   /// Returns a list of [SubscriptionMember] entities where hasPaid = false.
   /// Returns [SubscriptionFailure] if operation fails.
-  Future<Either<SubscriptionFailure, List<SubscriptionMember>>> getPendingPayments(
+  Future<Either<SubscriptionFailure, List<SubscriptionMember>>>
+      getPendingPayments(
     String userId,
   );
 
@@ -58,7 +60,8 @@ abstract class SubscriptionRepository {
   ///
   /// Returns a list of [SubscriptionMember] entities for the subscription.
   /// Returns [SubscriptionFailure] if operation fails.
-  Future<Either<SubscriptionFailure, List<SubscriptionMember>>> getSubscriptionMembers(
+  Future<Either<SubscriptionFailure, List<SubscriptionMember>>>
+      getSubscriptionMembers(
     String subscriptionId,
   );
 
@@ -143,11 +146,12 @@ abstract class SubscriptionRepository {
   /// Creates a new [SubscriptionMember] for the subscription.
   /// Returns the created member if successful.
   /// Returns [SubscriptionFailure] if operation fails.
-  Future<Either<SubscriptionFailure, SubscriptionMember>> addMemberToSubscription({
+  Future<Either<SubscriptionFailure, SubscriptionMember>>
+      addMemberToSubscription({
     required String subscriptionId,
     required String userId,
     required String userName,
-    required String userEmail,
+    String? userEmail,
     String? userAvatar,
   });
 
