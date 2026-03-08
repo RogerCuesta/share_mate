@@ -7,7 +7,7 @@ abstract class AccountRemoteDataSource {
   Future<void> changePassword({required String newPassword});
   Future<void> sendEmailVerification();
   Future<bool> checkEmailVerified();
-  Future<void> deleteAccount(String userId);
+  Future<void> deleteAccount();
 }
 
 /// Account Remote Data Source Implementation (Supabase Auth)
@@ -61,11 +61,15 @@ class AccountRemoteDataSourceImpl implements AccountRemoteDataSource {
   }
 
   @override
-  Future<void> deleteAccount(String userId) async {
+  Future<void> deleteAccount() async {
     try {
-      // Delete user via Supabase Admin API
-      // This will CASCADE delete all related data (profiles, subscriptions, etc.)
-      await client.auth.admin.deleteUser(userId);
+      final user = client.auth.currentUser;
+      if (user == null) {
+        throw AccountRemoteException('No authenticated user');
+      }
+
+      // Delete currently authenticated user account.
+      await client.auth.admin.deleteUser(user.id);
     } catch (e) {
       throw AccountRemoteException('Failed to delete account: $e');
     }

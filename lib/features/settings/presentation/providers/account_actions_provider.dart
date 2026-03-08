@@ -96,11 +96,11 @@ class AccountActions extends _$AccountActions {
   }
 
   /// Delete account
-  Future<bool> deleteAccount(String userId) async {
+  Future<bool> deleteAccount() async {
     state = const AccountActionLoading();
 
     final deleteAccount = ref.read(deleteAccountProvider);
-    final result = await deleteAccount(userId);
+    final result = await deleteAccount();
 
     return result.fold(
       (failure) {

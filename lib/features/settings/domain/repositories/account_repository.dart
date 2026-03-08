@@ -21,5 +21,5 @@ abstract class AccountRepository {
   Future<Either<SettingsFailure, bool>> checkEmailVerified();
 
   /// Delete user account permanently
-  Future<Either<SettingsFailure, Unit>> deleteAccount(String userId);
+  Future<Either<SettingsFailure, Unit>> deleteAccount();
 }

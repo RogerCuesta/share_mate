@@ -683,20 +683,12 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     );
 
     if (confirmed == true && context.mounted) {
-      final authState = ref.read(authProvider);
-      final userId = authState.maybeWhen(
-        authenticated: (user) => user.id,
-        orElse: () => null,
-      );
+      final success = await ref
+          .read(accountActionsProvider.notifier)
+          .deleteAccount();
 
-      if (userId != null) {
-        final success = await ref
-            .read(accountActionsProvider.notifier)
-            .deleteAccount(userId);
-
-        if (success && context.mounted) {
-          await ref.read(authProvider.notifier).logout();
-        }
+      if (success && context.mounted) {
+        await ref.read(authProvider.notifier).logout();
       }
     }
 

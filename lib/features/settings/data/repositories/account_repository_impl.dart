@@ -58,9 +58,9 @@ class AccountRepositoryImpl implements AccountRepository {
   }
 
   @override
-  Future<Either<SettingsFailure, Unit>> deleteAccount(String userId) async {
+  Future<Either<SettingsFailure, Unit>> deleteAccount() async {
     try {
-      await remoteDataSource.deleteAccount(userId);
+      await remoteDataSource.deleteAccount();
       return const Right(unit);
     } on AccountRemoteException catch (e) {
       return Left(SettingsFailure.accountDeletionError(e.message));

@@ -14,7 +14,7 @@ class DeleteAccount {
   DeleteAccount(this.repository);
   final AccountRepository repository;
 
-  Future<Either<SettingsFailure, Unit>> call(String userId) async {
-    return repository.deleteAccount(userId);
+  Future<Either<SettingsFailure, Unit>> call() async {
+    return repository.deleteAccount();
   }
 }
