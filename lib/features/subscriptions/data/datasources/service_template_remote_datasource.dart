@@ -11,6 +11,7 @@ class ServiceTemplateRemoteException implements Exception {
   String toString() => 'ServiceTemplateRemoteException: $message';
 }
 
+// ignore: one_member_abstracts
 abstract class ServiceTemplateRemoteDataSource {
   Future<List<ServiceTemplateModel>> fetchTemplates();
 }

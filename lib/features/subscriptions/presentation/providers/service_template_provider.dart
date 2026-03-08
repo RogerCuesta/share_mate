@@ -32,6 +32,7 @@ class ServiceTemplateQueryController extends AutoDisposeNotifier<String> {
   @override
   String build() => '';
 
+  // ignore: use_setters_to_change_properties
   void setQuery(String query) {
     state = query;
   }
@@ -56,7 +57,7 @@ class ServiceTemplateCatalogController
       await _subscription?.cancel();
     });
 
-    return _watchCatalog(forceRefresh: false);
+    return _watchCatalog();
   }
 
   Future<void> refresh() async {
@@ -79,15 +80,11 @@ class ServiceTemplateCatalogController
     state = AsyncData(refreshed);
   }
 
-  Future<ServiceTemplateCatalogSnapshot> _watchCatalog({
-    required bool forceRefresh,
-  }) async {
+  Future<ServiceTemplateCatalogSnapshot> _watchCatalog() async {
     await _subscription?.cancel();
 
     final completer = Completer<ServiceTemplateCatalogSnapshot>();
-    final stream = ref
-        .read(serviceTemplateRepositoryProvider)
-        .watchCatalog(forceRefresh: forceRefresh);
+    final stream = ref.read(serviceTemplateRepositoryProvider).watchCatalog();
 
     _subscription = stream.listen(
       (snapshot) {

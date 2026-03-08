@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:flutter_project_agents/features/subscriptions/data/datasources/service_template_local_datasource.dart';
 import 'package:flutter_project_agents/features/subscriptions/data/datasources/service_template_remote_datasource.dart';
 import 'package:flutter_project_agents/features/subscriptions/data/models/service_template_model.dart';
-import 'package:flutter_project_agents/features/subscriptions/domain/entities/service_template.dart';
 import 'package:flutter_project_agents/features/subscriptions/domain/repositories/service_template_repository.dart';
 
 class ServiceTemplateRepositoryImpl implements ServiceTemplateRepository {
@@ -37,15 +36,17 @@ class ServiceTemplateRepositoryImpl implements ServiceTemplateRepository {
       cacheReadError = error.message;
     }
 
-    final hasCache = cacheEntry != null && cacheEntry.templates.isNotEmpty;
-    final cacheIsStale =
-        cacheEntry == null ? true : _isStale(cacheEntry.fetchedAt);
+    final cachedTemplates =
+        cacheEntry?.templates ?? const <ServiceTemplateModel>[];
+    final cachedFetchedAt = cacheEntry?.fetchedAt;
+    final hasCache = cachedTemplates.isNotEmpty;
+    final cacheIsStale = cachedFetchedAt == null || _isStale(cachedFetchedAt);
     final shouldRefresh = forceRefresh || !hasCache || cacheIsStale;
 
-    if (hasCache && cacheEntry != null) {
+    if (hasCache) {
       yield _buildSnapshot(
-        cacheEntry.templates,
-        fetchedAt: cacheEntry.fetchedAt,
+        cachedTemplates,
+        fetchedAt: cachedFetchedAt,
         isStale: cacheIsStale,
         isRefreshing: shouldRefresh,
       );
@@ -63,10 +64,10 @@ class ServiceTemplateRepositoryImpl implements ServiceTemplateRepository {
         isStale: false,
       );
     } on ServiceTemplateRemoteException catch (error) {
-      if (hasCache && cacheEntry != null) {
+      if (hasCache) {
         yield _buildSnapshot(
-          cacheEntry.templates,
-          fetchedAt: cacheEntry.fetchedAt,
+          cachedTemplates,
+          fetchedAt: cachedFetchedAt,
           isStale: true,
           errorMessage: error.message,
         );
@@ -75,15 +76,14 @@ class ServiceTemplateRepositoryImpl implements ServiceTemplateRepository {
 
       yield ServiceTemplateCatalogSnapshot(
         templates: const [],
-        fetchedAt: null,
         isStale: true,
         errorMessage: _mergeErrors(cacheReadError, error.message),
       );
     } on ServiceTemplateLocalException catch (error) {
-      if (hasCache && cacheEntry != null) {
+      if (hasCache) {
         yield _buildSnapshot(
-          cacheEntry.templates,
-          fetchedAt: cacheEntry.fetchedAt,
+          cachedTemplates,
+          fetchedAt: cachedFetchedAt,
           isStale: true,
           errorMessage: error.message,
         );
@@ -92,7 +92,6 @@ class ServiceTemplateRepositoryImpl implements ServiceTemplateRepository {
 
       yield ServiceTemplateCatalogSnapshot(
         templates: const [],
-        fetchedAt: null,
         isStale: true,
         errorMessage: _mergeErrors(cacheReadError, error.message),
       );
@@ -109,6 +108,10 @@ class ServiceTemplateRepositoryImpl implements ServiceTemplateRepository {
     } on ServiceTemplateLocalException catch (error) {
       cacheReadError = error.message;
     }
+    final cachedTemplates =
+        cacheEntry?.templates ?? const <ServiceTemplateModel>[];
+    final cachedFetchedAt = cacheEntry?.fetchedAt;
+    final hasCache = cachedTemplates.isNotEmpty;
 
     try {
       final refreshed = await _refreshSingleFlight();
@@ -118,10 +121,10 @@ class ServiceTemplateRepositoryImpl implements ServiceTemplateRepository {
         isStale: false,
       );
     } on ServiceTemplateRemoteException catch (error) {
-      if (cacheEntry != null && cacheEntry.templates.isNotEmpty) {
+      if (hasCache) {
         return _buildSnapshot(
-          cacheEntry.templates,
-          fetchedAt: cacheEntry.fetchedAt,
+          cachedTemplates,
+          fetchedAt: cachedFetchedAt,
           isStale: true,
           errorMessage: error.message,
         );
@@ -129,15 +132,14 @@ class ServiceTemplateRepositoryImpl implements ServiceTemplateRepository {
 
       return ServiceTemplateCatalogSnapshot(
         templates: const [],
-        fetchedAt: null,
         isStale: true,
         errorMessage: _mergeErrors(cacheReadError, error.message),
       );
     } on ServiceTemplateLocalException catch (error) {
-      if (cacheEntry != null && cacheEntry.templates.isNotEmpty) {
+      if (hasCache) {
         return _buildSnapshot(
-          cacheEntry.templates,
-          fetchedAt: cacheEntry.fetchedAt,
+          cachedTemplates,
+          fetchedAt: cachedFetchedAt,
           isStale: true,
           errorMessage: error.message,
         );
@@ -145,7 +147,6 @@ class ServiceTemplateRepositoryImpl implements ServiceTemplateRepository {
 
       return ServiceTemplateCatalogSnapshot(
         templates: const [],
-        fetchedAt: null,
         isStale: true,
         errorMessage: _mergeErrors(cacheReadError, error.message),
       );
