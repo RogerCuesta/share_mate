@@ -464,6 +464,7 @@ class SubscriptionRepositoryMock implements SubscriptionRepository {
     required String userName,
     String? userEmail,
     String? userAvatar,
+    double? amountToPay,
   }) async {
     await _simulateDelay();
 
@@ -484,7 +485,7 @@ class SubscriptionRepositoryMock implements SubscriptionRepository {
             userName: userName,
             userEmail: userEmail,
             userAvatar: userAvatar,
-            amountToPay: subscription.costPerPerson,
+            amountToPay: amountToPay ?? subscription.costPerPerson,
             dueDate: subscription.dueDate,
             createdAt: DateTime.now(),
           );

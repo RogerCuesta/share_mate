@@ -883,6 +883,7 @@ class SubscriptionRepositoryImpl implements SubscriptionRepository {
     required String userName,
     String? userEmail,
     String? userAvatar,
+    double? amountToPay,
   }) async {
     try {
       // Get subscription to calculate amount
@@ -899,7 +900,7 @@ class SubscriptionRepositoryImpl implements SubscriptionRepository {
             userName: userName,
             userEmail: normalizedEmail,
             userAvatar: userAvatar,
-            amountToPay: subscription.costPerPerson,
+            amountToPay: amountToPay ?? subscription.costPerPerson,
             dueDate: subscription.dueDate,
             createdAt: DateTime.now(),
           );

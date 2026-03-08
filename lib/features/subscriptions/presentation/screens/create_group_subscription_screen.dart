@@ -2,11 +2,20 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_project_agents/core/di/injection.dart';
+import 'package:flutter_project_agents/features/auth/presentation/providers/auth_provider.dart';
+import 'package:flutter_project_agents/features/contacts/domain/entities/add_contact_input.dart';
+import 'package:flutter_project_agents/features/contacts/domain/entities/contact.dart';
+import 'package:flutter_project_agents/features/contacts/domain/entities/update_contact_input.dart';
+import 'package:flutter_project_agents/features/contacts/presentation/providers/contacts_provider.dart';
+import 'package:flutter_project_agents/features/contacts/presentation/widgets/edit_contact_dialog.dart';
 import 'package:flutter_project_agents/features/subscriptions/domain/entities/service_template.dart';
 import 'package:flutter_project_agents/features/subscriptions/presentation/providers/create_group_subscription_form_provider.dart';
 import 'package:flutter_project_agents/features/subscriptions/presentation/providers/subscription_detail_provider.dart';
 import 'package:flutter_project_agents/features/subscriptions/presentation/widgets/billing_cycle_selector.dart';
+import 'package:flutter_project_agents/features/subscriptions/presentation/widgets/contacts_selection_sheet.dart';
 import 'package:flutter_project_agents/features/subscriptions/presentation/widgets/members_list_section.dart';
+import 'package:flutter_project_agents/features/subscriptions/presentation/widgets/quick_contact_form.dart';
 import 'package:flutter_project_agents/features/subscriptions/presentation/widgets/service_template_sheet.dart';
 import 'package:flutter_project_agents/features/subscriptions/presentation/widgets/split_bill_preview_card.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -154,6 +163,179 @@ class _CreateGroupSubscriptionScreenState
     ref
         .read(createGroupSubscriptionFormProvider.notifier)
         .applyServiceTemplate(selectedTemplate);
+  }
+
+  Future<void> _openContactsSelectionSheet() async {
+    await showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      showDragHandle: true,
+      builder: (sheetContext) {
+        return Consumer(
+          builder: (context, sheetRef, _) {
+            final contactsAsync = sheetRef.watch(contactsListProvider);
+            final selectedContactIds = sheetRef
+                .watch(createGroupSubscriptionFormProvider)
+                .members
+                .map((member) => member.id)
+                .toSet();
+
+            return contactsAsync.when(
+              data: (contacts) {
+                return ContactsSelectionSheet(
+                  contacts: contacts,
+                  selectedContactIds: selectedContactIds,
+                  onSelectionChanged: (contact, selected) {
+                    final notifier = sheetRef.read(
+                      createGroupSubscriptionFormProvider.notifier,
+                    );
+                    if (selected) {
+                      notifier.addOrReplaceMemberFromContact(contact);
+                    } else {
+                      notifier.removeMemberByContactId(contact.id);
+                    }
+                  },
+                  onQuickCreate: (draft) => _createQuickContact(
+                    sheetRef,
+                    draft,
+                  ),
+                  onEditContact: (contact) => _editContact(
+                    sheetRef,
+                    contact,
+                  ),
+                  onDeleteContact: (contact) => _deleteContact(
+                    sheetRef,
+                    contact,
+                  ),
+                );
+              },
+              loading: () => const SizedBox(
+                height: 220,
+                child: Center(child: CircularProgressIndicator()),
+              ),
+              error: (_, __) => SizedBox(
+                height: 220,
+                child: Center(
+                  child: FilledButton(
+                    onPressed: () => sheetRef.invalidate(contactsListProvider),
+                    child: const Text('Retry loading contacts'),
+                  ),
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Future<void> _createQuickContact(
+      WidgetRef ref, QuickContactDraft draft) async {
+    final authState = ref.read(authProvider);
+    final user = authState.maybeWhen(
+      authenticated: (authenticatedUser) => authenticatedUser,
+      orElse: () => null,
+    );
+
+    if (user == null) {
+      _showErrorMessage('You must be signed in to create contacts');
+      return;
+    }
+
+    final addContact = ref.read(addContactProvider);
+    final result = await addContact(
+      user.id,
+      AddContactInput(
+        name: draft.name,
+        email: draft.email,
+        color: draft.color,
+      ),
+    );
+
+    result.fold(
+      (failure) => _showErrorMessage('Unable to create contact: $failure'),
+      (contact) {
+        ref
+            .read(createGroupSubscriptionFormProvider.notifier)
+            .addOrReplaceMemberFromContact(contact);
+        ref.invalidate(contactsListProvider);
+      },
+    );
+  }
+
+  Future<void> _editContact(WidgetRef ref, Contact contact) async {
+    final input = await showDialog<UpdateContactInput>(
+      context: context,
+      builder: (context) => EditContactDialog(contact: contact),
+    );
+
+    if (input == null) {
+      return;
+    }
+
+    final updateContact = ref.read(updateContactProvider);
+    final result = await updateContact(contact.id, input);
+
+    result.fold(
+      (failure) => _showErrorMessage('Unable to update contact: $failure'),
+      (updatedContact) {
+        ref
+            .read(createGroupSubscriptionFormProvider.notifier)
+            .syncMemberFromUpdatedContact(updatedContact);
+        ref.invalidate(contactsListProvider);
+      },
+    );
+  }
+
+  Future<void> _deleteContact(WidgetRef ref, Contact contact) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete Contact'),
+        content: Text(
+          'Delete ${contact.name}? This will also remove it from this subscription.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true) {
+      return;
+    }
+
+    final deleteContact = ref.read(deleteContactProvider);
+    final result = await deleteContact(contact.id);
+
+    result.fold(
+      (failure) => _showErrorMessage('Unable to delete contact: $failure'),
+      (_) {
+        ref
+            .read(createGroupSubscriptionFormProvider.notifier)
+            .removeMemberByContactId(contact.id);
+        ref.invalidate(contactsListProvider);
+      },
+    );
+  }
+
+  void _showErrorMessage(String message) {
+    if (!mounted) {
+      return;
+    }
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.red,
+      ),
+    );
   }
 
   /// Show confirmation dialog before removing a member
@@ -502,14 +684,21 @@ class _CreateGroupSubscriptionScreenState
               // Members Section - Connected to provider
               MembersListSection(
                 members: formState.members,
-                onMemberAdded: formNotifier.addMember,
+                onManageContacts: _openContactsSelectionSheet,
                 onMemberRemoved: (memberId) {
                   // Find member name for confirmation dialog
-                  final member = formState.members.firstWhere(
+                  final matchingMembers = formState.members.where(
                     (m) => m.id == memberId,
-                    orElse: () => formState.members.first,
                   );
-                  _showRemoveMemberDialog(context, memberId, member.name);
+                  if (matchingMembers.isEmpty) {
+                    return;
+                  }
+
+                  _showRemoveMemberDialog(
+                    context,
+                    memberId,
+                    matchingMembers.first.name,
+                  );
                 },
               ),
               const SizedBox(height: 32),

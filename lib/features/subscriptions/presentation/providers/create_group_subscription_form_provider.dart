@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 
 import 'package:flutter_project_agents/core/di/injection.dart';
 import 'package:flutter_project_agents/features/auth/presentation/providers/auth_provider.dart';
+import 'package:flutter_project_agents/features/contacts/domain/entities/contact.dart';
 import 'package:flutter_project_agents/features/subscriptions/domain/entities/predefined_services.dart';
 import 'package:flutter_project_agents/features/subscriptions/domain/entities/service_template.dart';
 import 'package:flutter_project_agents/features/subscriptions/domain/entities/subscription.dart';
@@ -128,6 +129,14 @@ class CreateGroupSubscriptionFormState {
     return parsedPrice / totalMembers;
   }
 
+  /// Floor split amount used for persisted member rows.
+  double get memberFloorSplitAmount {
+    if (totalMembers == 0 || totalPrice.isEmpty) return 0;
+    final parsedPrice = double.tryParse(totalPrice) ?? 0.0;
+    final rawAmount = parsedPrice / totalMembers;
+    return (rawAmount * 100).floor() / 100;
+  }
+
   /// Breakdown with proper rounding
   List<MemberSplit> get breakdown {
     if (totalPrice.isEmpty || members.isEmpty) return [];
@@ -135,8 +144,7 @@ class CreateGroupSubscriptionFormState {
     final parsedPrice = double.tryParse(totalPrice) ?? 0.0;
     if (parsedPrice == 0) return [];
 
-    // Floor amount for each member
-    final floorAmount = (splitAmount * 100).floor() / 100;
+    final floorAmount = memberFloorSplitAmount;
 
     // Calculate remainder for the owner
     final remainder = parsedPrice - (floorAmount * members.length);
@@ -322,6 +330,48 @@ class CreateGroupSubscriptionForm extends _$CreateGroupSubscriptionForm {
         '✅ [CreateGroupSubscriptionForm] Member added. Total members: ${updatedMembers.length}');
     debugPrint(
         '💰 [CreateGroupSubscriptionForm] New split: \$${state.splitAmount.toStringAsFixed(2)} per person');
+  }
+
+  /// Adds a contact-based member selection and updates if already selected.
+  void addOrReplaceMemberFromContact(Contact contact) {
+    final member = SubscriptionMemberInput(
+      id: contact.id,
+      name: contact.name,
+      email: contact.email,
+      avatar: contact.avatar,
+    );
+
+    final existingIndex = state.members.indexWhere((m) => m.id == contact.id);
+    if (existingIndex == -1) {
+      addMember(member);
+      return;
+    }
+
+    final updatedMembers = [...state.members];
+    updatedMembers[existingIndex] = member;
+    state = state.copyWith(members: updatedMembers, clearError: true);
+  }
+
+  /// Sync selected member data when a contact is edited.
+  void syncMemberFromUpdatedContact(Contact contact) {
+    final existingIndex = state.members.indexWhere((m) => m.id == contact.id);
+    if (existingIndex == -1) {
+      return;
+    }
+
+    final updatedMembers = [...state.members];
+    updatedMembers[existingIndex] = SubscriptionMemberInput(
+      id: contact.id,
+      name: contact.name,
+      email: contact.email,
+      avatar: contact.avatar,
+    );
+    state = state.copyWith(members: updatedMembers, clearError: true);
+  }
+
+  /// Remove selected member when contact is deleted.
+  void removeMemberByContactId(String contactId) {
+    removeMember(contactId);
   }
 
   /// Remove a member from the subscription
@@ -527,6 +577,7 @@ class CreateGroupSubscriptionForm extends _$CreateGroupSubscriptionForm {
               userName: memberInput.name,
               userEmail: memberInput.email,
               userAvatar: memberInput.avatar,
+              amountToPay: state.memberFloorSplitAmount,
             );
 
             result.fold(
@@ -763,6 +814,7 @@ class CreateGroupSubscriptionForm extends _$CreateGroupSubscriptionForm {
           userName: member.name,
           userEmail: member.email,
           userAvatar: member.avatar,
+          amountToPay: floorAmount,
         );
       }
 
@@ -801,18 +853,10 @@ class CreateGroupSubscriptionForm extends _$CreateGroupSubscriptionForm {
   }
 
   String _memberIdentityKeyFromInput(SubscriptionMemberInput member) {
-    final normalizedEmail = member.email?.trim().toLowerCase();
-    if (normalizedEmail != null && normalizedEmail.isNotEmpty) {
-      return 'email:$normalizedEmail';
-    }
     return 'id:${member.id}';
   }
 
   String _memberIdentityKeyFromExisting(SubscriptionMember member) {
-    final normalizedEmail = member.userEmail?.trim().toLowerCase();
-    if (normalizedEmail != null && normalizedEmail.isNotEmpty) {
-      return 'email:$normalizedEmail';
-    }
     return 'id:${member.userId}';
   }
 }

@@ -1,35 +1,17 @@
-// lib/features/subscriptions/presentation/widgets/members_list_section.dart
-
 import 'package:flutter/material.dart';
 import 'package:flutter_project_agents/features/subscriptions/domain/entities/subscription_member_input.dart';
-import 'package:flutter_project_agents/features/subscriptions/presentation/widgets/add_member_dialog.dart';
 
-/// Section displaying the list of members with add/remove functionality
-///
-/// Displays a header with "Members" title and "Add" button, followed by
-/// a list of member cards showing avatar, name, email, and delete button.
 class MembersListSection extends StatelessWidget {
   const MembersListSection({
     required this.members,
-    required this.onMemberAdded,
+    required this.onManageContacts,
     required this.onMemberRemoved,
     super.key,
   });
 
   final List<SubscriptionMemberInput> members;
-  final ValueChanged<SubscriptionMemberInput> onMemberAdded;
+  final VoidCallback onManageContacts;
   final ValueChanged<String> onMemberRemoved;
-
-  Future<void> _showAddMemberDialog(BuildContext context) async {
-    final member = await showDialog<SubscriptionMemberInput>(
-      context: context,
-      builder: (context) => const AddMemberDialog(),
-    );
-
-    if (member != null) {
-      onMemberAdded(member);
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -42,7 +24,6 @@ class MembersListSection extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header with title and add button
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -55,9 +36,10 @@ class MembersListSection extends StatelessWidget {
                 ),
               ),
               ElevatedButton.icon(
-                onPressed: () => _showAddMemberDialog(context),
-                icon: const Icon(Icons.add, size: 18),
-                label: const Text('Add'),
+                key: const Key('manage-contacts-button'),
+                onPressed: onManageContacts,
+                icon: const Icon(Icons.people_alt_outlined, size: 18),
+                label: const Text('Manage'),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF6B4FBB),
                   foregroundColor: Colors.white,
@@ -74,14 +56,12 @@ class MembersListSection extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 16),
-
-          // Members list or empty state
           if (members.isEmpty)
             Center(
               child: Padding(
                 padding: const EdgeInsets.all(16),
                 child: Text(
-                  'No members added yet',
+                  'No members selected yet',
                   style: TextStyle(
                     color: Colors.grey[400],
                     fontSize: 16,
@@ -105,7 +85,6 @@ class MembersListSection extends StatelessWidget {
   }
 }
 
-/// Individual member tile displaying avatar, name, email, and delete button
 class _MemberTile extends StatelessWidget {
   const _MemberTile({
     required this.member,
@@ -118,6 +97,7 @@ class _MemberTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
+      key: Key('selected-member-${member.id}'),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: const Color(0xFF2A2A3E),
@@ -125,22 +105,18 @@ class _MemberTile extends StatelessWidget {
       ),
       child: Row(
         children: [
-          // Avatar placeholder with "img" text
           CircleAvatar(
-            radius: 24,
-            backgroundColor: Colors.grey[700],
-            child: const Text(
-              'img',
-              style: TextStyle(
+            radius: 20,
+            backgroundColor: const Color(0xFF6C63FF),
+            child: Text(
+              member.name.isEmpty ? '?' : member.name[0].toUpperCase(),
+              style: const TextStyle(
                 color: Colors.white,
-                fontSize: 12,
-                fontWeight: FontWeight.w500,
+                fontWeight: FontWeight.w600,
               ),
             ),
           ),
           const SizedBox(width: 12),
-
-          // Name and email
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -155,7 +131,7 @@ class _MemberTile extends StatelessWidget {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  member.email,
+                  member.email ?? 'No email',
                   style: TextStyle(
                     color: Colors.grey[400],
                     fontSize: 14,
@@ -164,17 +140,14 @@ class _MemberTile extends StatelessWidget {
               ],
             ),
           ),
-
-          // Delete button
           IconButton(
             onPressed: onDelete,
             icon: const Icon(
-              Icons.delete_outline,
-              color: Colors.red,
-              size: 22,
+              Icons.close,
+              color: Colors.redAccent,
+              size: 20,
             ),
-            padding: EdgeInsets.zero,
-            constraints: const BoxConstraints(),
+            tooltip: 'Remove member',
           ),
         ],
       ),

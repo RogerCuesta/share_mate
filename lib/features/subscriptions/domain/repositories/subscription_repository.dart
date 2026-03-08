@@ -153,6 +153,7 @@ abstract class SubscriptionRepository {
     required String userName,
     String? userEmail,
     String? userAvatar,
+    double? amountToPay,
   });
 
   /// Remove a member from a subscription
