@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: completed
-stopped_at: Completed 01-data-safety-access-security-03-PLAN.md
-last_updated: "2026-03-08T13:11:02.434Z"
-last_activity: 2026-03-08 — Completed 01-03 plan (RLS hardening + SECU-03 audit gate)
+status: executing
+stopped_at: Completed 02-offline-sync-reliability-core-01-PLAN.md
+last_updated: "2026-03-08T17:49:15.017Z"
+last_activity: 2026-03-08 — Completed 02-01 plan (offline sync queue reliability core)
 progress:
   total_phases: 6
   completed_phases: 1
-  total_plans: 3
-  completed_plans: 3
-  percent: 100
+  total_plans: 7
+  completed_plans: 4
+  percent: 57
 ---
 
 # Project State
@@ -21,37 +21,39 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-08)
 
 **Core value:** Saber en segundos quién te debe dinero este mes por cada suscripción, sin invitar a nadie ni depender de que otros usen la app.
-**Current focus:** Phase 1 - Data Safety & Access Security
+**Current focus:** Phase 2 - Offline Sync Reliability Core
 
 ## Current Position
 
-Phase: 1 of 6 (Data Safety & Access Security)
-Plan: 3 of 3 completed in current phase
-Status: Phase complete (ready for next phase)
-Last activity: 2026-03-08 — Completed 01-03 plan (RLS hardening + SECU-03 audit gate)
+Phase: 2 of 6 (Offline Sync Reliability Core)
+Plan: 2 of 4
+Status: In progress
+Last activity: 2026-03-08 — Completed 02-01 plan (offline sync queue reliability core)
 
-Progress: [██████████] 100%
+Progress: [██████░░░░] 57%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 3
+- Total plans completed: 4
 - Average duration: 8 min
-- Total execution time: 0.4 hours
+- Total execution time: 0.6 hours
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 01-data-safety-access-security | 3 | 23 min | 8 min |
+| 02-offline-sync-reliability-core | 1 | 12 min | 12 min |
 
 **Recent Trend:**
-- Last 5 plans: 5 min, 8 min, 10 min
+- Last 5 plans: 5 min, 8 min, 10 min, 12 min
 - Trend: Stable
 
 *Updated after each plan completion*
 | Phase 01-data-safety-access-security P01 | 8 min | 3 tasks | 7 files |
 | Phase 01-data-safety-access-security P03 | 10 min | 3 tasks | 6 files |
+| Phase 02-offline-sync-reliability-core P01 | 12 min | 3 tasks | 9 files |
 
 ## Accumulated Context
 
@@ -71,6 +73,9 @@ Recent decisions affecting current work:
 - [Phase 01-data-safety-access-security]: Canonical p1_* RLS policy names are now the SECU-03 source of truth.
 - [Phase 01-data-safety-access-security]: Payment-history SECURITY DEFINER RPCs enforce auth.uid ownership checks and deterministic search_path.
 - [Phase 01-data-safety-access-security]: SECU-03 auditing defaults to static local gates with optional database-mode verification when credentials are present.
+- [Phase 02-offline-sync-reliability-core]: Queue rows preserve terminal failures for manual recovery via retryTerminal/clearTerminalOnly.
+- [Phase 02-offline-sync-reliability-core]: Foreground reconciliation runs every 45s with anti-overlap plus orchestrator single-flight.
+- [Phase 02-offline-sync-reliability-core]: Only foreground interval triggers are throttled; resume and post-remote-write triggers bypass throttle.
 
 ### Pending Todos
 
@@ -82,6 +87,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-08T12:38:00Z
-Stopped at: Completed 01-data-safety-access-security-03-PLAN.md
+Last session: 2026-03-08T17:47:44.915Z
+Stopped at: Completed 02-offline-sync-reliability-core-01-PLAN.md
 Resume file: None
