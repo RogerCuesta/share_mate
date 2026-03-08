@@ -2,6 +2,7 @@
 import 'package:flutter/foundation.dart';
 
 import 'package:flutter_project_agents/core/di/injection.dart';
+import 'package:flutter_project_agents/core/sync/sync_logger.dart';
 import 'package:flutter_project_agents/features/auth/presentation/providers/auth_provider.dart';
 import 'package:flutter_project_agents/features/subscriptions/domain/entities/payment_history.dart';
 import 'package:flutter_project_agents/features/subscriptions/presentation/providers/subscription_detail_provider.dart';
@@ -52,6 +53,8 @@ class PaymentActionState with _$PaymentActionState {
 /// to trigger UI updates.
 @riverpod
 class PaymentAction extends _$PaymentAction {
+  static const SyncLogger _syncLogger = SyncLogger(scope: 'PaymentAction');
+
   @override
   PaymentActionState build() {
     return const PaymentActionState.idle();
@@ -71,10 +74,11 @@ class PaymentAction extends _$PaymentAction {
     required double amount,
     String? notes,
   }) async {
-    debugPrint('🔍 [PaymentAction] Marking payment as paid...');
-    debugPrint('   Subscription: $subscriptionId');
-    debugPrint('   Member: $memberId');
-    debugPrint('   Amount: \$${amount.toStringAsFixed(2)}');
+    _syncLogger.logSync(
+      event: 'payment_mark_as_paid_started',
+      actionType: 'paid',
+      metadata: {'source': 'provider'},
+    );
 
     // Set loading state
     state = const PaymentActionState.loading();
@@ -88,7 +92,13 @@ class PaymentAction extends _$PaymentAction {
       );
 
       if (userId.isEmpty) {
-        debugPrint('❌ [PaymentAction] No authenticated user');
+        _syncLogger.logTerminal(
+          event: 'payment_mark_as_paid_auth_blocked',
+          operationId: 'payment_mark_as_paid_auth',
+          terminalReason: 'not_authenticated',
+          errorClass: 'auth',
+          errorCode: 'not_authenticated',
+        );
         state = const PaymentActionState.error('Not authenticated');
         return false;
       }
@@ -111,12 +121,22 @@ class PaymentAction extends _$PaymentAction {
             invalidData: (msg) => msg,
             orElse: () => 'Failed to mark payment as paid',
           );
-          debugPrint('❌ [PaymentAction] Error: $message');
+          _syncLogger.logSync(
+            event: 'payment_mark_as_paid_failed',
+            actionType: 'paid',
+            errorClass: 'domain_failure',
+            errorCode: failure.runtimeType.toString(),
+            metadata: {'source': 'provider'},
+          );
           state = PaymentActionState.error(message);
           return false;
         },
         (payment) {
-          debugPrint('✅ [PaymentAction] Payment marked successfully');
+          _syncLogger.logSync(
+            event: 'payment_mark_as_paid_succeeded',
+            actionType: 'paid',
+            metadata: {'source': 'provider'},
+          );
           state = PaymentActionState.success(payment);
 
           // Invalidate relevant providers to refresh UI
@@ -126,7 +146,12 @@ class PaymentAction extends _$PaymentAction {
         },
       );
     } catch (e) {
-      debugPrint('❌ [PaymentAction] Unexpected error: $e');
+      _syncLogger.logTerminal(
+        event: 'payment_mark_as_paid_exception',
+        operationId: 'payment_mark_as_paid_exception',
+        terminalReason: 'unexpected_exception',
+        errorClass: e.runtimeType.toString(),
+      );
       state = PaymentActionState.error('Unexpected error: $e');
       return false;
     }
@@ -142,8 +167,11 @@ class PaymentAction extends _$PaymentAction {
     required String subscriptionId,
     String? notes,
   }) async {
-    debugPrint('🔍 [PaymentAction] Marking all payments as paid...');
-    debugPrint('   Subscription: $subscriptionId');
+    _syncLogger.logSync(
+      event: 'payment_mark_all_started',
+      actionType: 'paid_bulk',
+      metadata: {'source': 'provider'},
+    );
 
     // Set loading state
     state = const PaymentActionState.loading();
@@ -157,7 +185,13 @@ class PaymentAction extends _$PaymentAction {
       );
 
       if (userId.isEmpty) {
-        debugPrint('❌ [PaymentAction] No authenticated user');
+        _syncLogger.logTerminal(
+          event: 'payment_mark_all_auth_blocked',
+          operationId: 'payment_mark_all_auth',
+          terminalReason: 'not_authenticated',
+          errorClass: 'auth',
+          errorCode: 'not_authenticated',
+        );
         state = const PaymentActionState.error('Not authenticated');
         return 0;
       }
@@ -179,12 +213,22 @@ class PaymentAction extends _$PaymentAction {
             invalidData: (msg) => msg,
             orElse: () => 'Failed to mark all payments as paid',
           );
-          debugPrint('❌ [PaymentAction] Error: $message');
+          _syncLogger.logSync(
+            event: 'payment_mark_all_failed',
+            actionType: 'paid_bulk',
+            errorClass: 'domain_failure',
+            errorCode: failure.runtimeType.toString(),
+            metadata: {'source': 'provider'},
+          );
           state = PaymentActionState.error(message);
           return 0;
         },
         (count) {
-          debugPrint('✅ [PaymentAction] $count payments marked successfully');
+          _syncLogger.logSync(
+            event: 'payment_mark_all_succeeded',
+            actionType: 'paid_bulk',
+            metadata: {'source': 'provider', 'updated_count': count},
+          );
           state = PaymentActionState.bulkSuccess(count);
 
           // Invalidate relevant providers to refresh UI
@@ -194,7 +238,12 @@ class PaymentAction extends _$PaymentAction {
         },
       );
     } catch (e) {
-      debugPrint('❌ [PaymentAction] Unexpected error: $e');
+      _syncLogger.logTerminal(
+        event: 'payment_mark_all_exception',
+        operationId: 'payment_mark_all_exception',
+        terminalReason: 'unexpected_exception',
+        errorClass: e.runtimeType.toString(),
+      );
       state = PaymentActionState.error('Unexpected error: $e');
       return 0;
     }
@@ -214,10 +263,11 @@ class PaymentAction extends _$PaymentAction {
     required double amount,
     String? notes,
   }) async {
-    debugPrint('🔍 [PaymentAction] Unmarking payment...');
-    debugPrint('   Subscription: $subscriptionId');
-    debugPrint('   Member: $memberId');
-    debugPrint('   Amount: \$${amount.toStringAsFixed(2)}');
+    _syncLogger.logSync(
+      event: 'payment_unmark_started',
+      actionType: 'unpaid',
+      metadata: {'source': 'provider'},
+    );
 
     // Set loading state
     state = const PaymentActionState.loading();
@@ -231,7 +281,13 @@ class PaymentAction extends _$PaymentAction {
       );
 
       if (userId.isEmpty) {
-        debugPrint('❌ [PaymentAction] No authenticated user');
+        _syncLogger.logTerminal(
+          event: 'payment_unmark_auth_blocked',
+          operationId: 'payment_unmark_auth',
+          terminalReason: 'not_authenticated',
+          errorClass: 'auth',
+          errorCode: 'not_authenticated',
+        );
         state = const PaymentActionState.error('Not authenticated');
         return false;
       }
@@ -254,12 +310,22 @@ class PaymentAction extends _$PaymentAction {
             invalidData: (msg) => msg,
             orElse: () => 'Failed to unmark payment',
           );
-          debugPrint('❌ [PaymentAction] Error: $message');
+          _syncLogger.logSync(
+            event: 'payment_unmark_failed',
+            actionType: 'unpaid',
+            errorClass: 'domain_failure',
+            errorCode: failure.runtimeType.toString(),
+            metadata: {'source': 'provider'},
+          );
           state = PaymentActionState.error(message);
           return false;
         },
         (payment) {
-          debugPrint('✅ [PaymentAction] Payment unmarked successfully');
+          _syncLogger.logSync(
+            event: 'payment_unmark_succeeded',
+            actionType: 'unpaid',
+            metadata: {'source': 'provider'},
+          );
           state = PaymentActionState.success(payment);
 
           // Invalidate relevant providers to refresh UI
@@ -269,7 +335,12 @@ class PaymentAction extends _$PaymentAction {
         },
       );
     } catch (e) {
-      debugPrint('❌ [PaymentAction] Unexpected error: $e');
+      _syncLogger.logTerminal(
+        event: 'payment_unmark_exception',
+        operationId: 'payment_unmark_exception',
+        terminalReason: 'unexpected_exception',
+        errorClass: e.runtimeType.toString(),
+      );
       state = PaymentActionState.error('Unexpected error: $e');
       return false;
     }
@@ -284,7 +355,10 @@ class PaymentAction extends _$PaymentAction {
   ///
   /// This ensures the UI updates to reflect the new payment status.
   void _invalidateProviders(String subscriptionId) {
-    debugPrint('🔄 [PaymentAction] Invalidating providers...');
+    _syncLogger.logSync(
+      event: 'payment_provider_invalidation_started',
+      metadata: {'source': 'provider'},
+    );
 
     // Invalidate subscription members (payment status changed)
     ref.invalidate(subscriptionMembersProvider(subscriptionId));
@@ -298,6 +372,9 @@ class PaymentAction extends _$PaymentAction {
     // Invalidate pending payments (may have decreased)
     ref.invalidate(pendingPaymentsProvider);
 
-    debugPrint('✅ [PaymentAction] Providers invalidated');
+    _syncLogger.logSync(
+      event: 'payment_provider_invalidation_completed',
+      metadata: {'source': 'provider'},
+    );
   }
 }

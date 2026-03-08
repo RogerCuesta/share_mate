@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_project_agents/core/supabase/supabase_service.dart';
+import 'package:flutter_project_agents/core/sync/sync_logger.dart';
 import 'package:flutter_project_agents/features/subscriptions/data/models/analytics_data_model.dart';
 import 'package:flutter_project_agents/features/subscriptions/data/models/analytics_overview_model.dart';
 import 'package:flutter_project_agents/features/subscriptions/data/models/monthly_spending_model.dart';
@@ -153,9 +154,15 @@ abstract class SubscriptionRemoteDataSource {
 
 /// Implementation of SubscriptionRemoteDataSource using Supabase
 class SubscriptionRemoteDataSourceImpl implements SubscriptionRemoteDataSource {
-  SubscriptionRemoteDataSourceImpl({SupabaseClient? client})
-      : _client = client ?? SupabaseService.client;
+  SubscriptionRemoteDataSourceImpl({
+    SupabaseClient? client,
+    SyncLogger syncLogger = const SyncLogger(
+      scope: 'SubscriptionRemoteDataSource',
+    ),
+  })  : _client = client ?? SupabaseService.client,
+        _syncLogger = syncLogger;
   final SupabaseClient _client;
+  final SyncLogger _syncLogger;
 
   @override
   Future<List<SubscriptionModel>> getSubscriptions(String userId) async {
@@ -747,13 +754,18 @@ class SubscriptionRemoteDataSourceImpl implements SubscriptionRemoteDataSource {
     String? idempotencyKey,
   }) async {
     try {
-      debugPrint('🔍 [SubscriptionRemoteDS] Marking payment as paid (ATOMIC)');
-      debugPrint('   Member: $memberId');
-      debugPrint('   Amount: \$${amount.toStringAsFixed(2)}');
-      debugPrint('   Payment Date: ${paymentDate.toIso8601String()}');
+      _syncLogger.logSync(
+        event: 'remote_mark_paid_started',
+        actionType: 'paid',
+        metadata: {'layer': 'remote_datasource'},
+      );
 
       // Call atomic RPC function (single transaction)
-      debugPrint('   ⚛️  Calling mark_payment_as_paid_atomic RPC...');
+      _syncLogger.logSync(
+        event: 'remote_mark_paid_rpc_call',
+        actionType: 'paid',
+        metadata: {'layer': 'remote_datasource', 'rpc': 'atomic_paid'},
+      );
       final response = await _client
           .rpc('mark_payment_as_paid_atomic', params: {
             'p_subscription_id': subscriptionId,
@@ -768,15 +780,22 @@ class SubscriptionRemoteDataSourceImpl implements SubscriptionRemoteDataSource {
           .select()
           .single();
 
-      debugPrint('   ✅ RPC completed successfully');
+      _syncLogger.logSync(
+        event: 'remote_mark_paid_rpc_success',
+        actionType: 'paid',
+        metadata: {'layer': 'remote_datasource'},
+      );
 
       // RPC returns denormalized data
       final paymentHistoryId = response['payment_history_id'] as String;
       final memberName = response['member_name'] as String;
       final subscriptionName = response['subscription_name'] as String;
 
-      debugPrint(
-          '✅ [SubscriptionRemoteDS] Payment marked as paid (atomically)');
+      _syncLogger.logSync(
+        event: 'remote_mark_paid_completed',
+        actionType: 'paid',
+        metadata: {'layer': 'remote_datasource'},
+      );
 
       // Construct PaymentHistoryModel (temporarily using fromJson pattern until model is updated)
       // TODO: Update to use new constructor with denormalized fields after FASE 2/3
@@ -796,13 +815,23 @@ class SubscriptionRemoteDataSourceImpl implements SubscriptionRemoteDataSource {
         'payment_method': 'cash',
       });
     } on PostgrestException catch (e) {
-      debugPrint(
-          '❌ [SubscriptionRemoteDS] PostgrestException: ${e.message} (Code: ${e.code})');
+      _syncLogger.logTerminal(
+        event: 'remote_mark_paid_postgrest_exception',
+        operationId: 'remote_mark_paid_postgrest_exception',
+        terminalReason: 'remote_database_error',
+        errorClass: 'postgrest',
+        errorCode: e.code,
+      );
       throw SubscriptionRemoteException(
         'Database error marking payment as paid: ${e.message}',
       );
     } catch (e) {
-      debugPrint('❌ [SubscriptionRemoteDS] Unexpected error: $e');
+      _syncLogger.logTerminal(
+        event: 'remote_mark_paid_exception',
+        operationId: 'remote_mark_paid_exception',
+        terminalReason: 'remote_unexpected_error',
+        errorClass: e.runtimeType.toString(),
+      );
       throw SubscriptionRemoteException(
         'Failed to mark payment as paid: ${e.toString()}',
       );
@@ -817,12 +846,18 @@ class SubscriptionRemoteDataSourceImpl implements SubscriptionRemoteDataSource {
     String? notes,
   }) async {
     try {
-      debugPrint('🔍 [SubscriptionRemoteDS] Marking all payments as paid');
-      debugPrint('   Subscription: $subscriptionId');
-      debugPrint('   Payment Date: ${paymentDate.toIso8601String()}');
+      _syncLogger.logSync(
+        event: 'remote_mark_all_started',
+        actionType: 'paid_bulk',
+        metadata: {'layer': 'remote_datasource'},
+      );
 
       // Step 1: Get all unpaid members for this subscription
-      debugPrint('   📝 Step 1/3: Fetching unpaid members...');
+      _syncLogger.logSync(
+        event: 'remote_mark_all_fetch_unpaid_members',
+        actionType: 'paid_bulk',
+        metadata: {'layer': 'remote_datasource'},
+      );
       final unpaidResponse = await _client
           .from('subscription_members')
           .select()
@@ -834,17 +869,32 @@ class SubscriptionRemoteDataSourceImpl implements SubscriptionRemoteDataSource {
               SubscriptionMemberModel.fromJson(json as Map<String, dynamic>))
           .toList();
 
-      debugPrint('   📊 Found ${unpaidMembers.length} unpaid members');
+      _syncLogger.logSync(
+        event: 'remote_mark_all_unpaid_members_loaded',
+        actionType: 'paid_bulk',
+        metadata: {
+          'layer': 'remote_datasource',
+          'unpaid_count': unpaidMembers.length,
+        },
+      );
 
       if (unpaidMembers.isEmpty) {
-        debugPrint('   ℹ️ No unpaid members to update');
+        _syncLogger.logSync(
+          event: 'remote_mark_all_no_unpaid_members',
+          actionType: 'paid_bulk',
+          metadata: {'layer': 'remote_datasource'},
+        );
         return 0;
       }
 
       const uuid = Uuid();
 
       // Step 2: Update all members to paid
-      debugPrint('   📝 Step 2/3: Updating all members to paid...');
+      _syncLogger.logSync(
+        event: 'remote_mark_all_update_members',
+        actionType: 'paid_bulk',
+        metadata: {'layer': 'remote_datasource'},
+      );
       await _client
           .from('subscription_members')
           .update({
@@ -854,10 +904,18 @@ class SubscriptionRemoteDataSourceImpl implements SubscriptionRemoteDataSource {
           .eq('subscription_id', subscriptionId)
           .eq('has_paid', false);
 
-      debugPrint('   ✅ All members updated');
+      _syncLogger.logSync(
+        event: 'remote_mark_all_members_updated',
+        actionType: 'paid_bulk',
+        metadata: {'layer': 'remote_datasource'},
+      );
 
       // Step 3: Insert payment history records for all members
-      debugPrint('   📝 Step 3/3: Creating payment history records...');
+      _syncLogger.logSync(
+        event: 'remote_mark_all_insert_history_started',
+        actionType: 'paid_bulk',
+        metadata: {'layer': 'remote_datasource'},
+      );
       final historyRecords = unpaidMembers.map((member) {
         return {
           'id': uuid.v4(),
@@ -874,18 +932,34 @@ class SubscriptionRemoteDataSourceImpl implements SubscriptionRemoteDataSource {
 
       await _client.from('payment_history').insert(historyRecords);
 
-      debugPrint(
-          '✅ [SubscriptionRemoteDS] Marked ${unpaidMembers.length} payments as paid');
+      _syncLogger.logSync(
+        event: 'remote_mark_all_completed',
+        actionType: 'paid_bulk',
+        metadata: {
+          'layer': 'remote_datasource',
+          'updated_count': unpaidMembers.length,
+        },
+      );
 
       return unpaidMembers.length;
     } on PostgrestException catch (e) {
-      debugPrint(
-          '❌ [SubscriptionRemoteDS] PostgrestException: ${e.message} (Code: ${e.code})');
+      _syncLogger.logTerminal(
+        event: 'remote_mark_all_postgrest_exception',
+        operationId: 'remote_mark_all_postgrest_exception',
+        terminalReason: 'remote_database_error',
+        errorClass: 'postgrest',
+        errorCode: e.code,
+      );
       throw SubscriptionRemoteException(
         'Database error marking all payments as paid: ${e.message}',
       );
     } catch (e) {
-      debugPrint('❌ [SubscriptionRemoteDS] Unexpected error: $e');
+      _syncLogger.logTerminal(
+        event: 'remote_mark_all_exception',
+        operationId: 'remote_mark_all_exception',
+        terminalReason: 'remote_unexpected_error',
+        errorClass: e.runtimeType.toString(),
+      );
       throw SubscriptionRemoteException(
         'Failed to mark all payments as paid: ${e.toString()}',
       );
@@ -903,12 +977,18 @@ class SubscriptionRemoteDataSourceImpl implements SubscriptionRemoteDataSource {
     String? idempotencyKey,
   }) async {
     try {
-      debugPrint('🔍 [SubscriptionRemoteDS] Unmarking payment (ATOMIC undo)');
-      debugPrint('   Member: $memberId');
-      debugPrint('   Amount: \$${amount.toStringAsFixed(2)}');
+      _syncLogger.logSync(
+        event: 'remote_unmark_started',
+        actionType: 'unpaid',
+        metadata: {'layer': 'remote_datasource'},
+      );
 
       // Call atomic RPC function (single transaction)
-      debugPrint('   ⚛️  Calling unmark_payment_atomic RPC...');
+      _syncLogger.logSync(
+        event: 'remote_unmark_rpc_call',
+        actionType: 'unpaid',
+        metadata: {'layer': 'remote_datasource', 'rpc': 'atomic_unmark'},
+      );
       final paymentHistoryId =
           await _client.rpc('unmark_payment_atomic', params: {
         'p_subscription_id': subscriptionId,
@@ -920,8 +1000,12 @@ class SubscriptionRemoteDataSourceImpl implements SubscriptionRemoteDataSource {
         if (idempotencyKey != null) 'p_idempotency_key': idempotencyKey,
       }) as String;
 
-      debugPrint('   ✅ RPC completed successfully');
-      debugPrint('   Payment History ID: $paymentHistoryId');
+      _syncLogger.logSync(
+        event: 'remote_unmark_rpc_success',
+        operationId: paymentHistoryId,
+        actionType: 'unpaid',
+        metadata: {'layer': 'remote_datasource'},
+      );
 
       // Fetch denormalized names for the response
       // (RPC should ideally return these, but for now we fetch them)
@@ -937,8 +1021,12 @@ class SubscriptionRemoteDataSourceImpl implements SubscriptionRemoteDataSource {
           .eq('id', subscriptionId)
           .single();
 
-      debugPrint(
-          '✅ [SubscriptionRemoteDS] Payment unmarked successfully (atomically)');
+      _syncLogger.logSync(
+        event: 'remote_unmark_completed',
+        operationId: paymentHistoryId,
+        actionType: 'unpaid',
+        metadata: {'layer': 'remote_datasource'},
+      );
 
       // Construct PaymentHistoryModel (temporarily using fromJson pattern until model is updated)
       // TODO: Update to use new constructor with denormalized fields after FASE 2/3
@@ -957,13 +1045,23 @@ class SubscriptionRemoteDataSourceImpl implements SubscriptionRemoteDataSource {
         'subscription_name': subscriptionData['name'] as String,
       });
     } on PostgrestException catch (e) {
-      debugPrint(
-          '❌ [SubscriptionRemoteDS] PostgrestException: ${e.message} (Code: ${e.code})');
+      _syncLogger.logTerminal(
+        event: 'remote_unmark_postgrest_exception',
+        operationId: 'remote_unmark_postgrest_exception',
+        terminalReason: 'remote_database_error',
+        errorClass: 'postgrest',
+        errorCode: e.code,
+      );
       throw SubscriptionRemoteException(
         'Database error unmarking payment: ${e.message}',
       );
     } catch (e) {
-      debugPrint('❌ [SubscriptionRemoteDS] Unexpected error: $e');
+      _syncLogger.logTerminal(
+        event: 'remote_unmark_exception',
+        operationId: 'remote_unmark_exception',
+        terminalReason: 'remote_unexpected_error',
+        errorClass: e.runtimeType.toString(),
+      );
       throw SubscriptionRemoteException(
         'Failed to unmark payment: ${e.toString()}',
       );

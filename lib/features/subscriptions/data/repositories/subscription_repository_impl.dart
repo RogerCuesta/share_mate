@@ -4,6 +4,7 @@ import 'package:dartz/dartz.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_project_agents/core/sync/payment_sync_orchestrator.dart';
 import 'package:flutter_project_agents/core/sync/payment_sync_queue.dart';
+import 'package:flutter_project_agents/core/sync/sync_logger.dart';
 import 'package:flutter_project_agents/features/subscriptions/data/datasources/subscription_local_datasource.dart';
 import 'package:flutter_project_agents/features/subscriptions/data/datasources/subscription_remote_datasource.dart';
 import 'package:flutter_project_agents/features/subscriptions/data/models/subscription_member_model.dart';
@@ -29,12 +30,15 @@ class SubscriptionRepositoryImpl implements SubscriptionRepository {
     required SubscriptionRemoteDataSource remoteDataSource,
     required SubscriptionLocalDataSource localDataSource,
     PaymentSyncOrchestrator? syncOrchestrator,
+    SyncLogger syncLogger = const SyncLogger(scope: 'SubscriptionRepository'),
   })  : _remoteDataSource = remoteDataSource,
         _localDataSource = localDataSource,
-        _syncOrchestrator = syncOrchestrator;
+        _syncOrchestrator = syncOrchestrator,
+        _syncLogger = syncLogger;
   final SubscriptionRemoteDataSource _remoteDataSource;
   final SubscriptionLocalDataSource _localDataSource;
   final PaymentSyncOrchestrator? _syncOrchestrator;
+  final SyncLogger _syncLogger;
 
   @override
   Future<Either<SubscriptionFailure, MonthlyStats>> getMonthlyStats(
@@ -334,9 +338,11 @@ class SubscriptionRepositoryImpl implements SubscriptionRepository {
     String? notes,
   }) async {
     try {
-      debugPrint('🔍 [SubscriptionRepository] Marking payment as paid');
-      debugPrint(
-          '   Member: $memberId, Amount: \$${amount.toStringAsFixed(2)}');
+      _syncLogger.logSync(
+        event: 'repository_mark_paid_started',
+        actionType: 'paid',
+        metadata: {'layer': 'repository'},
+      );
 
       // Phase 1: Optimistic update in local cache
       final cachedMember = await _localDataSource.getMemberById(memberId);
@@ -364,7 +370,11 @@ class SubscriptionRepositoryImpl implements SubscriptionRepository {
           updatedAt: DateTime.now(),
         );
         await _localDataSource.updateMember(updatedMember);
-        debugPrint('   ✅ Local cache updated optimistically');
+        _syncLogger.logSync(
+          event: 'repository_mark_paid_local_updated',
+          actionType: 'paid',
+          metadata: {'layer': 'repository'},
+        );
       }
 
       // Phase 2: Try remote update
@@ -380,14 +390,17 @@ class SubscriptionRepositoryImpl implements SubscriptionRepository {
 
         // Phase 3a: Success → cache confirmed data
         await _localDataSource.cachePaymentHistory(remoteHistory);
-        debugPrint('   ✅ Remote update successful, history cached');
+        _syncLogger.logSync(
+          event: 'repository_mark_paid_remote_success',
+          actionType: 'paid',
+          metadata: {'layer': 'repository'},
+        );
         _triggerSyncAfterRemoteWrite();
 
         return Right(remoteHistory.toEntity());
       } on SubscriptionRemoteException catch (e) {
         // Phase 3b: Remote failed → queue for sync
-        debugPrint('   ⚠️ Remote update failed: $e');
-        await _queuePaymentOperation(
+        final queuedOperationId = await _queuePaymentOperation(
           subscriptionId: subscriptionId,
           memberId: memberId,
           amount: amount,
@@ -403,6 +416,14 @@ class SubscriptionRepositoryImpl implements SubscriptionRepository {
           initialErrorCode: _extractRemoteErrorCode(e.message),
           lastAttemptAt: DateTime.now(),
         );
+        if (queuedOperationId != null) {
+          _syncLogger.logRetry(
+            event: 'repository_mark_paid_remote_failed_queued',
+            operationId: queuedOperationId,
+            retryCount: 0,
+            metadata: {'layer': 'repository'},
+          );
+        }
 
         // Return optimistic result with generated ID
         const uuid = Uuid();
@@ -420,12 +441,20 @@ class SubscriptionRepositoryImpl implements SubscriptionRepository {
           createdAt: DateTime.now(),
         );
 
-        debugPrint(
-            '   📤 Operation queued for sync, returning optimistic result');
+        _syncLogger.logSync(
+          event: 'repository_mark_paid_optimistic_return',
+          actionType: 'paid',
+          metadata: {'layer': 'repository'},
+        );
         return Right(optimisticHistory);
       }
     } catch (e) {
-      debugPrint('   ❌ Unexpected error: $e');
+      _syncLogger.logTerminal(
+        event: 'repository_mark_paid_exception',
+        operationId: 'repository_mark_paid_exception',
+        terminalReason: 'unexpected_exception',
+        errorClass: e.runtimeType.toString(),
+      );
       return Left(SubscriptionFailure.paymentError(e.toString()));
     }
   }
@@ -438,15 +467,22 @@ class SubscriptionRepositoryImpl implements SubscriptionRepository {
     String? notes,
   }) async {
     try {
-      debugPrint('🔍 [SubscriptionRepository] Marking all payments as paid');
-      debugPrint('   Subscription: $subscriptionId');
+      _syncLogger.logSync(
+        event: 'repository_mark_all_paid_started',
+        actionType: 'paid_bulk',
+        metadata: {'layer': 'repository'},
+      );
 
       // Phase 1: Optimistic update in local cache
       final cachedMembers =
           await _localDataSource.getMembersBySubscriptionId(subscriptionId);
       final unpaidMembers = cachedMembers.where((m) => !m.hasPaid).toList();
 
-      debugPrint('   📊 Found ${unpaidMembers.length} unpaid members in cache');
+      _syncLogger.logSync(
+        event: 'repository_mark_all_paid_unpaid_loaded',
+        actionType: 'paid_bulk',
+        metadata: {'layer': 'repository', 'unpaid_count': unpaidMembers.length},
+      );
 
       // Update all unpaid members locally
       for (final member in unpaidMembers) {
@@ -466,7 +502,11 @@ class SubscriptionRepositoryImpl implements SubscriptionRepository {
         );
         await _localDataSource.updateMember(updatedMember);
       }
-      debugPrint('   ✅ Local cache updated optimistically');
+      _syncLogger.logSync(
+        event: 'repository_mark_all_paid_local_updated',
+        actionType: 'paid_bulk',
+        metadata: {'layer': 'repository'},
+      );
 
       // Phase 2: Try remote update
       try {
@@ -477,15 +517,19 @@ class SubscriptionRepositoryImpl implements SubscriptionRepository {
           notes: notes,
         );
 
-        debugPrint('   ✅ Remote update successful: $count payments marked');
+        _syncLogger.logSync(
+          event: 'repository_mark_all_paid_remote_success',
+          actionType: 'paid_bulk',
+          metadata: {'layer': 'repository', 'updated_count': count},
+        );
         _triggerSyncAfterRemoteWrite();
         return Right(count);
       } on SubscriptionRemoteException catch (e) {
         // Phase 3b: Remote failed → queue operations for sync
-        debugPrint('   ⚠️ Remote update failed: $e');
+        var queuedCount = 0;
 
         for (final member in unpaidMembers) {
-          await _queuePaymentOperation(
+          final operationId = await _queuePaymentOperation(
             subscriptionId: subscriptionId,
             memberId: member.id,
             amount: member.amountToPay,
@@ -497,13 +541,26 @@ class SubscriptionRepositoryImpl implements SubscriptionRepository {
             initialErrorCode: _extractRemoteErrorCode(e.message),
             lastAttemptAt: DateTime.now(),
           );
+          if (operationId != null) {
+            queuedCount += 1;
+          }
         }
 
-        debugPrint('   📤 ${unpaidMembers.length} operations queued for sync');
+        _syncLogger.logRetry(
+          event: 'repository_mark_all_paid_remote_failed_queued',
+          operationId: 'bulk_paid_queue',
+          retryCount: 0,
+          metadata: {'layer': 'repository', 'queued_count': queuedCount},
+        );
         return Right(unpaidMembers.length);
       }
     } catch (e) {
-      debugPrint('   ❌ Unexpected error: $e');
+      _syncLogger.logTerminal(
+        event: 'repository_mark_all_paid_exception',
+        operationId: 'repository_mark_all_paid_exception',
+        terminalReason: 'unexpected_exception',
+        errorClass: e.runtimeType.toString(),
+      );
       return Left(SubscriptionFailure.paymentError(e.toString()));
     }
   }
@@ -518,8 +575,11 @@ class SubscriptionRepositoryImpl implements SubscriptionRepository {
     String? notes,
   }) async {
     try {
-      debugPrint('🔍 [SubscriptionRepository] Unmarking payment');
-      debugPrint('   Member: $memberId');
+      _syncLogger.logSync(
+        event: 'repository_unmark_started',
+        actionType: 'unpaid',
+        metadata: {'layer': 'repository'},
+      );
 
       // Phase 1: Optimistic update in local cache
       final cachedMember = await _localDataSource.getMemberById(memberId);
@@ -547,7 +607,11 @@ class SubscriptionRepositoryImpl implements SubscriptionRepository {
           updatedAt: DateTime.now(),
         );
         await _localDataSource.updateMember(updatedMember);
-        debugPrint('   ✅ Local cache updated optimistically');
+        _syncLogger.logSync(
+          event: 'repository_unmark_local_updated',
+          actionType: 'unpaid',
+          metadata: {'layer': 'repository'},
+        );
       }
 
       // Phase 2: Try remote update
@@ -563,14 +627,17 @@ class SubscriptionRepositoryImpl implements SubscriptionRepository {
 
         // Phase 3a: Success → cache confirmed data
         await _localDataSource.cachePaymentHistory(remoteHistory);
-        debugPrint('   ✅ Remote update successful, history cached');
+        _syncLogger.logSync(
+          event: 'repository_unmark_remote_success',
+          actionType: 'unpaid',
+          metadata: {'layer': 'repository'},
+        );
         _triggerSyncAfterRemoteWrite();
 
         return Right(remoteHistory.toEntity());
       } on SubscriptionRemoteException catch (e) {
         // Phase 3b: Remote failed → queue for sync
-        debugPrint('   ⚠️ Remote update failed: $e');
-        await _queuePaymentOperation(
+        final queuedOperationId = await _queuePaymentOperation(
           subscriptionId: subscriptionId,
           memberId: memberId,
           amount: amount,
@@ -586,6 +653,14 @@ class SubscriptionRepositoryImpl implements SubscriptionRepository {
           initialErrorCode: _extractRemoteErrorCode(e.message),
           lastAttemptAt: DateTime.now(),
         );
+        if (queuedOperationId != null) {
+          _syncLogger.logRetry(
+            event: 'repository_unmark_remote_failed_queued',
+            operationId: queuedOperationId,
+            retryCount: 0,
+            metadata: {'layer': 'repository'},
+          );
+        }
 
         // Return optimistic result
         const uuid = Uuid();
@@ -603,12 +678,20 @@ class SubscriptionRepositoryImpl implements SubscriptionRepository {
           createdAt: DateTime.now(),
         );
 
-        debugPrint(
-            '   📤 Operation queued for sync, returning optimistic result');
+        _syncLogger.logSync(
+          event: 'repository_unmark_optimistic_return',
+          actionType: 'unpaid',
+          metadata: {'layer': 'repository'},
+        );
         return Right(optimisticHistory);
       }
     } catch (e) {
-      debugPrint('   ❌ Unexpected error: $e');
+      _syncLogger.logTerminal(
+        event: 'repository_unmark_exception',
+        operationId: 'repository_unmark_exception',
+        terminalReason: 'unexpected_exception',
+        errorClass: e.runtimeType.toString(),
+      );
       return Left(SubscriptionFailure.paymentError(e.toString()));
     }
   }
@@ -619,8 +702,10 @@ class SubscriptionRepositoryImpl implements SubscriptionRepository {
     String? memberId,
   }) async {
     try {
-      debugPrint('🔍 [SubscriptionRepository] Fetching payment history');
-      debugPrint('   Subscription: $subscriptionId');
+      _syncLogger.logSync(
+        event: 'repository_payment_history_fetch_started',
+        metadata: {'layer': 'repository'},
+      );
 
       // Try remote first
       final remoteHistory = await _remoteDataSource.getPaymentHistory(
@@ -631,27 +716,49 @@ class SubscriptionRepositoryImpl implements SubscriptionRepository {
       // Cache in Hive
       await _localDataSource.cachePaymentHistories(remoteHistory);
 
-      debugPrint('   ✅ Fetched ${remoteHistory.length} records from remote');
+      _syncLogger.logSync(
+        event: 'repository_payment_history_fetch_remote_success',
+        metadata: {
+          'layer': 'repository',
+          'record_count': remoteHistory.length,
+        },
+      );
 
       return Right(remoteHistory.map((h) => h.toEntity()).toList());
     } on SubscriptionRemoteException {
       // Fallback to local cache
       try {
-        debugPrint('   ⚠️ Remote fetch failed, falling back to cache');
+        _syncLogger.logRetry(
+          event: 'repository_payment_history_fetch_remote_failed',
+          operationId: 'payment_history_fetch',
+          retryCount: 0,
+          metadata: {'layer': 'repository', 'fallback': 'local_cache'},
+        );
         final cachedHistory = memberId != null
             ? await _localDataSource.getPaymentHistoryByMemberId(memberId)
             : await _localDataSource.getPaymentHistoryBySubscriptionId(
                 subscriptionId,
               );
 
-        debugPrint('   📦 Fetched ${cachedHistory.length} records from cache');
+        _syncLogger.logSync(
+          event: 'repository_payment_history_fetch_cache_success',
+          metadata: {
+            'layer': 'repository',
+            'record_count': cachedHistory.length,
+          },
+        );
 
         return Right(cachedHistory.map((h) => h.toEntity()).toList());
       } catch (localError) {
         return Left(SubscriptionFailure.cacheError(localError.toString()));
       }
     } catch (e) {
-      debugPrint('   ❌ Unexpected error: $e');
+      _syncLogger.logTerminal(
+        event: 'repository_payment_history_fetch_exception',
+        operationId: 'payment_history_fetch_exception',
+        terminalReason: 'unexpected_exception',
+        errorClass: e.runtimeType.toString(),
+      );
       return Left(SubscriptionFailure.serverError(e.toString()));
     }
   }
@@ -659,7 +766,7 @@ class SubscriptionRepositoryImpl implements SubscriptionRepository {
   // ========== Helper Methods ==========
 
   /// Queue a payment operation for offline sync
-  Future<void> _queuePaymentOperation({
+  Future<String?> _queuePaymentOperation({
     required String subscriptionId,
     required String memberId,
     required double amount,
@@ -699,9 +806,21 @@ class SubscriptionRepositoryImpl implements SubscriptionRepository {
       );
 
       await syncQueue.enqueue(operation);
-      debugPrint('   📤 Queued sync operation: ${operation.id}');
+      _syncLogger.logSync(
+        event: 'repository_queue_operation_enqueued',
+        operationId: operation.id,
+        actionType: action,
+        metadata: {'layer': 'repository'},
+      );
+      return operation.id;
     } catch (e) {
-      debugPrint('   ⚠️ Failed to queue sync operation: $e');
+      _syncLogger.logTerminal(
+        event: 'repository_queue_operation_failed',
+        operationId: 'repository_queue_operation_failed',
+        terminalReason: 'queue_enqueue_failed',
+        errorClass: e.runtimeType.toString(),
+      );
+      return null;
     }
   }
 
