@@ -7,12 +7,20 @@ part 'subscription_model.g.dart';
 /// Data model for Subscription with Hive persistence
 @HiveType(typeId: HiveTypeIds.subscription)
 class SubscriptionModel extends HiveObject {
-
   SubscriptionModel({
     required this.id,
     required this.name,
-    required this.color, required this.totalCost, required this.billingCycle, required this.dueDate, required this.ownerId, required this.sharedWith, required this.status, required this.createdAt, this.iconUrl,
+    required this.color,
+    required this.totalCost,
+    required this.billingCycle,
+    required this.dueDate,
+    required this.ownerId,
+    required this.sharedWith,
+    required this.status,
+    required this.createdAt,
+    this.iconUrl,
     this.updatedAt,
+    this.billingAnchorDay = 1,
   });
 
   /// Create from domain entity
@@ -25,6 +33,7 @@ class SubscriptionModel extends HiveObject {
       totalCost: entity.totalCost,
       billingCycle: _billingCycleToString(entity.billingCycle),
       dueDate: entity.dueDate,
+      billingAnchorDay: entity.billingAnchorDay,
       ownerId: entity.ownerId,
       sharedWith: entity.sharedWith,
       status: _statusToString(entity.status),
@@ -35,6 +44,8 @@ class SubscriptionModel extends HiveObject {
 
   /// Create from Supabase JSON
   factory SubscriptionModel.fromJson(Map<String, dynamic> json) {
+    final dueDate = DateTime.parse(json['due_date'] as String);
+
     return SubscriptionModel(
       id: json['id'] as String,
       name: json['name'] as String,
@@ -42,7 +53,9 @@ class SubscriptionModel extends HiveObject {
       color: json['color'] as String,
       totalCost: (json['total_cost'] as num).toDouble(),
       billingCycle: json['billing_cycle'] as String,
-      dueDate: DateTime.parse(json['due_date'] as String),
+      dueDate: dueDate,
+      billingAnchorDay:
+          (json['billing_anchor_day'] as num?)?.toInt() ?? dueDate.day,
       ownerId: json['owner_id'] as String,
       sharedWith: json['shared_with'] != null
           ? List<String>.from(json['shared_with'] as List)
@@ -75,6 +88,9 @@ class SubscriptionModel extends HiveObject {
   @HiveField(6)
   final DateTime dueDate;
 
+  @HiveField(12, defaultValue: 1)
+  final int billingAnchorDay;
+
   @HiveField(7)
   final String ownerId;
 
@@ -87,7 +103,7 @@ class SubscriptionModel extends HiveObject {
   @HiveField(10)
   final DateTime createdAt;
 
-  @HiveField(11, defaultValue: null)
+  @HiveField(11)
   final DateTime? updatedAt;
 
   /// Convert to domain entity
@@ -100,6 +116,7 @@ class SubscriptionModel extends HiveObject {
       totalCost: totalCost,
       billingCycle: _parseBillingCycle(billingCycle),
       dueDate: dueDate,
+      billingAnchorDay: billingAnchorDay,
       ownerId: ownerId,
       sharedWith: sharedWith,
       status: _parseStatus(status),
@@ -118,6 +135,7 @@ class SubscriptionModel extends HiveObject {
       'total_cost': totalCost,
       'billing_cycle': billingCycle,
       'due_date': dueDate.toIso8601String(),
+      'billing_anchor_day': billingAnchorDay,
       'owner_id': ownerId,
       'status': status,
       'created_at': createdAt.toIso8601String(),

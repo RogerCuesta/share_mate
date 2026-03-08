@@ -7,14 +7,17 @@ part 'subscription_member_model.g.dart';
 /// Data model for SubscriptionMember with Hive persistence
 @HiveType(typeId: HiveTypeIds.subscriptionMember)
 class SubscriptionMemberModel extends HiveObject {
-
   SubscriptionMemberModel({
     required this.id,
     required this.subscriptionId,
     required this.userId,
     required this.userName,
-    required this.userEmail,
-    required this.amountToPay, required this.hasPaid, required this.dueDate, required this.createdAt, this.userAvatar,
+    required this.amountToPay,
+    required this.hasPaid,
+    required this.dueDate,
+    required this.createdAt,
+    this.userEmail,
+    this.userAvatar,
     this.lastPaymentDate,
     this.updatedAt,
   });
@@ -44,7 +47,7 @@ class SubscriptionMemberModel extends HiveObject {
       subscriptionId: json['subscription_id'] as String,
       userId: json['user_id'] as String,
       userName: json['user_name'] as String,
-      userEmail: json['user_email'] as String,
+      userEmail: json['user_email'] as String?,
       userAvatar: json['user_avatar'] as String?,
       amountToPay: (json['amount_to_pay'] as num).toDouble(),
       hasPaid: json['has_paid'] as bool? ?? false,
@@ -71,7 +74,7 @@ class SubscriptionMemberModel extends HiveObject {
   final String userName;
 
   @HiveField(4)
-  final String userEmail;
+  final String? userEmail;
 
   @HiveField(5)
   final String? userAvatar;
@@ -91,7 +94,7 @@ class SubscriptionMemberModel extends HiveObject {
   @HiveField(10)
   final DateTime createdAt;
 
-  @HiveField(11, defaultValue: null)
+  @HiveField(11)
   final DateTime? updatedAt;
 
   /// Convert to domain entity

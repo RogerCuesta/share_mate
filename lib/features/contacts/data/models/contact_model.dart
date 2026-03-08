@@ -17,8 +17,11 @@ class ContactModel with _$ContactModel {
     @HiveField(0) required String id,
     @HiveField(1) required String userId,
     @HiveField(2) required String name,
-    @HiveField(3) required String email,
-    @HiveField(6) required DateTime createdAt, @HiveField(7) required DateTime updatedAt, @HiveField(4) String? avatar,
+    @HiveField(6) required DateTime createdAt,
+    @HiveField(7) required DateTime updatedAt,
+    @HiveField(3) String? email,
+    @HiveField(4) String? avatar,
+    @HiveField(8) String? color,
     @HiveField(5) String? notes,
   }) = _ContactModel;
 
@@ -28,11 +31,12 @@ class ContactModel with _$ContactModel {
       id: contact.id,
       userId: contact.userId,
       name: contact.name,
-      email: contact.email,
-      avatar: contact.avatar,
-      notes: contact.notes,
       createdAt: contact.createdAt,
       updatedAt: contact.updatedAt,
+      email: contact.email,
+      avatar: contact.avatar,
+      color: contact.color,
+      notes: contact.notes,
     );
   }
 
@@ -44,11 +48,12 @@ class ContactModel with _$ContactModel {
       id: json['id'] as String,
       userId: json['user_id'] as String,
       name: json['contact_name'] as String,
-      email: json['contact_email'] as String,
-      avatar: json['contact_avatar'] as String?,
-      notes: json['notes'] as String?,
       createdAt: DateTime.parse(json['created_at'] as String),
       updatedAt: DateTime.parse(json['updated_at'] as String),
+      email: json['contact_email'] as String?,
+      avatar: json['contact_avatar'] as String?,
+      color: json['contact_color'] as String?,
+      notes: json['notes'] as String?,
     );
   }
 
@@ -59,8 +64,9 @@ class ContactModel with _$ContactModel {
       'user_id': userId,
       'contact_name': name,
       'contact_email': email,
-      if (avatar != null) 'contact_avatar': avatar,
-      if (notes != null) 'notes': notes,
+      'contact_avatar': avatar,
+      'contact_color': color,
+      'notes': notes,
       'created_at': createdAt.toIso8601String(),
       'updated_at': updatedAt.toIso8601String(),
     };
@@ -72,11 +78,12 @@ class ContactModel with _$ContactModel {
       id: id,
       userId: userId,
       name: name,
-      email: email,
-      avatar: avatar,
-      notes: notes,
       createdAt: createdAt,
       updatedAt: updatedAt,
+      email: email,
+      avatar: avatar,
+      color: color,
+      notes: notes,
     );
   }
 }

@@ -96,7 +96,7 @@ class PaymentHistoryModel extends HiveObject {
   @HiveField(11)
   final String? paymentMethod;
 
-  @HiveField(12, defaultValue: null)
+  @HiveField(12)
   final Map<String, dynamic>? metadata;
 
   @HiveField(8)

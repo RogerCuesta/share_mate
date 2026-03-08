@@ -20,13 +20,20 @@ class Contact with _$Contact {
     /// Contact's display name
     required String name,
 
-    /// Contact's email address
-    required String email,
-
     /// Timestamp when the contact was created
-    required DateTime createdAt, /// Timestamp when the contact was last updated
-    required DateTime updatedAt, /// Optional avatar URL for the contact
+    required DateTime createdAt,
+
+    /// Timestamp when the contact was last updated
+    required DateTime updatedAt,
+
+    /// Contact's email address (optional for local-only contacts)
+    String? email,
+
+    /// Optional avatar URL for the contact
     String? avatar,
+
+    /// Optional hex color used for local avatar placeholders
+    String? color,
 
     /// Optional personal notes about the contact (e.g., "Brother", "Work colleague")
     String? notes,

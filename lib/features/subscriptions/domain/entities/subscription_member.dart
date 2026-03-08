@@ -18,13 +18,19 @@ class SubscriptionMember with _$SubscriptionMember {
     /// Display name of the user
     required String userName,
 
-    /// Email address of the user
-    required String userEmail,
-
     /// Amount this member needs to pay
-    required double amountToPay, /// Due date for this member's payment
-    required DateTime dueDate, /// When the member was added to the subscription
-    required DateTime createdAt, /// URL for the user's avatar/profile picture
+    required double amountToPay,
+
+    /// Due date for this member's payment
+    required DateTime dueDate,
+
+    /// When the member was added to the subscription
+    required DateTime createdAt,
+
+    /// Email address of the user, when available
+    String? userEmail,
+
+    /// URL for the user's avatar/profile picture
     String? userAvatar,
 
     /// Whether the member has paid for the current billing cycle

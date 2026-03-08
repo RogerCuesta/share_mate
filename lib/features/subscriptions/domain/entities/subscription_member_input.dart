@@ -18,8 +18,8 @@ class SubscriptionMemberInput with _$SubscriptionMemberInput {
     /// Display name of the member
     required String name,
 
-    /// Email address of the member
-    required String email,
+    /// Email address of the member (optional for local-only contacts)
+    String? email,
 
     /// Optional avatar URL
     String? avatar,
@@ -49,18 +49,16 @@ class SubscriptionMemberInput with _$SubscriptionMemberInput {
       return 'Member name must be at least 2 characters';
     }
 
-    // Validate email
-    if (email.trim().isEmpty) {
-      return 'Email cannot be empty';
-    }
+    // Validate email format only when provided
+    final normalizedEmail = email?.trim();
+    if (normalizedEmail != null && normalizedEmail.isNotEmpty) {
+      final emailRegex = RegExp(
+        r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
+      );
 
-    // Email regex validation
-    final emailRegex = RegExp(
-      r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
-    );
-
-    if (!emailRegex.hasMatch(email.trim())) {
-      return 'Invalid email format';
+      if (!emailRegex.hasMatch(normalizedEmail)) {
+        return 'Invalid email format';
+      }
     }
 
     return null;
