@@ -393,6 +393,11 @@ class SubscriptionRepositoryImpl implements SubscriptionRepository {
           amount: amount,
           markedBy: markedBy,
           action: 'paid',
+          cycleDueDate: _resolveCycleDueDate(
+            memberDueDate: cachedMember?.dueDate,
+            subscriptionDueDate: cachedSubscription?.dueDate,
+            paymentDate: paymentDate,
+          ),
           notes: notes,
           initialErrorClass: 'remote_write_failed',
           initialErrorCode: _extractRemoteErrorCode(e.message),
@@ -486,6 +491,7 @@ class SubscriptionRepositoryImpl implements SubscriptionRepository {
             amount: member.amountToPay,
             markedBy: markedBy,
             action: 'paid',
+            cycleDueDate: member.dueDate,
             notes: notes,
             initialErrorClass: 'remote_write_failed',
             initialErrorCode: _extractRemoteErrorCode(e.message),
@@ -570,6 +576,11 @@ class SubscriptionRepositoryImpl implements SubscriptionRepository {
           amount: amount,
           markedBy: markedBy,
           action: 'unpaid',
+          cycleDueDate: _resolveCycleDueDate(
+            memberDueDate: cachedMember?.dueDate,
+            subscriptionDueDate: cachedSubscription?.dueDate,
+            paymentDate: paymentDate,
+          ),
           notes: notes,
           initialErrorClass: 'remote_write_failed',
           initialErrorCode: _extractRemoteErrorCode(e.message),
@@ -654,6 +665,7 @@ class SubscriptionRepositoryImpl implements SubscriptionRepository {
     required double amount,
     required String markedBy,
     required String action,
+    required DateTime cycleDueDate,
     String? notes,
     String? initialErrorClass,
     String? initialErrorCode,
@@ -677,6 +689,13 @@ class SubscriptionRepositoryImpl implements SubscriptionRepository {
         lastAttemptAt: lastAttemptAt,
         lastErrorClass: initialErrorClass,
         lastErrorCode: initialErrorCode,
+        cycleDueDate: cycleDueDate,
+        idempotencyKey: _buildIdempotencyKey(
+          subscriptionId: subscriptionId,
+          memberId: memberId,
+          action: action,
+          cycleDueDate: cycleDueDate,
+        ),
       );
 
       await syncQueue.enqueue(operation);
@@ -709,6 +728,24 @@ class SubscriptionRepositoryImpl implements SubscriptionRepository {
     }
 
     return null;
+  }
+
+  DateTime _resolveCycleDueDate({
+    DateTime? memberDueDate,
+    DateTime? subscriptionDueDate,
+    required DateTime paymentDate,
+  }) {
+    return memberDueDate ?? subscriptionDueDate ?? paymentDate;
+  }
+
+  String _buildIdempotencyKey({
+    required String subscriptionId,
+    required String memberId,
+    required String action,
+    required DateTime cycleDueDate,
+  }) {
+    final cycleAnchor = cycleDueDate.toUtc().toIso8601String();
+    return 'sync:$action:$subscriptionId:$memberId:$cycleAnchor';
   }
 
   @override

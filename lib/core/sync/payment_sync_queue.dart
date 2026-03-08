@@ -29,7 +29,11 @@ class PaymentSyncOperation extends HiveObject {
     this.lastErrorCode,
     this.terminalReason,
     this.terminalAt,
-  }) : nextAttemptAt = nextAttemptAt ?? createdAt;
+    DateTime? cycleDueDate,
+    String? idempotencyKey,
+  })  : nextAttemptAt = nextAttemptAt ?? createdAt,
+        cycleDueDate = cycleDueDate ?? createdAt,
+        idempotencyKey = idempotencyKey ?? id;
 
   @HiveField(0)
   final String id;
@@ -79,6 +83,12 @@ class PaymentSyncOperation extends HiveObject {
   @HiveField(15)
   final DateTime? terminalAt;
 
+  @HiveField(16)
+  final DateTime cycleDueDate;
+
+  @HiveField(17)
+  final String idempotencyKey;
+
   bool get isPending => status == paymentSyncStatusPending;
   bool get isProcessing => status == paymentSyncStatusProcessing;
   bool get isTerminal => status == paymentSyncStatusTerminal;
@@ -101,6 +111,8 @@ class PaymentSyncOperation extends HiveObject {
     String? lastErrorCode,
     String? terminalReason,
     DateTime? terminalAt,
+    DateTime? cycleDueDate,
+    String? idempotencyKey,
     bool clearErrorMetadata = false,
     bool clearTerminalMetadata = false,
   }) {
@@ -126,6 +138,8 @@ class PaymentSyncOperation extends HiveObject {
           : (terminalReason ?? this.terminalReason),
       terminalAt:
           clearTerminalMetadata ? null : (terminalAt ?? this.terminalAt),
+      cycleDueDate: cycleDueDate ?? this.cycleDueDate,
+      idempotencyKey: idempotencyKey ?? this.idempotencyKey,
     );
   }
 }
