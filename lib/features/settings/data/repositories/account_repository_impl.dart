@@ -9,7 +9,6 @@ import 'package:flutter_project_agents/features/settings/domain/repositories/acc
 ///
 /// Manages account operations via Supabase Auth.
 class AccountRepositoryImpl implements AccountRepository {
-
   AccountRepositoryImpl({required this.remoteDataSource});
   final AccountRemoteDataSource remoteDataSource;
 

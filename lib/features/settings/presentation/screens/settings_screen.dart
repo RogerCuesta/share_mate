@@ -7,7 +7,8 @@ import 'package:flutter_project_agents/features/settings/domain/entities/app_set
 import 'package:flutter_project_agents/features/settings/presentation/providers/account_actions_provider.dart';
 import 'package:flutter_project_agents/features/settings/presentation/providers/profile_provider.dart';
 import 'package:flutter_project_agents/features/settings/presentation/providers/settings_provider.dart';
-import 'package:flutter_project_agents/features/settings/presentation/providers/theme_provider.dart' hide Theme;
+import 'package:flutter_project_agents/features/settings/presentation/providers/theme_provider.dart'
+    hide Theme;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -265,7 +266,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     Text(
                       profile.email,
                       style: theme.textTheme.bodyMedium?.copyWith(
-                        color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+                        color:
+                            theme.colorScheme.onSurface.withValues(alpha: 0.7),
                       ),
                     ),
                   ],
@@ -291,7 +293,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   Widget _buildSection(
     BuildContext context, {
     required String title,
-    required List<Widget> children, String? badge,
+    required List<Widget> children,
+    String? badge,
   }) {
     final theme = Theme.of(context);
     final customTheme = theme.custom;
@@ -322,7 +325,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   ),
                   decoration: BoxDecoration(
                     color: theme.colorScheme.primary.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(customTheme.borderRadiusSmall),
+                    borderRadius:
+                        BorderRadius.circular(customTheme.borderRadiusSmall),
                   ),
                   child: Text(
                     badge,
@@ -441,7 +445,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           value: profile.isDiscoverable,
           onChanged: (bool value) async {
             final updatedProfile = profile.copyWith(isDiscoverable: value);
-            await ref.read(currentUserProfileProvider.notifier).updateProfile(updatedProfile);
+            await ref
+                .read(currentUserProfileProvider.notifier)
+                .updateProfile(updatedProfile);
           },
         );
       },
@@ -575,7 +581,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(success ? 'Password changed successfully' : 'Failed to change password'),
+            content: Text(success
+                ? 'Password changed successfully'
+                : 'Failed to change password'),
           ),
         );
       }
@@ -590,7 +598,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Email Verification'),
-        content: const Text('Send a verification email to your registered email address?'),
+        content: const Text(
+            'Send a verification email to your registered email address?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -683,9 +692,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     );
 
     if (confirmed == true && context.mounted) {
-      final success = await ref
-          .read(accountActionsProvider.notifier)
-          .deleteAccount();
+      final success =
+          await ref.read(accountActionsProvider.notifier).deleteAccount();
 
       if (success && context.mounted) {
         await ref.read(authProvider.notifier).logout();

@@ -10,7 +10,6 @@ import 'package:flutter_project_agents/features/settings/domain/repositories/acc
 /// Permanently deletes the user's account and all associated data.
 /// This action is irreversible.
 class DeleteAccount {
-
   DeleteAccount(this.repository);
   final AccountRepository repository;
 

@@ -12,7 +12,6 @@ abstract class AccountRemoteDataSource {
 
 /// Account Remote Data Source Implementation (Supabase Auth)
 class AccountRemoteDataSourceImpl implements AccountRemoteDataSource {
-
   AccountRemoteDataSourceImpl({required this.client});
   final SupabaseClient client;
 
@@ -81,7 +80,8 @@ class AccountRemoteDataSourceImpl implements AccountRemoteDataSource {
           _extractErrorMessage(details, fallback: 'Failed to delete account'),
         );
       }
-      throw AccountRemoteException('Failed to delete account: ${e.reasonPhrase ?? e.details}');
+      throw AccountRemoteException(
+          'Failed to delete account: ${e.reasonPhrase ?? e.details}');
     } on AccountRemoteException {
       rethrow;
     } catch (e) {

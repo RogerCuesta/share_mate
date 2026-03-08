@@ -132,7 +132,8 @@ class AccountActions extends _$AccountActions {
       storageError: (msg) => msg,
       validationError: (msg) => msg,
       fileTooLarge: (maxSizeMB) => 'File too large (max ${maxSizeMB}MB)',
-      invalidFileType: (acceptedTypes) => 'Invalid file type. Accepted: $acceptedTypes',
+      invalidFileType: (acceptedTypes) =>
+          'Invalid file type. Accepted: $acceptedTypes',
       emailVerificationError: (msg) => msg,
     );
   }
