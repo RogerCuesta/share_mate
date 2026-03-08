@@ -53,7 +53,7 @@
 ### Offline Sync Reliability
 
 - [x] **SYNC-01**: La cola offline procesa operaciones con retry/backoff y manejo de fallos terminales.
-- [ ] **SYNC-02**: La resolución de conflictos entre estado local optimista y reset mensual backend es determinista.
+- [x] **SYNC-02**: La resolución de conflictos entre estado local optimista y reset mensual backend es determinista.
 - [ ] **SYNC-03**: La app expone estado de sincronización sin filtrar datos sensibles en logs.
 
 ### UX Consistency (Flutter)
@@ -114,7 +114,7 @@
 | BILL-02 | Phase 5 | Pending |
 | BILL-03 | Phase 5 | Pending |
 | SYNC-01 | Phase 2 | Complete |
-| SYNC-02 | Phase 2 | Pending |
+| SYNC-02 | Phase 2 | Complete |
 | SYNC-03 | Phase 2 | Pending |
 | UX-01 | Phase 6 | Pending |
 | UX-02 | Phase 6 | Pending |
