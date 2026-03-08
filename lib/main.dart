@@ -6,6 +6,8 @@ import 'package:flutter_project_agents/core/di/injection.dart';
 import 'package:flutter_project_agents/core/storage/hive_service.dart';
 import 'package:flutter_project_agents/core/storage/local_migrations/local_migration.dart';
 import 'package:flutter_project_agents/core/storage/local_migrations/local_migration_runner.dart';
+import 'package:flutter_project_agents/core/storage/local_migrations/migrations/v1_non_destructive_baseline_migration.dart';
+import 'package:flutter_project_agents/core/storage/local_migrations/migrations/v2_encrypt_sensitive_boxes_migration.dart';
 import 'package:flutter_project_agents/core/supabase/supabase_service.dart';
 import 'package:flutter_project_agents/core/sync/payment_sync_queue.dart';
 import 'package:flutter_project_agents/core/theme/app_theme.dart';
@@ -123,7 +125,10 @@ Future<_BootstrapResult> _initializeBootstrap() async {
 }
 
 List<LocalMigration> _buildLocalMigrations() {
-  return const <LocalMigration>[];
+  return <LocalMigration>[
+    const V1NonDestructiveBaselineMigration(),
+    V2EncryptSensitiveBoxesMigration(),
+  ];
 }
 
 class MyApp extends ConsumerWidget {
