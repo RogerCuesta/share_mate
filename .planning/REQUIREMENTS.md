@@ -19,8 +19,8 @@
 ### Catalog
 
 - [x] **CATA-01**: El usuario puede buscar y seleccionar servicios desde `service_templates` en Supabase.
-- [ ] **CATA-02**: Al seleccionar plantilla se autocompletan nombre/logo/color en el formulario de alta.
-- [ ] **CATA-03**: El catálogo queda cacheado localmente y usable sin bloquear la UI.
+- [x] **CATA-02**: Al seleccionar plantilla se autocompletan nombre/logo/color en el formulario de alta.
+- [x] **CATA-03**: El catálogo queda cacheado localmente y usable sin bloquear la UI.
 
 ### Local Contacts
 
@@ -98,8 +98,8 @@
 | SECU-02 | Phase 1 | Complete |
 | SECU-03 | Phase 1 | Complete |
 | CATA-01 | Phase 3 | Complete |
-| CATA-02 | Phase 3 | Pending |
-| CATA-03 | Phase 3 | Pending |
+| CATA-02 | Phase 3 | Complete |
+| CATA-03 | Phase 3 | Complete |
 | CNTC-01 | Phase 3 | Complete |
 | CNTC-02 | Phase 3 | Pending |
 | SPLT-01 | Phase 3 | Pending |
