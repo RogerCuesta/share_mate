@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter_project_agents/core/sync/payment_sync_conflict_resolver.dart';
 import 'package:flutter_project_agents/core/sync/payment_sync_queue.dart';
 import 'package:flutter_project_agents/core/sync/sync_error_classifier.dart';
 import 'package:flutter_project_agents/features/subscriptions/data/datasources/subscription_remote_datasource.dart';
@@ -9,6 +10,7 @@ class PaymentSyncOrchestrator {
   PaymentSyncOrchestrator({
     required PaymentSyncQueueService queueService,
     required SubscriptionRemoteDataSource remoteDataSource,
+    PaymentSyncConflictResolver? conflictResolver,
     SyncErrorClassifier errorClassifier = const SyncErrorClassifier(),
     DateTime Function()? now,
     Random? random,
@@ -19,6 +21,8 @@ class PaymentSyncOrchestrator {
     this.minForegroundTriggerInterval = const Duration(seconds: 30),
   })  : _queueService = queueService,
         _remoteDataSource = remoteDataSource,
+        _conflictResolver = conflictResolver ??
+            PaymentSyncConflictResolver(remoteDataSource: remoteDataSource),
         _errorClassifier = errorClassifier,
         _clock = now ?? DateTime.now,
         _random = random ?? Random();
@@ -27,6 +31,7 @@ class PaymentSyncOrchestrator {
 
   final PaymentSyncQueueService _queueService;
   final SubscriptionRemoteDataSource _remoteDataSource;
+  final PaymentSyncConflictResolver _conflictResolver;
   final SyncErrorClassifier _errorClassifier;
   final DateTime Function() _clock;
   final Random _random;
@@ -129,12 +134,37 @@ class PaymentSyncOrchestrator {
 
   Future<void> _processOperation(PaymentSyncOperation operation) async {
     final attemptedAt = _clock();
-    await _queueService.markProcessing(
-      operation.id,
-      attemptedAt: attemptedAt,
-    );
 
     try {
+      final preflight = await _conflictResolver.preflight(operation);
+      if (preflight.shouldMarkTerminalConflict) {
+        await _queueService.markTerminal(
+          operation.id,
+          retryCount: operation.retryCount,
+          terminalReason: preflight.terminalReason ?? cycleConflictNoopReason,
+          terminalAt: attemptedAt,
+          lastAttemptAt: attemptedAt,
+          lastErrorClass: 'sync_conflict',
+          lastErrorCode: cycleConflictNoopReason,
+        );
+        await _recordConflictAudit(
+          operation: operation,
+          preflight: preflight,
+        );
+        return;
+      }
+
+      if (preflight.shouldMarkAsAlreadySynced) {
+        await _queueService.markSynced(operation.id);
+        lastSuccessfulSyncAt = attemptedAt;
+        return;
+      }
+
+      await _queueService.markProcessing(
+        operation.id,
+        attemptedAt: attemptedAt,
+      );
+
       await _applyRemoteMutation(operation);
       await _queueService.markSynced(operation.id);
       lastSuccessfulSyncAt = attemptedAt;
@@ -181,6 +211,27 @@ class PaymentSyncOrchestrator {
     }
   }
 
+  Future<void> _recordConflictAudit({
+    required PaymentSyncOperation operation,
+    required PaymentSyncPreflightResult preflight,
+  }) async {
+    try {
+      await _remoteDataSource.recordPaymentSyncConflictAudit(
+        operationId: operation.id,
+        subscriptionId: operation.subscriptionId,
+        memberId: operation.memberId,
+        action: operation.action,
+        terminalReason: cycleConflictNoopReason,
+        queuedCycleDueDate: operation.cycleDueDate,
+        backendCycleDueDate: preflight.backendCycleDueDate,
+        retryCount: operation.retryCount,
+        idempotencyKey: operation.idempotencyKey,
+      );
+    } catch (_) {
+      // Audit writes are best-effort and must not block queue convergence.
+    }
+  }
+
   Future<void> _applyRemoteMutation(PaymentSyncOperation operation) async {
     if (operation.action == 'paid') {
       await _remoteDataSource.markPaymentAsPaid(
@@ -190,6 +241,7 @@ class PaymentSyncOrchestrator {
         paymentDate: operation.createdAt,
         markedBy: operation.markedBy,
         notes: operation.notes,
+        idempotencyKey: operation.idempotencyKey,
       );
       return;
     }
@@ -202,6 +254,7 @@ class PaymentSyncOrchestrator {
         paymentDate: operation.createdAt,
         markedBy: operation.markedBy,
         notes: operation.notes,
+        idempotencyKey: operation.idempotencyKey,
       );
       return;
     }

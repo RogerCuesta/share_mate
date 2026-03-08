@@ -42,6 +42,7 @@ void main() {
       required DateTime createdAt,
       int retryCount = 0,
       String action = 'paid',
+      DateTime? cycleDueDate,
     }) {
       return PaymentSyncOperation(
         id: id,
@@ -52,6 +53,7 @@ void main() {
         action: action,
         createdAt: createdAt,
         retryCount: retryCount,
+        cycleDueDate: cycleDueDate ?? DateTime(2026, 1, 1),
       );
     }
 
@@ -106,6 +108,7 @@ void main() {
           paymentDate: any(named: 'paymentDate'),
           markedBy: any(named: 'markedBy'),
           notes: any(named: 'notes'),
+          idempotencyKey: any(named: 'idempotencyKey'),
         ),
       ).thenAnswer((_) async => buildHistory('history-paid'));
       when(
@@ -116,8 +119,33 @@ void main() {
           paymentDate: any(named: 'paymentDate'),
           markedBy: any(named: 'markedBy'),
           notes: any(named: 'notes'),
+          idempotencyKey: any(named: 'idempotencyKey'),
         ),
       ).thenAnswer((_) async => buildHistory('history-unpaid'));
+      when(
+        () => mockRemoteDataSource.getPaymentSyncMemberCycleContext(
+          subscriptionId: any(named: 'subscriptionId'),
+          memberId: any(named: 'memberId'),
+        ),
+      ).thenAnswer(
+        (_) async => PaymentSyncMemberCycleContext(
+          cycleDueDate: DateTime(2026, 1, 1),
+          hasPaid: false,
+        ),
+      );
+      when(
+        () => mockRemoteDataSource.recordPaymentSyncConflictAudit(
+          operationId: any(named: 'operationId'),
+          subscriptionId: any(named: 'subscriptionId'),
+          memberId: any(named: 'memberId'),
+          action: any(named: 'action'),
+          terminalReason: any(named: 'terminalReason'),
+          queuedCycleDueDate: any(named: 'queuedCycleDueDate'),
+          backendCycleDueDate: any(named: 'backendCycleDueDate'),
+          retryCount: any(named: 'retryCount'),
+          idempotencyKey: any(named: 'idempotencyKey'),
+        ),
+      ).thenAnswer((_) async {});
     });
 
     test('drains queue deterministically and continues when one op is terminal',
@@ -153,6 +181,7 @@ void main() {
           paymentDate: older.createdAt,
           markedBy: older.markedBy,
           notes: older.notes,
+          idempotencyKey: older.idempotencyKey,
         ),
       ).thenThrow(
         SubscriptionRemoteException('permission denied code 42501'),
@@ -166,6 +195,7 @@ void main() {
           paymentDate: newer.createdAt,
           markedBy: newer.markedBy,
           notes: newer.notes,
+          idempotencyKey: newer.idempotencyKey,
         ),
       ).thenAnswer((_) async => buildHistory('history-newer'));
 
@@ -189,6 +219,7 @@ void main() {
               paymentDate: older.createdAt,
               markedBy: older.markedBy,
               notes: older.notes,
+              idempotencyKey: older.idempotencyKey,
             ),
         () => mockQueueService.markTerminal(
               older.id,
@@ -210,6 +241,7 @@ void main() {
               paymentDate: newer.createdAt,
               markedBy: newer.markedBy,
               notes: newer.notes,
+              idempotencyKey: newer.idempotencyKey,
             ),
         () => mockQueueService.markSynced(newer.id),
       ]);
@@ -246,6 +278,7 @@ void main() {
           paymentDate: operation.createdAt,
           markedBy: operation.markedBy,
           notes: operation.notes,
+          idempotencyKey: operation.idempotencyKey,
         ),
       ).thenThrow(TimeoutException('socket timeout'));
 
@@ -318,6 +351,7 @@ void main() {
           paymentDate: operation.createdAt,
           markedBy: operation.markedBy,
           notes: operation.notes,
+          idempotencyKey: operation.idempotencyKey,
         ),
       ).thenThrow(TimeoutException('socket timeout'));
 
@@ -381,6 +415,7 @@ void main() {
           paymentDate: operation.createdAt,
           markedBy: operation.markedBy,
           notes: operation.notes,
+          idempotencyKey: operation.idempotencyKey,
         ),
       ).thenAnswer((_) => remoteCompleter.future);
 
@@ -408,6 +443,7 @@ void main() {
           paymentDate: operation.createdAt,
           markedBy: operation.markedBy,
           notes: operation.notes,
+          idempotencyKey: operation.idempotencyKey,
         ),
       ).called(1);
     });

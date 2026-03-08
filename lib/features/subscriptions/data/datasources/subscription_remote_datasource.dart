@@ -23,6 +23,16 @@ class SubscriptionRemoteException implements Exception {
   String toString() => 'SubscriptionRemoteException: $message';
 }
 
+class PaymentSyncMemberCycleContext {
+  const PaymentSyncMemberCycleContext({
+    required this.cycleDueDate,
+    required this.hasPaid,
+  });
+
+  final DateTime cycleDueDate;
+  final bool hasPaid;
+}
+
 /// Remote data source for subscription operations using Supabase
 abstract class SubscriptionRemoteDataSource {
   /// Get all subscriptions for a user
@@ -79,6 +89,7 @@ abstract class SubscriptionRemoteDataSource {
     required DateTime paymentDate,
     required String markedBy,
     String? notes,
+    String? idempotencyKey,
   });
 
   /// Mark all pending payments as paid for a subscription
@@ -97,6 +108,26 @@ abstract class SubscriptionRemoteDataSource {
     required DateTime paymentDate,
     required String markedBy,
     String? notes,
+    String? idempotencyKey,
+  });
+
+  /// Fetch authoritative cycle context used for offline sync conflict preflight.
+  Future<PaymentSyncMemberCycleContext> getPaymentSyncMemberCycleContext({
+    required String subscriptionId,
+    required String memberId,
+  });
+
+  /// Persist non-PII audit metadata for deterministic sync conflict outcomes.
+  Future<void> recordPaymentSyncConflictAudit({
+    required String operationId,
+    required String subscriptionId,
+    required String memberId,
+    required String action,
+    required String terminalReason,
+    required DateTime queuedCycleDueDate,
+    required DateTime backendCycleDueDate,
+    required int retryCount,
+    required String idempotencyKey,
   });
 
   /// Get payment history for a subscription
@@ -121,9 +152,7 @@ abstract class SubscriptionRemoteDataSource {
 }
 
 /// Implementation of SubscriptionRemoteDataSource using Supabase
-class SubscriptionRemoteDataSourceImpl
-    implements SubscriptionRemoteDataSource {
-
+class SubscriptionRemoteDataSourceImpl implements SubscriptionRemoteDataSource {
   SubscriptionRemoteDataSourceImpl({SupabaseClient? client})
       : _client = client ?? SupabaseService.client;
   final SupabaseClient _client;
@@ -131,7 +160,8 @@ class SubscriptionRemoteDataSourceImpl
   @override
   Future<List<SubscriptionModel>> getSubscriptions(String userId) async {
     try {
-      debugPrint('🔍 [SubscriptionRemoteDS] Fetching subscriptions for user: $userId');
+      debugPrint(
+          '🔍 [SubscriptionRemoteDS] Fetching subscriptions for user: $userId');
 
       // 1. Fetch subscriptions
       final response = await _client
@@ -140,7 +170,8 @@ class SubscriptionRemoteDataSourceImpl
           .eq('owner_id', userId)
           .order('created_at', ascending: false);
 
-      debugPrint('📦 [SubscriptionRemoteDS] Supabase response: ${response.length} subscriptions');
+      debugPrint(
+          '📦 [SubscriptionRemoteDS] Supabase response: ${response.length} subscriptions');
 
       final data = response as List<dynamic>;
       final subscriptions = <SubscriptionModel>[];
@@ -148,7 +179,8 @@ class SubscriptionRemoteDataSourceImpl
       // 2. For each subscription, fetch members and populate sharedWith
       for (final json in data) {
         final subscriptionId = json['id'] as String;
-        debugPrint('   📋 Processing subscription: ${json['name']} (ID: $subscriptionId)');
+        debugPrint(
+            '   📋 Processing subscription: ${json['name']} (ID: $subscriptionId)');
 
         try {
           // Fetch members for this subscription
@@ -157,7 +189,8 @@ class SubscriptionRemoteDataSourceImpl
               .select('user_id')
               .eq('subscription_id', subscriptionId);
 
-          debugPrint('   👥 Found ${(membersResponse as List).length} members for ${json['name']}');
+          debugPrint(
+              '   👥 Found ${(membersResponse as List).length} members for ${json['name']}');
 
           // Add shared_with to JSON before parsing
           json['shared_with'] = (membersResponse as List<dynamic>)
@@ -168,7 +201,8 @@ class SubscriptionRemoteDataSourceImpl
             SubscriptionModel.fromJson(json as Map<String, dynamic>),
           );
         } catch (memberError) {
-          debugPrint('   ⚠️ Error fetching members for $subscriptionId: $memberError');
+          debugPrint(
+              '   ⚠️ Error fetching members for $subscriptionId: $memberError');
           // Continue with empty shared_with if members query fails
           json['shared_with'] = <String>[];
           subscriptions.add(
@@ -177,10 +211,12 @@ class SubscriptionRemoteDataSourceImpl
         }
       }
 
-      debugPrint('✅ [SubscriptionRemoteDS] Successfully fetched ${subscriptions.length} subscriptions');
+      debugPrint(
+          '✅ [SubscriptionRemoteDS] Successfully fetched ${subscriptions.length} subscriptions');
       return subscriptions;
     } on PostgrestException catch (e) {
-      debugPrint('❌ [SubscriptionRemoteDS] PostgrestException: ${e.message} (Code: ${e.code})');
+      debugPrint(
+          '❌ [SubscriptionRemoteDS] PostgrestException: ${e.message} (Code: ${e.code})');
       throw SubscriptionRemoteException(
         'Database error fetching subscriptions: ${e.message}',
       );
@@ -195,7 +231,8 @@ class SubscriptionRemoteDataSourceImpl
   @override
   Future<SubscriptionModel> getSubscriptionById(String subscriptionId) async {
     try {
-      debugPrint('🔍 [SubscriptionRemoteDS] Fetching subscription by ID: $subscriptionId');
+      debugPrint(
+          '🔍 [SubscriptionRemoteDS] Fetching subscription by ID: $subscriptionId');
 
       final response = await _client
           .from('subscriptions')
@@ -203,7 +240,8 @@ class SubscriptionRemoteDataSourceImpl
           .eq('id', subscriptionId)
           .single();
 
-      debugPrint('📦 [SubscriptionRemoteDS] Found subscription: ${response['name']}');
+      debugPrint(
+          '📦 [SubscriptionRemoteDS] Found subscription: ${response['name']}');
 
       final json = response;
 
@@ -228,7 +266,8 @@ class SubscriptionRemoteDataSourceImpl
       debugPrint('✅ [SubscriptionRemoteDS] Successfully fetched subscription');
       return SubscriptionModel.fromJson(json);
     } on PostgrestException catch (e) {
-      debugPrint('❌ [SubscriptionRemoteDS] PostgrestException: ${e.message} (Code: ${e.code})');
+      debugPrint(
+          '❌ [SubscriptionRemoteDS] PostgrestException: ${e.message} (Code: ${e.code})');
       throw SubscriptionRemoteException(
         'Database error fetching subscription: ${e.message}',
       );
@@ -243,18 +282,21 @@ class SubscriptionRemoteDataSourceImpl
   @override
   Future<List<SubscriptionMemberModel>> getMembers(String userId) async {
     try {
-      debugPrint('🔍 [SubscriptionRemoteDS] Fetching members for user: $userId');
+      debugPrint(
+          '🔍 [SubscriptionRemoteDS] Fetching members for user: $userId');
 
       // First, get all subscriptions owned by the user
       final subscriptions = await getSubscriptions(userId);
       final subscriptionIds = subscriptions.map((s) => s.id).toList();
 
       if (subscriptionIds.isEmpty) {
-        debugPrint('   ℹ️ No subscriptions found, returning empty members list');
+        debugPrint(
+            '   ℹ️ No subscriptions found, returning empty members list');
         return [];
       }
 
-      debugPrint('   📋 Fetching members for ${subscriptionIds.length} subscriptions');
+      debugPrint(
+          '   📋 Fetching members for ${subscriptionIds.length} subscriptions');
 
       // Then, get all members for those subscriptions
       final response = await _client
@@ -263,7 +305,8 @@ class SubscriptionRemoteDataSourceImpl
           .inFilter('subscription_id', subscriptionIds)
           .order('created_at', ascending: false);
 
-      debugPrint('📦 [SubscriptionRemoteDS] Supabase response: ${(response as List).length} members');
+      debugPrint(
+          '📦 [SubscriptionRemoteDS] Supabase response: ${(response as List).length} members');
 
       final data = response as List<dynamic>;
       final members = data
@@ -271,10 +314,12 @@ class SubscriptionRemoteDataSourceImpl
               SubscriptionMemberModel.fromJson(json as Map<String, dynamic>))
           .toList();
 
-      debugPrint('✅ [SubscriptionRemoteDS] Successfully fetched ${members.length} members');
+      debugPrint(
+          '✅ [SubscriptionRemoteDS] Successfully fetched ${members.length} members');
       return members;
     } on PostgrestException catch (e) {
-      debugPrint('❌ [SubscriptionRemoteDS] PostgrestException: ${e.message} (Code: ${e.code})');
+      debugPrint(
+          '❌ [SubscriptionRemoteDS] PostgrestException: ${e.message} (Code: ${e.code})');
       throw SubscriptionRemoteException(
         'Database error fetching members: ${e.message}',
       );
@@ -291,7 +336,8 @@ class SubscriptionRemoteDataSourceImpl
     String subscriptionId,
   ) async {
     try {
-      debugPrint('🔍 [SubscriptionRemoteDS] Fetching members for subscription: $subscriptionId');
+      debugPrint(
+          '🔍 [SubscriptionRemoteDS] Fetching members for subscription: $subscriptionId');
 
       final response = await _client
           .from('subscription_members')
@@ -299,7 +345,8 @@ class SubscriptionRemoteDataSourceImpl
           .eq('subscription_id', subscriptionId)
           .order('created_at', ascending: false);
 
-      debugPrint('📦 [SubscriptionRemoteDS] Supabase response: ${(response as List).length} members');
+      debugPrint(
+          '📦 [SubscriptionRemoteDS] Supabase response: ${(response as List).length} members');
 
       final data = response as List<dynamic>;
       final members = data
@@ -307,10 +354,12 @@ class SubscriptionRemoteDataSourceImpl
               SubscriptionMemberModel.fromJson(json as Map<String, dynamic>))
           .toList();
 
-      debugPrint('✅ [SubscriptionRemoteDS] Successfully fetched ${members.length} members');
+      debugPrint(
+          '✅ [SubscriptionRemoteDS] Successfully fetched ${members.length} members');
       return members;
     } on PostgrestException catch (e) {
-      debugPrint('❌ [SubscriptionRemoteDS] PostgrestException: ${e.message} (Code: ${e.code})');
+      debugPrint(
+          '❌ [SubscriptionRemoteDS] PostgrestException: ${e.message} (Code: ${e.code})');
       throw SubscriptionRemoteException(
         'Database error fetching subscription members: ${e.message}',
       );
@@ -325,15 +374,16 @@ class SubscriptionRemoteDataSourceImpl
   @override
   Future<MonthlyStatsModel> calculateMonthlyStats(String userId) async {
     try {
-      debugPrint('🔍 [SubscriptionRemoteDS] Calculating monthly stats for user: $userId');
+      debugPrint(
+          '🔍 [SubscriptionRemoteDS] Calculating monthly stats for user: $userId');
 
       // Get all active subscriptions
       final subscriptions = await getSubscriptions(userId);
-      final activeSubscriptions = subscriptions
-          .where((s) => s.status == 'active')
-          .toList();
+      final activeSubscriptions =
+          subscriptions.where((s) => s.status == 'active').toList();
 
-      debugPrint('   📊 Found ${activeSubscriptions.length} active subscriptions');
+      debugPrint(
+          '   📊 Found ${activeSubscriptions.length} active subscriptions');
 
       // Get all members
       final members = await getMembers(userId);
@@ -344,9 +394,8 @@ class SubscriptionRemoteDataSourceImpl
         0,
         (sum, sub) {
           // Convert yearly to monthly if needed
-          final monthlyCost = sub.billingCycle == 'yearly'
-              ? sub.totalCost / 12
-              : sub.totalCost;
+          final monthlyCost =
+              sub.billingCycle == 'yearly' ? sub.totalCost / 12 : sub.totalCost;
           return sum + monthlyCost;
         },
       );
@@ -368,9 +417,8 @@ class SubscriptionRemoteDataSourceImpl
         (sum, member) => sum + member.amountToPay,
       );
 
-      final overduePaymentsCount = unpaidMembers
-          .where((m) => m.dueDate.isBefore(now))
-          .length;
+      final overduePaymentsCount =
+          unpaidMembers.where((m) => m.dueDate.isBefore(now)).length;
 
       debugPrint('   ⚠️ Overdue payments: $overduePaymentsCount');
 
@@ -384,10 +432,12 @@ class SubscriptionRemoteDataSourceImpl
         unpaidMembersCount: unpaidMembers.length,
       );
 
-      debugPrint('✅ [SubscriptionRemoteDS] Stats calculated: \$${totalMonthlyCost.toStringAsFixed(2)} monthly, \$${pendingToCollect.toStringAsFixed(2)} pending');
+      debugPrint(
+          '✅ [SubscriptionRemoteDS] Stats calculated: \$${totalMonthlyCost.toStringAsFixed(2)} monthly, \$${pendingToCollect.toStringAsFixed(2)} pending');
       return stats;
     } on PostgrestException catch (e) {
-      debugPrint('❌ [SubscriptionRemoteDS] PostgrestException: ${e.message} (Code: ${e.code})');
+      debugPrint(
+          '❌ [SubscriptionRemoteDS] PostgrestException: ${e.message} (Code: ${e.code})');
       throw SubscriptionRemoteException(
         'Database error calculating monthly stats: ${e.message}',
       );
@@ -404,7 +454,8 @@ class SubscriptionRemoteDataSourceImpl
     SubscriptionModel subscription,
   ) async {
     try {
-      debugPrint('🔍 [SubscriptionRemoteDS] Creating subscription: ${subscription.name}');
+      debugPrint(
+          '🔍 [SubscriptionRemoteDS] Creating subscription: ${subscription.name}');
 
       // Remove shared_with before sending to Supabase
       final jsonData = subscription.toJson();
@@ -418,7 +469,8 @@ class SubscriptionRemoteDataSourceImpl
           .select()
           .single();
 
-      debugPrint('📦 [SubscriptionRemoteDS] Supabase response: ${response['id']}');
+      debugPrint(
+          '📦 [SubscriptionRemoteDS] Supabase response: ${response['id']}');
 
       final json = response;
       json['shared_with'] = <String>[]; // New subscription has no members yet
@@ -426,7 +478,8 @@ class SubscriptionRemoteDataSourceImpl
       debugPrint('✅ [SubscriptionRemoteDS] Successfully created subscription');
       return SubscriptionModel.fromJson(json);
     } on PostgrestException catch (e) {
-      debugPrint('❌ [SubscriptionRemoteDS] PostgrestException: ${e.message} (Code: ${e.code})');
+      debugPrint(
+          '❌ [SubscriptionRemoteDS] PostgrestException: ${e.message} (Code: ${e.code})');
       throw SubscriptionRemoteException(
         'Database error creating subscription: ${e.message}',
       );
@@ -443,7 +496,8 @@ class SubscriptionRemoteDataSourceImpl
     SubscriptionModel subscription,
   ) async {
     try {
-      debugPrint('🔍 [SubscriptionRemoteDS] Updating subscription: ${subscription.name} (ID: ${subscription.id})');
+      debugPrint(
+          '🔍 [SubscriptionRemoteDS] Updating subscription: ${subscription.name} (ID: ${subscription.id})');
 
       // Only send updatable fields (exclude id, created_at, updated_at, shared_with)
       final updateData = {
@@ -489,7 +543,8 @@ class SubscriptionRemoteDataSourceImpl
       debugPrint('✅ [SubscriptionRemoteDS] Successfully updated subscription');
       return SubscriptionModel.fromJson(json);
     } on PostgrestException catch (e) {
-      debugPrint('❌ [SubscriptionRemoteDS] PostgrestException: ${e.message} (Code: ${e.code})');
+      debugPrint(
+          '❌ [SubscriptionRemoteDS] PostgrestException: ${e.message} (Code: ${e.code})');
       throw SubscriptionRemoteException(
         'Database error updating subscription: ${e.message}',
       );
@@ -504,7 +559,8 @@ class SubscriptionRemoteDataSourceImpl
   @override
   Future<void> deleteSubscription(String subscriptionId) async {
     try {
-      debugPrint('🔍 [SubscriptionRemoteDS] Deleting subscription: $subscriptionId');
+      debugPrint(
+          '🔍 [SubscriptionRemoteDS] Deleting subscription: $subscriptionId');
 
       // Note: CASCADE DELETE is configured in Supabase, so members will be auto-deleted
       // But we'll delete members explicitly for clarity
@@ -519,7 +575,8 @@ class SubscriptionRemoteDataSourceImpl
 
       debugPrint('✅ [SubscriptionRemoteDS] Successfully deleted subscription');
     } on PostgrestException catch (e) {
-      debugPrint('❌ [SubscriptionRemoteDS] PostgrestException: ${e.message} (Code: ${e.code})');
+      debugPrint(
+          '❌ [SubscriptionRemoteDS] PostgrestException: ${e.message} (Code: ${e.code})');
       throw SubscriptionRemoteException(
         'Database error deleting subscription: ${e.message}',
       );
@@ -538,8 +595,10 @@ class SubscriptionRemoteDataSourceImpl
     DateTime? paymentDate,
   }) async {
     try {
-      debugPrint('🔍 [SubscriptionRemoteDS] Updating payment status for member: $memberId');
-      debugPrint('   💳 Has paid: $hasPaid, Payment date: ${paymentDate?.toIso8601String() ?? 'null'}');
+      debugPrint(
+          '🔍 [SubscriptionRemoteDS] Updating payment status for member: $memberId');
+      debugPrint(
+          '   💳 Has paid: $hasPaid, Payment date: ${paymentDate?.toIso8601String() ?? 'null'}');
 
       final updateData = {
         'has_paid': hasPaid,
@@ -558,10 +617,12 @@ class SubscriptionRemoteDataSourceImpl
 
       final member = SubscriptionMemberModel.fromJson(response);
 
-      debugPrint('✅ [SubscriptionRemoteDS] Successfully updated payment status');
+      debugPrint(
+          '✅ [SubscriptionRemoteDS] Successfully updated payment status');
       return member;
     } on PostgrestException catch (e) {
-      debugPrint('❌ [SubscriptionRemoteDS] PostgrestException: ${e.message} (Code: ${e.code})');
+      debugPrint(
+          '❌ [SubscriptionRemoteDS] PostgrestException: ${e.message} (Code: ${e.code})');
       throw SubscriptionRemoteException(
         'Database error updating payment status: ${e.message}',
       );
@@ -580,7 +641,8 @@ class SubscriptionRemoteDataSourceImpl
     try {
       debugPrint('🔍 [SubscriptionRemoteDS] Adding member: ${member.userName}');
       debugPrint('   📋 Subscription ID: ${member.subscriptionId}');
-      debugPrint('   💰 Amount to pay: \$${member.amountToPay.toStringAsFixed(2)}');
+      debugPrint(
+          '   💰 Amount to pay: \$${member.amountToPay.toStringAsFixed(2)}');
 
       final response = await _client
           .from('subscription_members')
@@ -588,14 +650,16 @@ class SubscriptionRemoteDataSourceImpl
           .select()
           .single();
 
-      debugPrint('📦 [SubscriptionRemoteDS] Supabase response: ${response['id']}');
+      debugPrint(
+          '📦 [SubscriptionRemoteDS] Supabase response: ${response['id']}');
 
       final addedMember = SubscriptionMemberModel.fromJson(response);
 
       debugPrint('✅ [SubscriptionRemoteDS] Successfully added member');
       return addedMember;
     } on PostgrestException catch (e) {
-      debugPrint('❌ [SubscriptionRemoteDS] PostgrestException: ${e.message} (Code: ${e.code})');
+      debugPrint(
+          '❌ [SubscriptionRemoteDS] PostgrestException: ${e.message} (Code: ${e.code})');
       throw SubscriptionRemoteException(
         'Database error adding member: ${e.message}',
       );
@@ -616,7 +680,8 @@ class SubscriptionRemoteDataSourceImpl
 
       debugPrint('✅ [SubscriptionRemoteDS] Successfully removed member');
     } on PostgrestException catch (e) {
-      debugPrint('❌ [SubscriptionRemoteDS] PostgrestException: ${e.message} (Code: ${e.code})');
+      debugPrint(
+          '❌ [SubscriptionRemoteDS] PostgrestException: ${e.message} (Code: ${e.code})');
       throw SubscriptionRemoteException(
         'Database error removing member: ${e.message}',
       );
@@ -658,7 +723,8 @@ class SubscriptionRemoteDataSourceImpl
 
       return SubscriptionMemberModel.fromJson(response);
     } on PostgrestException catch (e) {
-      debugPrint('❌ [SubscriptionRemoteDS] PostgrestException: ${e.message} (Code: ${e.code})');
+      debugPrint(
+          '❌ [SubscriptionRemoteDS] PostgrestException: ${e.message} (Code: ${e.code})');
       throw SubscriptionRemoteException(
         'Database error updating member amount: ${e.message}',
       );
@@ -678,6 +744,7 @@ class SubscriptionRemoteDataSourceImpl
     required DateTime paymentDate,
     required String markedBy,
     String? notes,
+    String? idempotencyKey,
   }) async {
     try {
       debugPrint('🔍 [SubscriptionRemoteDS] Marking payment as paid (ATOMIC)');
@@ -687,15 +754,19 @@ class SubscriptionRemoteDataSourceImpl
 
       // Call atomic RPC function (single transaction)
       debugPrint('   ⚛️  Calling mark_payment_as_paid_atomic RPC...');
-      final response = await _client.rpc('mark_payment_as_paid_atomic', params: {
-        'p_subscription_id': subscriptionId,
-        'p_member_id': memberId,
-        'p_amount': amount,
-        'p_payment_date': paymentDate.toIso8601String(),
-        'p_marked_by': markedBy,
-        'p_notes': notes,
-        'p_payment_method': 'cash', // Default payment method
-      }).select().single();
+      final response = await _client
+          .rpc('mark_payment_as_paid_atomic', params: {
+            'p_subscription_id': subscriptionId,
+            'p_member_id': memberId,
+            'p_amount': amount,
+            'p_payment_date': paymentDate.toIso8601String(),
+            'p_marked_by': markedBy,
+            'p_notes': notes,
+            'p_payment_method': 'cash', // Default payment method
+            if (idempotencyKey != null) 'p_idempotency_key': idempotencyKey,
+          })
+          .select()
+          .single();
 
       debugPrint('   ✅ RPC completed successfully');
 
@@ -704,7 +775,8 @@ class SubscriptionRemoteDataSourceImpl
       final memberName = response['member_name'] as String;
       final subscriptionName = response['subscription_name'] as String;
 
-      debugPrint('✅ [SubscriptionRemoteDS] Payment marked as paid (atomically)');
+      debugPrint(
+          '✅ [SubscriptionRemoteDS] Payment marked as paid (atomically)');
 
       // Construct PaymentHistoryModel (temporarily using fromJson pattern until model is updated)
       // TODO: Update to use new constructor with denormalized fields after FASE 2/3
@@ -724,7 +796,8 @@ class SubscriptionRemoteDataSourceImpl
         'payment_method': 'cash',
       });
     } on PostgrestException catch (e) {
-      debugPrint('❌ [SubscriptionRemoteDS] PostgrestException: ${e.message} (Code: ${e.code})');
+      debugPrint(
+          '❌ [SubscriptionRemoteDS] PostgrestException: ${e.message} (Code: ${e.code})');
       throw SubscriptionRemoteException(
         'Database error marking payment as paid: ${e.message}',
       );
@@ -757,7 +830,8 @@ class SubscriptionRemoteDataSourceImpl
           .eq('has_paid', false);
 
       final unpaidMembers = (unpaidResponse as List<dynamic>)
-          .map((json) => SubscriptionMemberModel.fromJson(json as Map<String, dynamic>))
+          .map((json) =>
+              SubscriptionMemberModel.fromJson(json as Map<String, dynamic>))
           .toList();
 
       debugPrint('   📊 Found ${unpaidMembers.length} unpaid members');
@@ -800,11 +874,13 @@ class SubscriptionRemoteDataSourceImpl
 
       await _client.from('payment_history').insert(historyRecords);
 
-      debugPrint('✅ [SubscriptionRemoteDS] Marked ${unpaidMembers.length} payments as paid');
+      debugPrint(
+          '✅ [SubscriptionRemoteDS] Marked ${unpaidMembers.length} payments as paid');
 
       return unpaidMembers.length;
     } on PostgrestException catch (e) {
-      debugPrint('❌ [SubscriptionRemoteDS] PostgrestException: ${e.message} (Code: ${e.code})');
+      debugPrint(
+          '❌ [SubscriptionRemoteDS] PostgrestException: ${e.message} (Code: ${e.code})');
       throw SubscriptionRemoteException(
         'Database error marking all payments as paid: ${e.message}',
       );
@@ -824,6 +900,7 @@ class SubscriptionRemoteDataSourceImpl
     required DateTime paymentDate,
     required String markedBy,
     String? notes,
+    String? idempotencyKey,
   }) async {
     try {
       debugPrint('🔍 [SubscriptionRemoteDS] Unmarking payment (ATOMIC undo)');
@@ -832,13 +909,15 @@ class SubscriptionRemoteDataSourceImpl
 
       // Call atomic RPC function (single transaction)
       debugPrint('   ⚛️  Calling unmark_payment_atomic RPC...');
-      final paymentHistoryId = await _client.rpc('unmark_payment_atomic', params: {
+      final paymentHistoryId =
+          await _client.rpc('unmark_payment_atomic', params: {
         'p_subscription_id': subscriptionId,
         'p_member_id': memberId,
         'p_amount': amount,
         'p_payment_date': paymentDate.toIso8601String(),
         'p_marked_by': markedBy,
         'p_notes': notes,
+        if (idempotencyKey != null) 'p_idempotency_key': idempotencyKey,
       }) as String;
 
       debugPrint('   ✅ RPC completed successfully');
@@ -858,7 +937,8 @@ class SubscriptionRemoteDataSourceImpl
           .eq('id', subscriptionId)
           .single();
 
-      debugPrint('✅ [SubscriptionRemoteDS] Payment unmarked successfully (atomically)');
+      debugPrint(
+          '✅ [SubscriptionRemoteDS] Payment unmarked successfully (atomically)');
 
       // Construct PaymentHistoryModel (temporarily using fromJson pattern until model is updated)
       // TODO: Update to use new constructor with denormalized fields after FASE 2/3
@@ -877,7 +957,8 @@ class SubscriptionRemoteDataSourceImpl
         'subscription_name': subscriptionData['name'] as String,
       });
     } on PostgrestException catch (e) {
-      debugPrint('❌ [SubscriptionRemoteDS] PostgrestException: ${e.message} (Code: ${e.code})');
+      debugPrint(
+          '❌ [SubscriptionRemoteDS] PostgrestException: ${e.message} (Code: ${e.code})');
       throw SubscriptionRemoteException(
         'Database error unmarking payment: ${e.message}',
       );
@@ -885,6 +966,72 @@ class SubscriptionRemoteDataSourceImpl
       debugPrint('❌ [SubscriptionRemoteDS] Unexpected error: $e');
       throw SubscriptionRemoteException(
         'Failed to unmark payment: ${e.toString()}',
+      );
+    }
+  }
+
+  @override
+  Future<PaymentSyncMemberCycleContext> getPaymentSyncMemberCycleContext({
+    required String subscriptionId,
+    required String memberId,
+  }) async {
+    try {
+      final response = await _client
+          .from('subscription_members')
+          .select('due_date, has_paid')
+          .eq('id', memberId)
+          .eq('subscription_id', subscriptionId)
+          .single();
+      final cycleDueDate = DateTime.parse(response['due_date'] as String);
+      return PaymentSyncMemberCycleContext(
+        cycleDueDate: cycleDueDate,
+        hasPaid: response['has_paid'] as bool? ?? false,
+      );
+    } on PostgrestException catch (e) {
+      throw SubscriptionRemoteException(
+        'Database error fetching sync cycle context: ${e.message}',
+      );
+    } catch (e) {
+      throw SubscriptionRemoteException(
+        'Failed to fetch sync cycle context: ${e.toString()}',
+      );
+    }
+  }
+
+  @override
+  Future<void> recordPaymentSyncConflictAudit({
+    required String operationId,
+    required String subscriptionId,
+    required String memberId,
+    required String action,
+    required String terminalReason,
+    required DateTime queuedCycleDueDate,
+    required DateTime backendCycleDueDate,
+    required int retryCount,
+    required String idempotencyKey,
+  }) async {
+    try {
+      await _client.rpc(
+        'record_payment_sync_conflict_audit',
+        params: {
+          'p_operation_id': operationId,
+          'p_subscription_id': subscriptionId,
+          'p_member_id': memberId,
+          'p_action': action,
+          'p_terminal_reason': terminalReason,
+          'p_queued_cycle_due_date': queuedCycleDueDate.toIso8601String(),
+          'p_backend_cycle_due_date': backendCycleDueDate.toIso8601String(),
+          'p_retry_count': retryCount,
+          'p_idempotency_key': idempotencyKey,
+        },
+      );
+    } on PostgrestException catch (e) {
+      throw SubscriptionRemoteException(
+        'Database error recording sync conflict audit: ${e.message}',
+      );
+    } catch (e) {
+      throw SubscriptionRemoteException(
+        'Failed to record sync conflict audit: ${e.toString()}',
       );
     }
   }
@@ -920,21 +1067,23 @@ class SubscriptionRemoteDataSourceImpl
       final orderedQuery = query.order('created_at', ascending: false);
 
       // Apply limit if provided
-      final finalQuery = limit != null
-          ? orderedQuery.limit(limit)
-          : orderedQuery;
+      final finalQuery =
+          limit != null ? orderedQuery.limit(limit) : orderedQuery;
 
       final response = await finalQuery;
 
       final history = (response as List<dynamic>)
-          .map((json) => PaymentHistoryModel.fromJson(json as Map<String, dynamic>))
+          .map((json) =>
+              PaymentHistoryModel.fromJson(json as Map<String, dynamic>))
           .toList();
 
-      debugPrint('✅ [SubscriptionRemoteDS] Fetched ${history.length} payment history records');
+      debugPrint(
+          '✅ [SubscriptionRemoteDS] Fetched ${history.length} payment history records');
 
       return history;
     } on PostgrestException catch (e) {
-      debugPrint('❌ [SubscriptionRemoteDS] PostgrestException: ${e.message} (Code: ${e.code})');
+      debugPrint(
+          '❌ [SubscriptionRemoteDS] PostgrestException: ${e.message} (Code: ${e.code})');
       throw SubscriptionRemoteException(
         'Database error fetching payment history: ${e.message}',
       );
@@ -959,8 +1108,10 @@ class SubscriptionRemoteDataSourceImpl
     try {
       debugPrint('🔍 [SubscriptionRemoteDS] Fetching payment stats');
       debugPrint('   Subscription: $subscriptionId');
-      if (startDate != null) debugPrint('   Start Date: ${startDate.toIso8601String()}');
-      if (endDate != null) debugPrint('   End Date: ${endDate.toIso8601String()}');
+      if (startDate != null)
+        debugPrint('   Start Date: ${startDate.toIso8601String()}');
+      if (endDate != null)
+        debugPrint('   End Date: ${endDate.toIso8601String()}');
 
       // Call RPC function for aggregated stats
       debugPrint('   📊 Calling get_payment_history_stats RPC...');
@@ -974,12 +1125,15 @@ class SubscriptionRemoteDataSourceImpl
 
       // Parse response from RPC
       final totalPayments = response['total_payments'] as int? ?? 0;
-      final totalAmountPaid = (response['total_amount_paid'] as num?)?.toDouble() ?? 0.0;
-      final totalAmountUnpaid = (response['total_amount_unpaid'] as num?)?.toDouble() ?? 0.0;
+      final totalAmountPaid =
+          (response['total_amount_paid'] as num?)?.toDouble() ?? 0.0;
+      final totalAmountUnpaid =
+          (response['total_amount_unpaid'] as num?)?.toDouble() ?? 0.0;
       final uniquePayers = response['unique_payers'] as int? ?? 0;
 
       // Parse payment methods JSONB
-      final paymentMethodsJson = response['payment_methods'] as Map<String, dynamic>?;
+      final paymentMethodsJson =
+          response['payment_methods'] as Map<String, dynamic>?;
       final paymentMethods = <String, int>{};
 
       if (paymentMethodsJson != null) {
@@ -1000,11 +1154,13 @@ class SubscriptionRemoteDataSourceImpl
 
       debugPrint('✅ [SubscriptionRemoteDS] Payment stats fetched successfully');
       debugPrint('   Total Payments: $totalPayments');
-      debugPrint('   Total Amount Paid: \$${totalAmountPaid.toStringAsFixed(2)}');
+      debugPrint(
+          '   Total Amount Paid: \$${totalAmountPaid.toStringAsFixed(2)}');
 
       return stats;
     } on PostgrestException catch (e) {
-      debugPrint('❌ [SubscriptionRemoteDS] PostgrestException: ${e.message} (Code: ${e.code})');
+      debugPrint(
+          '❌ [SubscriptionRemoteDS] PostgrestException: ${e.message} (Code: ${e.code})');
 
       // Return empty stats on error instead of throwing
       debugPrint('⚠️  Returning empty stats due to error');
@@ -1030,7 +1186,8 @@ class SubscriptionRemoteDataSourceImpl
 
       // Get start date based on time range
       final startDate = timeRange.getStartDate();
-      debugPrint('   Start Date: ${startDate?.toIso8601String() ?? "All time"}');
+      debugPrint(
+          '   Start Date: ${startDate?.toIso8601String() ?? "All time"}');
 
       // Parallel queries for better performance
       final results = await Future.wait([
@@ -1042,7 +1199,8 @@ class SubscriptionRemoteDataSourceImpl
 
       final overview = results[0] as AnalyticsOverviewModel;
       final spendingTrends = results[1] as List<MonthlySpendingModel>;
-      final subscriptionSpending = results[2] as List<SubscriptionSpendingModel>;
+      final subscriptionSpending =
+          results[2] as List<SubscriptionSpendingModel>;
       final paymentAnalytics = results[3] as PaymentAnalyticsModel;
 
       final analyticsData = AnalyticsDataModel(
@@ -1052,10 +1210,12 @@ class SubscriptionRemoteDataSourceImpl
         paymentAnalytics: paymentAnalytics,
       );
 
-      debugPrint('✅ [SubscriptionRemoteDS] Analytics data fetched successfully');
+      debugPrint(
+          '✅ [SubscriptionRemoteDS] Analytics data fetched successfully');
       return analyticsData;
     } on PostgrestException catch (e) {
-      debugPrint('❌ [SubscriptionRemoteDS] PostgrestException: ${e.message} (Code: ${e.code})');
+      debugPrint(
+          '❌ [SubscriptionRemoteDS] PostgrestException: ${e.message} (Code: ${e.code})');
       throw SubscriptionRemoteException(
         'Database error fetching analytics: ${e.message}',
       );
@@ -1080,9 +1240,8 @@ class SubscriptionRemoteDataSourceImpl
     final totalMonthlyCost = activeSubscriptions.fold<double>(
       0,
       (sum, sub) {
-        final monthlyCost = sub.billingCycle == 'yearly'
-            ? sub.totalCost / 12
-            : sub.totalCost;
+        final monthlyCost =
+            sub.billingCycle == 'yearly' ? sub.totalCost / 12 : sub.totalCost;
         return sum + monthlyCost;
       },
     );
@@ -1177,11 +1336,13 @@ class SubscriptionRemoteDataSourceImpl
     final data = await queryBuilder;
 
     // Group by subscription_id
-    final subscriptionSpendingMap = <String, _SubscriptionSpendingAccumulator>{};
+    final subscriptionSpendingMap =
+        <String, _SubscriptionSpendingAccumulator>{};
 
     for (final record in data) {
       final subscriptionId = record['subscription_id'] as String;
-      final subscriptionName = record['subscription_name'] as String? ?? 'Unknown';
+      final subscriptionName =
+          record['subscription_name'] as String? ?? 'Unknown';
       final amount = (record['amount'] as num).toDouble();
 
       if (subscriptionSpendingMap.containsKey(subscriptionId)) {
@@ -1230,7 +1391,8 @@ class SubscriptionRemoteDataSourceImpl
     // Query payment_history with join to subscription_members for due_date
     var queryBuilder = _client
         .from('payment_history')
-        .select('payment_date, member_id, member_name, amount, subscription_members!inner(due_date)')
+        .select(
+            'payment_date, member_id, member_name, amount, subscription_members!inner(due_date)')
         .eq('action', 'paid');
 
     if (startDate != null) {
@@ -1322,7 +1484,6 @@ class SubscriptionRemoteDataSourceImpl
 // ========== Helper Classes for Accumulation ==========
 
 class _MonthlySpendingAccumulator {
-
   _MonthlySpendingAccumulator({
     required this.month,
     required this.amountPaid,
@@ -1334,7 +1495,6 @@ class _MonthlySpendingAccumulator {
 }
 
 class _SubscriptionSpendingAccumulator {
-
   _SubscriptionSpendingAccumulator({
     required this.subscriptionId,
     required this.subscriptionName,
@@ -1350,7 +1510,6 @@ class _SubscriptionSpendingAccumulator {
 }
 
 class _TopPayerAccumulator {
-
   _TopPayerAccumulator({
     required this.memberName,
     required this.paymentCount,
