@@ -162,6 +162,17 @@ void main() {
           idempotencyKey: any(named: 'idempotencyKey'),
         ),
       );
+      verifyNever(
+        () => mockRemoteDataSource.unmarkPayment(
+          subscriptionId: any(named: 'subscriptionId'),
+          memberId: any(named: 'memberId'),
+          amount: any(named: 'amount'),
+          paymentDate: any(named: 'paymentDate'),
+          markedBy: any(named: 'markedBy'),
+          notes: any(named: 'notes'),
+          idempotencyKey: any(named: 'idempotencyKey'),
+        ),
+      );
       verify(
         () => mockQueueService.markTerminal(
           operation.id,
@@ -173,6 +184,65 @@ void main() {
           lastErrorCode: cycleConflictNoopReason,
         ),
       ).called(1);
+      verify(
+        () => mockRemoteDataSource.recordPaymentSyncConflictAudit(
+          operationId: operation.id,
+          subscriptionId: operation.subscriptionId,
+          memberId: operation.memberId,
+          action: operation.action,
+          terminalReason: cycleConflictNoopReason,
+          queuedCycleDueDate: operation.cycleDueDate,
+          backendCycleDueDate: DateTime(2026, 2, 1),
+          retryCount: operation.retryCount,
+          idempotencyKey: operation.idempotencyKey,
+        ),
+      ).called(1);
+    });
+
+    test('stale-cycle unpaid operation skips unmark RPC and is audited',
+        () async {
+      final operation = buildOperation(id: 'stale-unpaid', action: 'unpaid');
+
+      var readCount = 0;
+      when(
+        () => mockQueueService.getPendingOrdered(asOf: any(named: 'asOf')),
+      ).thenAnswer((_) async {
+        readCount += 1;
+        if (readCount == 1) {
+          return [operation];
+        }
+        return <PaymentSyncOperation>[];
+      });
+      when(
+        () => mockRemoteDataSource.getPaymentSyncMemberCycleContext(
+          subscriptionId: operation.subscriptionId,
+          memberId: operation.memberId,
+        ),
+      ).thenAnswer(
+        (_) async => PaymentSyncMemberCycleContext(
+          cycleDueDate: DateTime(2026, 2, 1),
+          hasPaid: true,
+        ),
+      );
+
+      final orchestrator = PaymentSyncOrchestrator(
+        queueService: mockQueueService,
+        remoteDataSource: mockRemoteDataSource,
+      );
+      await orchestrator.start();
+      await orchestrator.triggerSync(reason: 'test');
+
+      verifyNever(
+        () => mockRemoteDataSource.unmarkPayment(
+          subscriptionId: any(named: 'subscriptionId'),
+          memberId: any(named: 'memberId'),
+          amount: any(named: 'amount'),
+          paymentDate: any(named: 'paymentDate'),
+          markedBy: any(named: 'markedBy'),
+          notes: any(named: 'notes'),
+          idempotencyKey: any(named: 'idempotencyKey'),
+        ),
+      );
       verify(
         () => mockRemoteDataSource.recordPaymentSyncConflictAudit(
           operationId: operation.id,
