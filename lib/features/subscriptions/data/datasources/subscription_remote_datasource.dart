@@ -602,10 +602,15 @@ class SubscriptionRemoteDataSourceImpl implements SubscriptionRemoteDataSource {
     DateTime? paymentDate,
   }) async {
     try {
-      debugPrint(
-          '🔍 [SubscriptionRemoteDS] Updating payment status for member: $memberId');
-      debugPrint(
-          '   💳 Has paid: $hasPaid, Payment date: ${paymentDate?.toIso8601String() ?? 'null'}');
+      _syncLogger.logSync(
+        event: 'remote_update_payment_status_started',
+        operationId: memberId,
+        actionType: hasPaid ? 'paid' : 'unpaid',
+        metadata: {
+          'layer': 'remote_datasource',
+          'has_payment_date': paymentDate != null,
+        },
+      );
 
       final updateData = {
         'has_paid': hasPaid,
@@ -620,21 +625,32 @@ class SubscriptionRemoteDataSourceImpl implements SubscriptionRemoteDataSource {
           .select()
           .single();
 
-      debugPrint('📦 [SubscriptionRemoteDS] Supabase response received');
-
       final member = SubscriptionMemberModel.fromJson(response);
-
-      debugPrint(
-          '✅ [SubscriptionRemoteDS] Successfully updated payment status');
+      _syncLogger.logSync(
+        event: 'remote_update_payment_status_completed',
+        operationId: memberId,
+        actionType: hasPaid ? 'paid' : 'unpaid',
+        metadata: {'layer': 'remote_datasource'},
+      );
       return member;
     } on PostgrestException catch (e) {
-      debugPrint(
-          '❌ [SubscriptionRemoteDS] PostgrestException: ${e.message} (Code: ${e.code})');
+      _syncLogger.logTerminal(
+        event: 'remote_update_payment_status_postgrest_exception',
+        operationId: memberId,
+        terminalReason: 'remote_database_error',
+        errorClass: 'postgrest',
+        errorCode: e.code,
+      );
       throw SubscriptionRemoteException(
         'Database error updating payment status: ${e.message}',
       );
     } catch (e) {
-      debugPrint('❌ [SubscriptionRemoteDS] Unexpected error: $e');
+      _syncLogger.logTerminal(
+        event: 'remote_update_payment_status_exception',
+        operationId: memberId,
+        terminalReason: 'remote_unexpected_error',
+        errorClass: e.runtimeType.toString(),
+      );
       throw SubscriptionRemoteException(
         'Failed to update payment status: ${e.toString()}',
       );
@@ -646,8 +662,13 @@ class SubscriptionRemoteDataSourceImpl implements SubscriptionRemoteDataSource {
     SubscriptionMemberModel member,
   ) async {
     try {
+      _syncLogger.logSync(
+        event: 'remote_add_member_started',
+        actionType: 'member_create',
+        metadata: {'layer': 'remote_datasource'},
+      );
       debugPrint('🔍 [SubscriptionRemoteDS] Adding member: ${member.userName}');
-      debugPrint('   📋 Subscription ID: ${member.subscriptionId}');
+      debugPrint('   📋 Subscription linked');
       debugPrint(
           '   💰 Amount to pay: \$${member.amountToPay.toStringAsFixed(2)}');
 
@@ -662,6 +683,11 @@ class SubscriptionRemoteDataSourceImpl implements SubscriptionRemoteDataSource {
 
       final addedMember = SubscriptionMemberModel.fromJson(response);
 
+      _syncLogger.logSync(
+        event: 'remote_add_member_completed',
+        actionType: 'member_create',
+        metadata: {'layer': 'remote_datasource'},
+      );
       debugPrint('✅ [SubscriptionRemoteDS] Successfully added member');
       return addedMember;
     } on PostgrestException catch (e) {
@@ -681,10 +707,22 @@ class SubscriptionRemoteDataSourceImpl implements SubscriptionRemoteDataSource {
   @override
   Future<void> removeMember(String memberId) async {
     try {
-      debugPrint('🔍 [SubscriptionRemoteDS] Removing member: $memberId');
+      _syncLogger.logSync(
+        event: 'remote_remove_member_started',
+        operationId: memberId,
+        actionType: 'member_remove',
+        metadata: {'layer': 'remote_datasource'},
+      );
+      debugPrint('🔍 [SubscriptionRemoteDS] Removing member');
 
       await _client.from('subscription_members').delete().eq('id', memberId);
 
+      _syncLogger.logSync(
+        event: 'remote_remove_member_completed',
+        operationId: memberId,
+        actionType: 'member_remove',
+        metadata: {'layer': 'remote_datasource'},
+      );
       debugPrint('✅ [SubscriptionRemoteDS] Successfully removed member');
     } on PostgrestException catch (e) {
       debugPrint(
@@ -707,11 +745,15 @@ class SubscriptionRemoteDataSourceImpl implements SubscriptionRemoteDataSource {
     bool? hasPaid,
   }) async {
     try {
-      debugPrint('🔍 [SubscriptionRemoteDS] Updating member amount: $memberId');
-      debugPrint('   Amount: \$$amountToPay');
-      if (hasPaid != null) {
-        debugPrint('   Reset payment: $hasPaid');
-      }
+      _syncLogger.logSync(
+        event: 'remote_update_member_amount_started',
+        operationId: memberId,
+        actionType: 'member_amount_update',
+        metadata: {
+          'layer': 'remote_datasource',
+          'reset_payment': hasPaid != null,
+        },
+      );
 
       // Build update data conditionally
       final updateData = <String, dynamic>{
@@ -726,17 +768,35 @@ class SubscriptionRemoteDataSourceImpl implements SubscriptionRemoteDataSource {
           .select()
           .single();
 
-      debugPrint('✅ [SubscriptionRemoteDS] Successfully updated member amount');
+      _syncLogger.logSync(
+        event: 'remote_update_member_amount_completed',
+        operationId: memberId,
+        actionType: 'member_amount_update',
+        metadata: {
+          'layer': 'remote_datasource',
+          'reset_payment': hasPaid != null,
+        },
+      );
 
       return SubscriptionMemberModel.fromJson(response);
     } on PostgrestException catch (e) {
-      debugPrint(
-          '❌ [SubscriptionRemoteDS] PostgrestException: ${e.message} (Code: ${e.code})');
+      _syncLogger.logTerminal(
+        event: 'remote_update_member_amount_postgrest_exception',
+        operationId: memberId,
+        terminalReason: 'remote_database_error',
+        errorClass: 'postgrest',
+        errorCode: e.code,
+      );
       throw SubscriptionRemoteException(
         'Database error updating member amount: ${e.message}',
       );
     } catch (e) {
-      debugPrint('❌ [SubscriptionRemoteDS] Unexpected error: $e');
+      _syncLogger.logTerminal(
+        event: 'remote_update_member_amount_exception',
+        operationId: memberId,
+        terminalReason: 'remote_unexpected_error',
+        errorClass: e.runtimeType.toString(),
+      );
       throw SubscriptionRemoteException(
         'Failed to update member amount: ${e.toString()}',
       );
@@ -1141,14 +1201,16 @@ class SubscriptionRemoteDataSourceImpl implements SubscriptionRemoteDataSource {
     int? limit,
   }) async {
     try {
-      debugPrint('🔍 [SubscriptionRemoteDS] Fetching payment history');
-      debugPrint('   Subscription: $subscriptionId');
-      if (memberId != null) {
-        debugPrint('   Member filter: $memberId');
-      }
-      if (limit != null) {
-        debugPrint('   Limit: $limit');
-      }
+      _syncLogger.logSync(
+        event: 'remote_get_payment_history_started',
+        operationId: subscriptionId,
+        actionType: 'payment_history_fetch',
+        metadata: {
+          'layer': 'remote_datasource',
+          'filter_enabled': memberId != null,
+          'limit_enabled': limit != null,
+        },
+      );
 
       // Build query with filters
       var query = _client
@@ -1175,18 +1237,35 @@ class SubscriptionRemoteDataSourceImpl implements SubscriptionRemoteDataSource {
               PaymentHistoryModel.fromJson(json as Map<String, dynamic>))
           .toList();
 
-      debugPrint(
-          '✅ [SubscriptionRemoteDS] Fetched ${history.length} payment history records');
+      _syncLogger.logSync(
+        event: 'remote_get_payment_history_completed',
+        operationId: subscriptionId,
+        actionType: 'payment_history_fetch',
+        metadata: {
+          'layer': 'remote_datasource',
+          'record_count': history.length,
+        },
+      );
 
       return history;
     } on PostgrestException catch (e) {
-      debugPrint(
-          '❌ [SubscriptionRemoteDS] PostgrestException: ${e.message} (Code: ${e.code})');
+      _syncLogger.logTerminal(
+        event: 'remote_get_payment_history_postgrest_exception',
+        operationId: subscriptionId,
+        terminalReason: 'remote_database_error',
+        errorClass: 'postgrest',
+        errorCode: e.code,
+      );
       throw SubscriptionRemoteException(
         'Database error fetching payment history: ${e.message}',
       );
     } catch (e) {
-      debugPrint('❌ [SubscriptionRemoteDS] Unexpected error: $e');
+      _syncLogger.logTerminal(
+        event: 'remote_get_payment_history_exception',
+        operationId: subscriptionId,
+        terminalReason: 'remote_unexpected_error',
+        errorClass: e.runtimeType.toString(),
+      );
       throw SubscriptionRemoteException(
         'Failed to fetch payment history: ${e.toString()}',
       );
@@ -1204,22 +1283,36 @@ class SubscriptionRemoteDataSourceImpl implements SubscriptionRemoteDataSource {
     DateTime? endDate,
   }) async {
     try {
-      debugPrint('🔍 [SubscriptionRemoteDS] Fetching payment stats');
-      debugPrint('   Subscription: $subscriptionId');
-      if (startDate != null)
-        debugPrint('   Start Date: ${startDate.toIso8601String()}');
-      if (endDate != null)
-        debugPrint('   End Date: ${endDate.toIso8601String()}');
+      _syncLogger.logSync(
+        event: 'remote_get_payment_stats_started',
+        operationId: subscriptionId,
+        actionType: 'payment_stats_fetch',
+        metadata: {
+          'layer': 'remote_datasource',
+          'start_window_applied': startDate != null,
+          'end_window_applied': endDate != null,
+        },
+      );
 
       // Call RPC function for aggregated stats
-      debugPrint('   📊 Calling get_payment_history_stats RPC...');
+      _syncLogger.logSync(
+        event: 'remote_get_payment_stats_rpc_call',
+        operationId: subscriptionId,
+        actionType: 'payment_stats_fetch',
+        metadata: {'layer': 'remote_datasource'},
+      );
       final response = await _client.rpc('get_payment_history_stats', params: {
         'p_subscription_id': subscriptionId,
         'p_start_date': startDate?.toIso8601String(),
         'p_end_date': endDate?.toIso8601String(),
       }).single();
 
-      debugPrint('   ✅ RPC completed successfully');
+      _syncLogger.logSync(
+        event: 'remote_get_payment_stats_rpc_success',
+        operationId: subscriptionId,
+        actionType: 'payment_stats_fetch',
+        metadata: {'layer': 'remote_datasource'},
+      );
 
       // Parse response from RPC
       final totalPayments = response['total_payments'] as int? ?? 0;
@@ -1250,21 +1343,37 @@ class SubscriptionRemoteDataSourceImpl implements SubscriptionRemoteDataSource {
         paymentMethods: paymentMethods,
       );
 
-      debugPrint('✅ [SubscriptionRemoteDS] Payment stats fetched successfully');
-      debugPrint('   Total Payments: $totalPayments');
-      debugPrint(
-          '   Total Amount Paid: \$${totalAmountPaid.toStringAsFixed(2)}');
+      _syncLogger.logSync(
+        event: 'remote_get_payment_stats_completed',
+        operationId: subscriptionId,
+        actionType: 'payment_stats_fetch',
+        metadata: {
+          'layer': 'remote_datasource',
+          'total_payments': totalPayments,
+          'unique_payers': uniquePayers,
+        },
+      );
 
       return stats;
     } on PostgrestException catch (e) {
-      debugPrint(
-          '❌ [SubscriptionRemoteDS] PostgrestException: ${e.message} (Code: ${e.code})');
+      _syncLogger.logTerminal(
+        event: 'remote_get_payment_stats_postgrest_exception',
+        operationId: subscriptionId,
+        terminalReason: 'remote_database_error',
+        errorClass: 'postgrest',
+        errorCode: e.code,
+      );
 
       // Return empty stats on error instead of throwing
       debugPrint('⚠️  Returning empty stats due to error');
       return PaymentStats.empty();
     } catch (e) {
-      debugPrint('❌ [SubscriptionRemoteDS] Unexpected error: $e');
+      _syncLogger.logTerminal(
+        event: 'remote_get_payment_stats_exception',
+        operationId: subscriptionId,
+        terminalReason: 'remote_unexpected_error',
+        errorClass: e.runtimeType.toString(),
+      );
 
       // Return empty stats on error instead of throwing
       debugPrint('⚠️  Returning empty stats due to error');
