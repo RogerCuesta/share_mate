@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_project_agents/features/subscriptions/presentation/providers/create_group_subscription_form_provider.dart';
+import 'package:flutter_project_agents/features/subscriptions/presentation/widgets/billing_day_hint.dart';
 
 /// Card displaying split bill preview with breakdown
 ///
@@ -14,6 +15,8 @@ class SplitBillPreviewCard extends StatelessWidget {
     required this.totalMembers,
     required this.splitAmount,
     required this.breakdown,
+    this.billingAnchorDay,
+    this.renewalDate,
     super.key,
   });
 
@@ -21,6 +24,8 @@ class SplitBillPreviewCard extends StatelessWidget {
   final int totalMembers;
   final double splitAmount;
   final List<MemberSplit> breakdown;
+  final int? billingAnchorDay;
+  final DateTime? renewalDate;
 
   @override
   Widget build(BuildContext context) {
@@ -155,6 +160,13 @@ class SplitBillPreviewCard extends StatelessWidget {
               amount: memberSplit.amount,
             ),
           ),
+          if (billingAnchorDay != null && renewalDate != null) ...[
+            const SizedBox(height: 12),
+            BillingDayHint(
+              billingAnchorDay: billingAnchorDay!,
+              referenceDate: renewalDate!,
+            ),
+          ],
         ],
       ),
     );

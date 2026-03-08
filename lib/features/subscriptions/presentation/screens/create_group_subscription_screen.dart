@@ -711,6 +711,8 @@ class _CreateGroupSubscriptionScreenState
                   totalMembers: formState.totalMembers,
                   splitAmount: formState.splitAmount,
                   breakdown: formState.breakdown,
+                  billingAnchorDay: formState.billingAnchorDay,
+                  renewalDate: formState.renewalDate,
                 ),
               const SizedBox(height: 100), // Padding for FAB
             ],

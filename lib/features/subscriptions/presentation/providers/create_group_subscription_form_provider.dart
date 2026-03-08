@@ -9,6 +9,7 @@ import 'package:flutter_project_agents/features/subscriptions/domain/entities/se
 import 'package:flutter_project_agents/features/subscriptions/domain/entities/subscription.dart';
 import 'package:flutter_project_agents/features/subscriptions/domain/entities/subscription_member.dart';
 import 'package:flutter_project_agents/features/subscriptions/domain/entities/subscription_member_input.dart';
+import 'package:flutter_project_agents/features/subscriptions/domain/services/billing_date_normalizer.dart';
 import 'package:flutter_project_agents/features/subscriptions/domain/services/split_calculator.dart';
 import 'package:flutter_project_agents/features/subscriptions/presentation/providers/subscription_detail_provider.dart';
 import 'package:flutter_project_agents/features/subscriptions/presentation/providers/subscriptions_provider.dart';
@@ -27,6 +28,12 @@ class MemberSplit {
   final double amount;
 }
 
+DateTime _resolvedDateOnly(DateTime? value) {
+  return const BillingDateNormalizer().toLocalDate(
+    value ?? DateTime.now().add(const Duration(days: 30)),
+  );
+}
+
 /// Form state for creating a group subscription
 class CreateGroupSubscriptionFormState {
   CreateGroupSubscriptionFormState({
@@ -40,12 +47,14 @@ class CreateGroupSubscriptionFormState {
     this.totalPrice = '',
     this.billingCycle = BillingCycle.monthly,
     DateTime? renewalDate,
+    int? billingAnchorDay,
     this.members = const [], // ✅ Empty list by default, no hardcoded members
     this.isLoading = false,
     this.errorMessage,
     this.isSuccess = false,
-  }) : renewalDate =
-            renewalDate ?? DateTime.now().add(const Duration(days: 30));
+  })  : renewalDate = _resolvedDateOnly(renewalDate),
+        billingAnchorDay =
+            billingAnchorDay ?? _resolvedDateOnly(renewalDate).day;
   final String serviceName;
   final String? selectedServiceIcon; // Name of predefined service
   final String? selectedTemplateId;
@@ -56,6 +65,7 @@ class CreateGroupSubscriptionFormState {
   final String totalPrice;
   final BillingCycle billingCycle;
   final DateTime renewalDate;
+  final int billingAnchorDay;
   final List<SubscriptionMemberInput> members;
   final bool isLoading;
   final String? errorMessage;
@@ -72,6 +82,7 @@ class CreateGroupSubscriptionFormState {
     String? totalPrice,
     BillingCycle? billingCycle,
     DateTime? renewalDate,
+    int? billingAnchorDay,
     List<SubscriptionMemberInput>? members,
     bool? isLoading,
     String? errorMessage,
@@ -102,6 +113,7 @@ class CreateGroupSubscriptionFormState {
       totalPrice: totalPrice ?? this.totalPrice,
       billingCycle: billingCycle ?? this.billingCycle,
       renewalDate: renewalDate ?? this.renewalDate,
+      billingAnchorDay: billingAnchorDay ?? this.billingAnchorDay,
       members: members ?? this.members,
       isLoading: isLoading ?? this.isLoading,
       errorMessage: clearError ? null : (errorMessage ?? this.errorMessage),
@@ -159,6 +171,20 @@ class CreateGroupSubscriptionFormState {
     ];
   }
 
+  DateTime get normalizedRenewalDate {
+    return const BillingDateNormalizer().normalizeForMonth(
+      billingAnchorDay: billingAnchorDay,
+      referenceDate: renewalDate,
+    );
+  }
+
+  bool get hasBillingDayOverflowInSelectedMonth {
+    return const BillingDateNormalizer().monthOverflows(
+      billingAnchorDay: billingAnchorDay,
+      referenceDate: renewalDate,
+    );
+  }
+
   /// Validate form fields
   String? validate() {
     // Validate service name
@@ -185,7 +211,8 @@ class CreateGroupSubscriptionFormState {
     }
 
     // Validate renewal date
-    if (renewalDate.isBefore(DateTime.now())) {
+    final today = const BillingDateNormalizer().toLocalDate(DateTime.now());
+    if (normalizedRenewalDate.isBefore(today)) {
       return 'Renewal date must be in the future';
     }
 
@@ -289,9 +316,14 @@ class CreateGroupSubscriptionForm extends _$CreateGroupSubscriptionForm {
 
   /// Update renewal date
   void updateRenewalDate(DateTime date) {
+    final normalizedDate = const BillingDateNormalizer().toLocalDate(date);
     debugPrint(
-        '📅 [CreateGroupSubscriptionForm] Updating renewal date: ${date.toIso8601String()}');
-    state = state.copyWith(renewalDate: date, clearError: true);
+        '📅 [CreateGroupSubscriptionForm] Updating renewal date: ${normalizedDate.toIso8601String()}');
+    state = state.copyWith(
+      renewalDate: normalizedDate,
+      billingAnchorDay: normalizedDate.day,
+      clearError: true,
+    );
   }
 
   /// Add a member to the subscription
@@ -449,7 +481,11 @@ class CreateGroupSubscriptionForm extends _$CreateGroupSubscriptionForm {
       selectedTemplateColor: selectedIcon == null ? subscription.color : null,
       totalPrice: subscription.totalCost.toString(),
       billingCycle: subscription.billingCycle,
-      renewalDate: subscription.dueDate,
+      renewalDate: const BillingDateNormalizer().normalizeForMonth(
+        billingAnchorDay: subscription.billingAnchorDay,
+        referenceDate: subscription.dueDate,
+      ),
+      billingAnchorDay: subscription.billingAnchorDay,
       members:
           members.map((m) => SubscriptionMemberInput.fromMember(m)).toList(),
     );
@@ -512,6 +548,7 @@ class CreateGroupSubscriptionForm extends _$CreateGroupSubscriptionForm {
 
       // Parse total price
       final parsedPrice = double.parse(state.totalPrice);
+      final normalizedDueDate = state.normalizedRenewalDate;
 
       // Create subscription entity
       final subscription = Subscription(
@@ -520,9 +557,10 @@ class CreateGroupSubscriptionForm extends _$CreateGroupSubscriptionForm {
         color: state.subscriptionColor,
         totalCost: parsedPrice,
         billingCycle: state.billingCycle,
-        dueDate: state.renewalDate,
+        dueDate: normalizedDueDate,
         ownerId: currentUser.id,
         sharedWith: state.members.map((m) => m.id).toList(),
+        billingAnchorDay: state.billingAnchorDay,
         createdAt: DateTime.now(),
       );
 
@@ -671,13 +709,16 @@ class CreateGroupSubscriptionForm extends _$CreateGroupSubscriptionForm {
         return;
       }
 
+      final normalizedDueDate = state.normalizedRenewalDate;
+
       // Update subscription entity
       final updatedSubscription = _originalSubscription!.copyWith(
         name: state.serviceName.trim(),
         color: state.subscriptionColor,
         totalCost: double.parse(state.totalPrice),
         billingCycle: state.billingCycle,
-        dueDate: state.renewalDate,
+        dueDate: normalizedDueDate,
+        billingAnchorDay: state.billingAnchorDay,
       );
 
       debugPrint('🔄 [CreateGroupSubscriptionForm] Updating subscription...');
@@ -749,11 +790,15 @@ class CreateGroupSubscriptionForm extends _$CreateGroupSubscriptionForm {
   bool _hasChanges() {
     if (_originalSubscription == null) return true; // Create mode
 
+    final originalDueDate = const BillingDateNormalizer()
+        .toLocalDate(_originalSubscription!.dueDate);
+    final normalizedDueDate = state.normalizedRenewalDate;
     final metadataChanged = _originalSubscription!.name != state.serviceName ||
         _originalSubscription!.color != state.subscriptionColor ||
         _originalSubscription!.totalCost != double.tryParse(state.totalPrice) ||
         _originalSubscription!.billingCycle != state.billingCycle ||
-        _originalSubscription!.dueDate != state.renewalDate;
+        originalDueDate != normalizedDueDate ||
+        _originalSubscription!.billingAnchorDay != state.billingAnchorDay;
 
     final membersChanges = _detectMembersChanges();
     return metadataChanged || membersChanges.added || membersChanges.removed;

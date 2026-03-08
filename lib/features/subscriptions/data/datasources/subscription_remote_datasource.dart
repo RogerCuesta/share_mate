@@ -514,6 +514,7 @@ class SubscriptionRemoteDataSourceImpl implements SubscriptionRemoteDataSource {
         'total_cost': subscription.totalCost,
         'billing_cycle': subscription.billingCycle,
         'due_date': subscription.dueDate.toIso8601String(),
+        'billing_anchor_day': subscription.billingAnchorDay,
         'status': subscription.status,
         // owner_id should not change, but include it for safety
         'owner_id': subscription.ownerId,
