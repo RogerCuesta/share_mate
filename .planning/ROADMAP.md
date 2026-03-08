@@ -30,7 +30,7 @@ Decimal phases appear between their surrounding integers in numeric order.
   2. Reabrir la app múltiples veces en la misma versión no duplica ni corrompe datos por migraciones repetidas.
   3. El usuario conserva su información local tras activar cifrado en reposo, sin perder acceso funcional a sus datos.
   4. Con dos cuentas distintas, cada usuario solo puede leer/escribir sus propios datos de negocio y las acciones sensibles de cuenta funcionan por backend autorizado.
-**Plans**: TBD
+**Plans**: 03-01, 03-02, 03-03, 03-04, 03-05
 
 ### Phase 2: Offline Sync Reliability Core
 **Goal**: Los cambios hechos sin red se aplican localmente y terminan sincronizando de forma predecible con el backend.
@@ -94,7 +94,7 @@ Phases execute in numeric order: 1 → 1.1 → 1.2 → 2 → 2.1 → 3 → 4 →
 |-------|----------------|--------|-----------|
 | 1. Data Safety & Access Security | 3/3 | Complete   | 2026-03-08 |
 | 2. Offline Sync Reliability Core | 5/5 | Complete | 2026-03-08 |
-| 3. Subscription Setup Flow | 0/TBD | Not started | - |
+| 3. Subscription Setup Flow | 1/5 | In Progress | - |
 | 4. Payment Tracking & Debt Home | 0/TBD | Not started | - |
 | 5. Billing Automation Cycle | 0/TBD | Not started | - |
 | 6. UX System Consistency | 0/TBD | Not started | - |

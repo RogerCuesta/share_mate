@@ -18,20 +18,20 @@
 
 ### Catalog
 
-- [ ] **CATA-01**: El usuario puede buscar y seleccionar servicios desde `service_templates` en Supabase.
+- [x] **CATA-01**: El usuario puede buscar y seleccionar servicios desde `service_templates` en Supabase.
 - [ ] **CATA-02**: Al seleccionar plantilla se autocompletan nombre/logo/color en el formulario de alta.
 - [ ] **CATA-03**: El catálogo queda cacheado localmente y usable sin bloquear la UI.
 
 ### Local Contacts
 
-- [ ] **CNTC-01**: El usuario puede crear un contacto local (nombre + avatar/color) sin email ni invitación.
+- [x] **CNTC-01**: El usuario puede crear un contacto local (nombre + avatar/color) sin email ni invitación.
 - [ ] **CNTC-02**: El usuario puede seleccionar/editar/eliminar contactos locales dentro del flujo de creación/edición de suscripción.
 
 ### Split & Billing Rules
 
 - [ ] **SPLT-01**: El coste se divide automáticamente a partes iguales entre contactos seleccionados.
 - [ ] **SPLT-02**: El split se recalcula correctamente al cambiar precio total o miembros.
-- [ ] **SPLT-03**: Si el día de cobro no existe en el mes (p. ej. 31 en febrero), se normaliza al último día válido.
+- [x] **SPLT-03**: Si el día de cobro no existe en el mes (p. ej. 31 en febrero), se normaliza al último día válido.
 
 ### Payment Tracking
 
@@ -97,14 +97,14 @@
 | SECU-01 | Phase 1 | Complete |
 | SECU-02 | Phase 1 | Complete |
 | SECU-03 | Phase 1 | Complete |
-| CATA-01 | Phase 3 | Pending |
+| CATA-01 | Phase 3 | Complete |
 | CATA-02 | Phase 3 | Pending |
 | CATA-03 | Phase 3 | Pending |
-| CNTC-01 | Phase 3 | Pending |
+| CNTC-01 | Phase 3 | Complete |
 | CNTC-02 | Phase 3 | Pending |
 | SPLT-01 | Phase 3 | Pending |
 | SPLT-02 | Phase 3 | Pending |
-| SPLT-03 | Phase 3 | Pending |
+| SPLT-03 | Phase 3 | Complete |
 | PAYM-01 | Phase 4 | Pending |
 | PAYM-02 | Phase 4 | Pending |
 | PAYM-03 | Phase 4 | Pending |
