@@ -149,5 +149,42 @@ void main() {
       expect(detailStatus, settingsStatus);
       expect(settingsStatus.kind, SyncStatusKind.pending);
     });
+
+    test('returns to synced after pending and terminal states are cleared', () {
+      final queueSource = FakeSyncQueueStatusSource(
+        pendingCount: 2,
+        terminalCount: 1,
+      );
+      final orchestratorSource = FakeSyncOrchestratorStatusSource(
+        isSyncInProgress: false,
+        lastSuccessfulSyncAt: DateTime(2026, 3, 8, 12),
+      );
+      final container = ProviderContainer(
+        overrides: [
+          syncQueueStatusSourceProvider.overrideWithValue(queueSource),
+          syncOrchestratorStatusSourceProvider.overrideWithValue(
+            orchestratorSource,
+          ),
+          syncStatusRefreshIntervalProvider.overrideWithValue(
+            const Duration(days: 1),
+          ),
+        ],
+      );
+      addTearDown(container.dispose);
+
+      final notifier = container.read(syncStatusProvider.notifier);
+      expect(container.read(syncStatusProvider).kind,
+          SyncStatusKind.requiresAction);
+
+      queueSource.terminalCount = 0;
+      notifier.refresh();
+      expect(container.read(syncStatusProvider).kind, SyncStatusKind.pending);
+
+      queueSource.pendingCount = 0;
+      notifier.refresh();
+      final status = container.read(syncStatusProvider);
+      expect(status.kind, SyncStatusKind.synced);
+      expect(status.lastSuccessfulSyncAt, DateTime(2026, 3, 8, 12));
+    });
   });
 }
