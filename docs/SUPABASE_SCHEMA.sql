@@ -259,6 +259,38 @@ CREATE POLICY "Users can remove members from their subscriptions"
         )
     );
 
+-- ----------------------------------------------------------------------------
+-- 6.3 PHASE 1 CANONICAL POLICY STATE (SECU-03)
+-- ----------------------------------------------------------------------------
+-- Source of truth: supabase/migrations/20260308_phase1_rls_hardening.sql
+--
+-- The migration above enforces RLS + CRUD ownership policies with canonical
+-- policy names for all business tables in Phase 1 scope:
+--
+-- subscriptions:
+--   - p1_subscriptions_select_own
+--   - p1_subscriptions_insert_own
+--   - p1_subscriptions_update_own
+--   - p1_subscriptions_delete_own
+--
+-- subscription_members:
+--   - p1_subscription_members_select_owner_scope
+--   - p1_subscription_members_insert_owner_scope
+--   - p1_subscription_members_update_owner_scope
+--   - p1_subscription_members_delete_owner_scope
+--
+-- payment_history:
+--   - p1_payment_history_select_owner_scope
+--   - p1_payment_history_insert_owner_scope
+--   - p1_payment_history_update_owner_scope
+--   - p1_payment_history_delete_owner_scope
+--
+-- contacts:
+--   - p1_contacts_select_own
+--   - p1_contacts_insert_own
+--   - p1_contacts_update_own
+--   - p1_contacts_delete_own
+
 -- ============================================================================
 -- 7. CREATE HELPER FUNCTIONS
 -- ============================================================================
