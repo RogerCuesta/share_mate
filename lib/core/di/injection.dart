@@ -1,6 +1,9 @@
 // lib/core/di/injection.dart
 
 import 'package:flutter_project_agents/core/supabase/supabase_service.dart';
+import 'package:flutter_project_agents/core/sync/payment_sync_orchestrator.dart';
+import 'package:flutter_project_agents/core/sync/payment_sync_queue.dart';
+import 'package:flutter_project_agents/core/sync/sync_error_classifier.dart';
 import 'package:flutter_project_agents/features/auth/data/datasources/auth_local_datasource.dart';
 import 'package:flutter_project_agents/features/auth/data/datasources/auth_remote_datasource.dart';
 import 'package:flutter_project_agents/features/auth/data/datasources/user_local_datasource.dart';
@@ -172,6 +175,29 @@ CheckAuthStatus checkAuthStatus(Ref ref) {
 // SUBSCRIPTIONS FEATURE - DATA SOURCES
 // ═══════════════════════════════════════════════════════════════════════════
 
+/// Provider for sync queue service.
+final paymentSyncQueueServiceProvider = Provider<PaymentSyncQueueService>((
+  Ref ref,
+) {
+  return PaymentSyncQueueService();
+});
+
+/// Provider for sync error classification.
+final syncErrorClassifierProvider = Provider<SyncErrorClassifier>((Ref ref) {
+  return const SyncErrorClassifier();
+});
+
+/// Provider for payment sync orchestrator.
+final paymentSyncOrchestratorProvider = Provider<PaymentSyncOrchestrator>((
+  Ref ref,
+) {
+  return PaymentSyncOrchestrator(
+    queueService: ref.watch(paymentSyncQueueServiceProvider),
+    remoteDataSource: ref.watch(subscriptionRemoteDataSourceProvider),
+    errorClassifier: ref.watch(syncErrorClassifierProvider),
+  );
+});
+
 /// Provider for SubscriptionLocalDataSource (Hive)
 ///
 /// This data source manages subscription and member data in Hive cache.
@@ -216,6 +242,7 @@ SubscriptionRepository subscriptionRepository(Ref ref) {
   return SubscriptionRepositoryImpl(
     remoteDataSource: ref.watch(subscriptionRemoteDataSourceProvider),
     localDataSource: ref.watch(subscriptionLocalDataSourceProvider),
+    syncOrchestrator: ref.watch(paymentSyncOrchestratorProvider),
   );
 }
 

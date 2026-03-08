@@ -1,5 +1,7 @@
 // lib/main.dart
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_project_agents/core/config/env_config.dart';
 import 'package:flutter_project_agents/core/di/injection.dart';
@@ -9,6 +11,7 @@ import 'package:flutter_project_agents/core/storage/local_migrations/local_migra
 import 'package:flutter_project_agents/core/storage/local_migrations/migrations/v1_non_destructive_baseline_migration.dart';
 import 'package:flutter_project_agents/core/storage/local_migrations/migrations/v2_encrypt_sensitive_boxes_migration.dart';
 import 'package:flutter_project_agents/core/supabase/supabase_service.dart';
+import 'package:flutter_project_agents/core/sync/payment_sync_orchestrator.dart';
 import 'package:flutter_project_agents/core/sync/payment_sync_queue.dart';
 import 'package:flutter_project_agents/core/theme/app_theme.dart';
 import 'package:flutter_project_agents/features/auth/data/datasources/auth_local_datasource.dart';
@@ -131,11 +134,84 @@ List<LocalMigration> _buildLocalMigrations() {
   ];
 }
 
-class MyApp extends ConsumerWidget {
+class MyApp extends ConsumerStatefulWidget {
   const MyApp({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
+  static const Duration _foregroundSyncInterval = Duration(seconds: 45);
+
+  Timer? _foregroundSyncTimer;
+  bool _foregroundSyncTickInFlight = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    unawaited(_initializeSyncOrchestrator());
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state != AppLifecycleState.resumed) {
+      return;
+    }
+    final orchestrator = ref.read(paymentSyncOrchestratorProvider);
+    unawaited(
+      orchestrator.triggerSync(
+        reason: 'app_resume',
+        force: true,
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    _foregroundSyncTimer?.cancel();
+    final orchestrator = ref.read(paymentSyncOrchestratorProvider);
+    unawaited(orchestrator.stop());
+    super.dispose();
+  }
+
+  Future<void> _initializeSyncOrchestrator() async {
+    final orchestrator = ref.read(paymentSyncOrchestratorProvider);
+    await orchestrator.start();
+    await orchestrator.triggerSync(
+      reason: 'app_start',
+      force: true,
+    );
+    _startForegroundSyncInterval(orchestrator);
+  }
+
+  void _startForegroundSyncInterval(PaymentSyncOrchestrator orchestrator) {
+    _foregroundSyncTimer?.cancel();
+    _foregroundSyncTimer = Timer.periodic(_foregroundSyncInterval, (_) {
+      if (_foregroundSyncTickInFlight) {
+        return;
+      }
+      _foregroundSyncTickInFlight = true;
+      unawaited(_runForegroundIntervalSync(orchestrator));
+    });
+  }
+
+  Future<void> _runForegroundIntervalSync(
+    PaymentSyncOrchestrator orchestrator,
+  ) async {
+    try {
+      await orchestrator.triggerSync(
+        reason: PaymentSyncOrchestrator.foregroundIntervalReason,
+      );
+    } finally {
+      _foregroundSyncTickInFlight = false;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final router = ref.watch(routerProvider);
     final currentTheme = ref.watch(themeProvider);
 
