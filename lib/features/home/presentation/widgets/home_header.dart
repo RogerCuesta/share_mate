@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_project_agents/core/sync/sync_status.dart';
 import 'package:flutter_project_agents/features/auth/presentation/providers/auth_provider.dart';
+import 'package:flutter_project_agents/features/subscriptions/presentation/providers/sync_status_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 
 /// Home screen header with greeting and notifications
 ///
@@ -14,6 +17,7 @@ class HomeHeader extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final authState = ref.watch(authProvider);
+    final syncStatus = ref.watch(homeSyncStatusProvider);
     final now = DateTime.now();
     final greeting = _getGreeting(now.hour);
 
@@ -24,19 +28,27 @@ class HomeHeader extends ConsumerWidget {
         children: [
           // User greeting
           Expanded(
-            child: authState.maybeWhen(
-              authenticated: (user) => _UserGreeting(
-                greeting: greeting,
-                userName: user.fullName,
-              ),
-              orElse: () => _UserGreeting(
-                greeting: greeting,
-                userName: 'Guest',
-              ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                authState.maybeWhen(
+                  authenticated: (user) => _UserGreeting(
+                    greeting: greeting,
+                    userName: user.fullName,
+                  ),
+                  orElse: () => _UserGreeting(
+                    greeting: greeting,
+                    userName: 'Guest',
+                  ),
+                ),
+                const SizedBox(height: 10),
+                HomeSyncStatusBadge(status: syncStatus),
+              ],
             ),
           ),
 
           // Notification button
+          const SizedBox(width: 16),
           const _NotificationButton(),
         ],
       ),
@@ -55,12 +67,72 @@ class HomeHeader extends ConsumerWidget {
   }
 }
 
+class HomeSyncStatusBadge extends StatelessWidget {
+  const HomeSyncStatusBadge({
+    required this.status,
+    super.key,
+  });
+
+  final SyncStatus status;
+
+  @override
+  Widget build(BuildContext context) {
+    final label = syncStatusLabel(status);
+    final tone = _toneForLabel(label);
+    final timestamp = status.lastSuccessfulSyncAt == null
+        ? 'Last sync: Not available'
+        : 'Last sync: ${DateFormat('MMM d, HH:mm').format(status.lastSuccessfulSyncAt!.toLocal())}';
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      decoration: BoxDecoration(
+        color: tone.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: tone.withValues(alpha: 0.45),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            label,
+            style: TextStyle(
+              color: tone,
+              fontSize: 12,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          const SizedBox(height: 2),
+          Text(
+            timestamp,
+            style: TextStyle(
+              color: Colors.grey[300],
+              fontSize: 11,
+              fontWeight: FontWeight.w400,
+            ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Color _toneForLabel(String label) {
+    return switch (label) {
+      syncedStatusLabel => const Color(0xFF26A69A),
+      pendingStatusLabel => const Color(0xFFFFB74D),
+      _ => const Color(0xFFEF5350),
+    };
+  }
+}
+
 // ═══════════════════════════════════════════════════════════════════════════
 // USER GREETING
 // ═══════════════════════════════════════════════════════════════════════════
 
 class _UserGreeting extends StatelessWidget {
-
   const _UserGreeting({
     required this.greeting,
     required this.userName,
@@ -150,7 +222,6 @@ class _NotificationButton extends StatelessWidget {
 // ═══════════════════════════════════════════════════════════════════════════
 
 class _NotificationBadge extends StatelessWidget {
-
   const _NotificationBadge({required this.count});
   final int count;
 

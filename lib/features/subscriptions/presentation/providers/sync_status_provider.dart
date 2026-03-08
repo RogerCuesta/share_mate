@@ -6,6 +6,18 @@ import 'package:flutter_project_agents/core/sync/payment_sync_queue.dart';
 import 'package:flutter_project_agents/core/sync/sync_status.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+const String syncedStatusLabel = 'Synced';
+const String pendingStatusLabel = 'Pending';
+const String requiresActionStatusLabel = 'Requires action';
+
+String syncStatusLabel(SyncStatus status) {
+  return switch (status.kind) {
+    SyncStatusKind.synced => syncedStatusLabel,
+    SyncStatusKind.pending => pendingStatusLabel,
+    SyncStatusKind.requiresAction => requiresActionStatusLabel,
+  };
+}
+
 abstract class SyncQueueStatusSource {
   int get pendingCount;
   int get terminalCount;
@@ -14,6 +26,18 @@ abstract class SyncQueueStatusSource {
 abstract class SyncOrchestratorStatusSource {
   bool get isSyncInProgress;
   DateTime? get lastSuccessfulSyncAt;
+}
+
+abstract class SyncQueueRecoverySource {
+  Future<int> retryTerminal({DateTime? retryAt});
+  Future<int> clearTerminalOnly();
+}
+
+abstract class SyncOrchestratorCommandSource {
+  Future<void> triggerSync({
+    String reason,
+    bool force,
+  });
 }
 
 class _PaymentSyncQueueStatusSource implements SyncQueueStatusSource {
@@ -41,6 +65,40 @@ class _PaymentSyncOrchestratorStatusSource
   DateTime? get lastSuccessfulSyncAt => _orchestrator.lastSuccessfulSyncAt;
 }
 
+class _PaymentSyncQueueRecoverySource implements SyncQueueRecoverySource {
+  _PaymentSyncQueueRecoverySource(this._queueService);
+
+  final PaymentSyncQueueService _queueService;
+
+  @override
+  Future<int> retryTerminal({DateTime? retryAt}) {
+    return _queueService.retryTerminal(retryAt: retryAt);
+  }
+
+  @override
+  Future<int> clearTerminalOnly() {
+    return _queueService.clearTerminalOnly();
+  }
+}
+
+class _PaymentSyncOrchestratorCommandSource
+    implements SyncOrchestratorCommandSource {
+  _PaymentSyncOrchestratorCommandSource(this._orchestrator);
+
+  final PaymentSyncOrchestrator _orchestrator;
+
+  @override
+  Future<void> triggerSync({
+    String reason = 'manual',
+    bool force = false,
+  }) {
+    return _orchestrator.triggerSync(
+      reason: reason,
+      force: force,
+    );
+  }
+}
+
 final syncQueueStatusSourceProvider = Provider<SyncQueueStatusSource>((ref) {
   return _PaymentSyncQueueStatusSource(
     ref.watch(paymentSyncQueueServiceProvider),
@@ -56,6 +114,20 @@ final syncOrchestratorStatusSourceProvider =
 
 final syncStatusRefreshIntervalProvider = Provider<Duration>((ref) {
   return const Duration(seconds: 2);
+});
+
+final syncQueueRecoverySourceProvider =
+    Provider<SyncQueueRecoverySource>((ref) {
+  return _PaymentSyncQueueRecoverySource(
+    ref.watch(paymentSyncQueueServiceProvider),
+  );
+});
+
+final syncOrchestratorCommandSourceProvider =
+    Provider<SyncOrchestratorCommandSource>((ref) {
+  return _PaymentSyncOrchestratorCommandSource(
+    ref.watch(paymentSyncOrchestratorProvider),
+  );
 });
 
 class SyncStatusController extends AutoDisposeNotifier<SyncStatus> {
@@ -74,6 +146,27 @@ class SyncStatusController extends AutoDisposeNotifier<SyncStatus> {
 
   void refresh() {
     state = _readStatus();
+  }
+
+  Future<int> retryAll() async {
+    final queueRecovery = ref.read(syncQueueRecoverySourceProvider);
+    final orchestratorCommand = ref.read(syncOrchestratorCommandSourceProvider);
+    final retried = await queueRecovery.retryTerminal(
+      retryAt: DateTime.now(),
+    );
+    await orchestratorCommand.triggerSync(
+      reason: 'settings_retry_all',
+      force: true,
+    );
+    refresh();
+    return retried;
+  }
+
+  Future<int> clearTerminalOnly() async {
+    final queueRecovery = ref.read(syncQueueRecoverySourceProvider);
+    final cleared = await queueRecovery.clearTerminalOnly();
+    refresh();
+    return cleared;
   }
 
   SyncStatus _readStatus() {
