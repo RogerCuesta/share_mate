@@ -9,6 +9,7 @@ import 'package:flutter_project_agents/features/subscriptions/domain/entities/se
 import 'package:flutter_project_agents/features/subscriptions/domain/entities/subscription.dart';
 import 'package:flutter_project_agents/features/subscriptions/domain/entities/subscription_member.dart';
 import 'package:flutter_project_agents/features/subscriptions/domain/entities/subscription_member_input.dart';
+import 'package:flutter_project_agents/features/subscriptions/domain/services/split_calculator.dart';
 import 'package:flutter_project_agents/features/subscriptions/presentation/providers/subscription_detail_provider.dart';
 import 'package:flutter_project_agents/features/subscriptions/presentation/providers/subscriptions_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -122,43 +123,38 @@ class CreateGroupSubscriptionFormState {
   /// Total members (members list + owner)
   int get totalMembers => members.length + 1;
 
-  /// Split amount per person
-  double get splitAmount {
-    if (totalMembers == 0 || totalPrice.isEmpty) return 0;
+  /// Shared split calculation reused by preview and persistence.
+  SplitCalculationResult get splitCalculation {
     final parsedPrice = double.tryParse(totalPrice) ?? 0.0;
-    return parsedPrice / totalMembers;
+    return const SplitCalculator().calculate(
+      totalAmount: parsedPrice,
+      members: [
+        for (final member in members)
+          SplitParticipantInput(id: member.id, name: member.name),
+      ],
+    );
   }
 
+  /// Split amount per person
+  double get splitAmount => splitCalculation.approximatePerPersonAmount;
+
   /// Floor split amount used for persisted member rows.
-  double get memberFloorSplitAmount {
-    if (totalMembers == 0 || totalPrice.isEmpty) return 0;
-    final parsedPrice = double.tryParse(totalPrice) ?? 0.0;
-    final rawAmount = parsedPrice / totalMembers;
-    return (rawAmount * 100).floor() / 100;
-  }
+  double get memberFloorSplitAmount => splitCalculation.memberAmount;
 
   /// Breakdown with proper rounding
   List<MemberSplit> get breakdown {
-    if (totalPrice.isEmpty || members.isEmpty) return [];
-
-    final parsedPrice = double.tryParse(totalPrice) ?? 0.0;
-    if (parsedPrice == 0) return [];
-
-    final floorAmount = memberFloorSplitAmount;
-
-    // Calculate remainder for the owner
-    final remainder = parsedPrice - (floorAmount * members.length);
+    if (totalPrice.isEmpty ||
+        members.isEmpty ||
+        splitCalculation.totalAmount == 0) {
+      return [];
+    }
 
     return [
-      // Members get floor amount
-      ...members.map((m) => MemberSplit(
-            name: m.name,
-            amount: floorAmount,
-          )),
-      // Owner gets the remainder
-      MemberSplit(
-        name: 'You',
-        amount: remainder,
+      ...splitCalculation.breakdown.map(
+        (entry) => MemberSplit(
+          name: entry.name,
+          amount: entry.amount,
+        ),
       ),
     ];
   }
@@ -771,14 +767,10 @@ class CreateGroupSubscriptionForm extends _$CreateGroupSubscriptionForm {
   }) async {
     debugPrint('👥 [CreateGroupSubscriptionForm] Handling members update...');
     final repository = ref.read(subscriptionRepositoryProvider);
+    final splitResult = state.splitCalculation;
+    final memberAmount = splitResult.memberAmount;
 
-    // Calculate new split
-    final totalPrice = double.parse(state.totalPrice);
-    final totalMembers = state.members.length + 1; // +1 for owner
-    final splitAmount = totalPrice / totalMembers;
-    final floorAmount = (splitAmount * 100).floor() / 100;
-
-    debugPrint('   New split: \$${floorAmount.toStringAsFixed(2)} per person');
+    debugPrint('   New split: \$${memberAmount.toStringAsFixed(2)} per person');
 
     if (membersChanged) {
       debugPrint('   Members changed - recalculating all...');
@@ -814,7 +806,7 @@ class CreateGroupSubscriptionForm extends _$CreateGroupSubscriptionForm {
           userName: member.name,
           userEmail: member.email,
           userAvatar: member.avatar,
-          amountToPay: floorAmount,
+          amountToPay: memberAmount,
         );
       }
 
@@ -831,7 +823,7 @@ class CreateGroupSubscriptionForm extends _$CreateGroupSubscriptionForm {
         debugPrint('   🔄 Updating member: ${member.userName} (reset payment)');
         await repository.updateMemberAmount(
           memberId: member.id,
-          newAmountToPay: floorAmount,
+          newAmountToPay: memberAmount,
           resetPayment: true, // Reset has_paid to false
         );
       }
@@ -844,7 +836,7 @@ class CreateGroupSubscriptionForm extends _$CreateGroupSubscriptionForm {
             '   🔄 Updating member: ${member.userName} (keep payment status)');
         await repository.updateMemberAmount(
           memberId: member.id,
-          newAmountToPay: floorAmount,
+          newAmountToPay: memberAmount,
         );
       }
     }

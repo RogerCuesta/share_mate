@@ -31,7 +31,7 @@ class SubscriptionMemberModel extends HiveObject {
       userName: entity.userName,
       userEmail: _normalizeOptionalEmail(entity.userEmail),
       userAvatar: entity.userAvatar,
-      amountToPay: entity.amountToPay,
+      amountToPay: _normalizeCurrency(entity.amountToPay),
       hasPaid: entity.hasPaid,
       lastPaymentDate: entity.lastPaymentDate,
       dueDate: entity.dueDate,
@@ -49,7 +49,8 @@ class SubscriptionMemberModel extends HiveObject {
       userName: json['user_name'] as String,
       userEmail: _normalizeOptionalEmail(json['user_email'] as String?),
       userAvatar: json['user_avatar'] as String?,
-      amountToPay: (json['amount_to_pay'] as num).toDouble(),
+      amountToPay:
+          _normalizeCurrency((json['amount_to_pay'] as num).toDouble()),
       hasPaid: json['has_paid'] as bool? ?? false,
       lastPaymentDate: json['last_payment_date'] != null
           ? DateTime.parse(json['last_payment_date'] as String)
@@ -123,7 +124,7 @@ class SubscriptionMemberModel extends HiveObject {
       // Contract: local contacts without email are persisted as null.
       'user_email': _normalizeOptionalEmail(userEmail),
       'user_avatar': userAvatar,
-      'amount_to_pay': amountToPay,
+      'amount_to_pay': _normalizeCurrency(amountToPay),
       'has_paid': hasPaid,
       'last_payment_date': lastPaymentDate?.toIso8601String(),
       'due_date': dueDate.toIso8601String(),
@@ -145,5 +146,9 @@ class SubscriptionMemberModel extends HiveObject {
       return null;
     }
     return normalized;
+  }
+
+  static double _normalizeCurrency(double value) {
+    return (value * 100).round() / 100;
   }
 }

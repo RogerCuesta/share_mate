@@ -717,6 +717,10 @@ class SubscriptionRemoteDataSourceImpl implements SubscriptionRemoteDataSource {
     return normalized;
   }
 
+  double _normalizeCurrency(double value) {
+    return (value * 100).round() / 100;
+  }
+
   @override
   Future<void> removeMember(String memberId) async {
     try {
@@ -770,7 +774,7 @@ class SubscriptionRemoteDataSourceImpl implements SubscriptionRemoteDataSource {
 
       // Build update data conditionally
       final updateData = <String, dynamic>{
-        'amount_to_pay': amountToPay,
+        'amount_to_pay': _normalizeCurrency(amountToPay),
         if (hasPaid != null) 'has_paid': hasPaid,
       };
 
