@@ -12,7 +12,7 @@ Este roadmap cierra MVP R1 priorizando confianza operativa antes de automatizaci
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: Data Safety & Access Security** - Los datos del usuario sobreviven migraciones y quedan aislados/protegidos por diseño.
+- [x] **Phase 1: Data Safety & Access Security** - Los datos del usuario sobreviven migraciones y quedan aislados/protegidos por diseño. (completed 2026-03-08)
 - [ ] **Phase 2: Offline Sync Reliability Core** - La app converge de forma determinista entre estado local y backend.
 - [ ] **Phase 3: Subscription Setup Flow** - Alta de suscripción completa con catálogo, contactos locales y split robusto.
 - [ ] **Phase 4: Payment Tracking & Debt Home** - Seguimiento de cobro por contacto con impacto inmediato y consistente en Home.
@@ -92,7 +92,7 @@ Phases execute in numeric order: 1 → 1.1 → 1.2 → 2 → 2.1 → 3 → 4 →
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Data Safety & Access Security | 2/3 | In Progress | - |
+| 1. Data Safety & Access Security | 3/3 | Complete   | 2026-03-08 |
 | 2. Offline Sync Reliability Core | 0/TBD | Not started | - |
 | 3. Subscription Setup Flow | 0/TBD | Not started | - |
 | 4. Payment Tracking & Debt Home | 0/TBD | Not started | - |
