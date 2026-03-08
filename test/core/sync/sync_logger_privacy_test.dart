@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_project_agents/core/sync/sync_logger.dart';
@@ -79,6 +80,39 @@ void main() {
       final metadata = payload['metadata']! as Map<String, Object?>;
       expect(metadata.containsKey('notes_text'), isFalse);
       expect(metadata['network_state'], 'offline');
+    });
+
+    test(
+        'subscription remote datasource payment/sync logs stay sanitized and centralized',
+        () {
+      final source = File(
+        'lib/features/subscriptions/data/datasources/subscription_remote_datasource.dart',
+      ).readAsStringSync();
+
+      expect(
+        source,
+        isNot(
+          contains(
+            '🔍 [SubscriptionRemoteDS] Updating payment status for member: \$memberId',
+          ),
+        ),
+      );
+      expect(source, isNot(contains(r'Amount: \$$amountToPay')));
+      expect(source, isNot(contains('Member filter: \$memberId')));
+
+      expect(
+        source,
+        contains("event: 'remote_update_payment_status_started'"),
+      );
+      expect(
+        source,
+        contains("event: 'remote_update_member_amount_started'"),
+      );
+      expect(
+        source,
+        contains("event: 'remote_get_payment_history_started'"),
+      );
+      expect(source, contains('_syncLogger.logTerminal('));
     });
   });
 }
