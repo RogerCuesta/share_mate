@@ -1,7 +1,7 @@
 // lib/core/storage/hive_service.dart
-import 'package:flutter/foundation.dart';
-
 import 'dart:convert';
+
+import 'package:flutter/foundation.dart';
 
 import 'package:flutter_project_agents/core/sync/payment_sync_queue.dart';
 import 'package:flutter_project_agents/features/auth/data/models/user_credentials_model.dart';
@@ -63,7 +63,8 @@ class HiveService {
     _keyFailureReason = null;
   }
 
-  static void setEncryptionKeyProviderForTesting(
+  // ignore: use_setters_to_change_properties
+  static void overrideEncryptionKeyProviderForTesting(
     Future<List<int>> Function()? provider,
   ) {
     _encryptionKeyProviderOverride = provider;

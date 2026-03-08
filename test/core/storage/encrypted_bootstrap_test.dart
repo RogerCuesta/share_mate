@@ -59,11 +59,13 @@ void main() {
       Hive.init(hiveDir.path);
       encryptionKey = Hive.generateSecureKey();
       HiveService.clearKeyFailureSafeModeForTesting();
-      HiveService.setEncryptionKeyProviderForTesting(() async => encryptionKey);
+      HiveService.overrideEncryptionKeyProviderForTesting(
+        () async => encryptionKey,
+      );
     });
 
     tearDown(() async {
-      HiveService.setEncryptionKeyProviderForTesting(null);
+      HiveService.overrideEncryptionKeyProviderForTesting(null);
       HiveService.clearKeyFailureSafeModeForTesting();
       await Hive.close();
       if (hiveDir.existsSync()) {
@@ -161,7 +163,7 @@ void main() {
 
     test('key retrieval failure enables guarded startup safe mode', () async {
       // key-failure safe mode + guided recovery + plaintext fallback assertions
-      HiveService.setEncryptionKeyProviderForTesting(
+      HiveService.overrideEncryptionKeyProviderForTesting(
         () async => throw StateError('missing-key'),
       );
       HiveService.clearKeyFailureSafeModeForTesting();
