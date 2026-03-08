@@ -29,8 +29,8 @@
 
 ### Split & Billing Rules
 
-- [ ] **SPLT-01**: El coste se divide automáticamente a partes iguales entre contactos seleccionados.
-- [ ] **SPLT-02**: El split se recalcula correctamente al cambiar precio total o miembros.
+- [x] **SPLT-01**: El coste se divide automáticamente a partes iguales entre contactos seleccionados.
+- [x] **SPLT-02**: El split se recalcula correctamente al cambiar precio total o miembros.
 - [x] **SPLT-03**: Si el día de cobro no existe en el mes (p. ej. 31 en febrero), se normaliza al último día válido.
 
 ### Payment Tracking
@@ -102,8 +102,8 @@
 | CATA-03 | Phase 3 | Complete |
 | CNTC-01 | Phase 3 | Complete |
 | CNTC-02 | Phase 3 | Complete |
-| SPLT-01 | Phase 3 | Pending |
-| SPLT-02 | Phase 3 | Pending |
+| SPLT-01 | Phase 3 | Complete |
+| SPLT-02 | Phase 3 | Complete |
 | SPLT-03 | Phase 3 | Complete |
 | PAYM-01 | Phase 4 | Pending |
 | PAYM-02 | Phase 4 | Pending |

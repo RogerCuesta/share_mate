@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 03-subscription-setup-flow-03-PLAN.md
-last_updated: "2026-03-08T23:14:38.145Z"
-last_activity: 2026-03-08 — Completed 03-03 plan (contacts setup integration)
+stopped_at: Completed 03-subscription-setup-flow-04-PLAN.md
+last_updated: "2026-03-08T23:28:44.638Z"
+last_activity: 2026-03-08 — Completed 03-04 plan (split and billing correctness)
 progress:
   total_phases: 6
   completed_phases: 2
   total_plans: 13
-  completed_plans: 11
-  percent: 85
+  completed_plans: 12
+  percent: 92
 ---
 
 # Project State
@@ -26,18 +26,18 @@ See: .planning/PROJECT.md (updated 2026-03-08)
 ## Current Position
 
 Phase: 3 of 6 (Subscription Setup Flow)
-Plan: 3 of 5
+Plan: 4 of 5
 Status: In Progress
-Last activity: 2026-03-08 — Completed 03-03 plan (contacts setup integration)
+Last activity: 2026-03-08 — Completed 03-04 plan (split and billing correctness)
 
-Progress: [█████████░] 85%
+Progress: [█████████░] 92%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 11
+- Total plans completed: 12
 - Average duration: 10 min
-- Total execution time: 1.8 hours
+- Total execution time: 2.0 hours
 
 **By Phase:**
 
@@ -45,10 +45,10 @@ Progress: [█████████░] 85%
 |-------|-------|-------|----------|
 | 01-data-safety-access-security | 3 | 23 min | 8 min |
 | 02-offline-sync-reliability-core | 5 | 51 min | 10 min |
-| 03-subscription-setup-flow | 3 | 41 min | 14 min |
+| 03-subscription-setup-flow | 4 | 52 min | 13 min |
 
 **Recent Trend:**
-- Last 5 plans: 17 min, 17 min, 8 min, 13 min, 1 min
+- Last 5 plans: 17 min, 8 min, 13 min, 1 min, 11 min
 - Trend: Stable
 
 *Updated after each plan completion*
@@ -62,6 +62,7 @@ Progress: [█████████░] 85%
 | Phase 03-subscription-setup-flow P01 | 9 min | 3 tasks | 16 files |
 | Phase 03-subscription-setup-flow P02 | 17 min | 3 tasks | 14 files |
 | Phase 03-subscription-setup-flow P03 | 15 min | 3 tasks | 20 files |
+| Phase 03-subscription-setup-flow P04 | 11 min | 3 tasks | 13 files |
 
 ## Accumulated Context
 
@@ -103,6 +104,9 @@ Recent decisions affecting current work:
 - [Phase 03-subscription-setup-flow]: Selected members are reconciled by contact/user id so email edits do not break create/edit member diffing.
 - [Phase 03-subscription-setup-flow]: Quick-create duplicate-name flow defaults to reuse suggestion with explicit create-anyway confirmation.
 - [Phase 03-subscription-setup-flow]: Repository add-member API now accepts explicit amount overrides to keep persisted member amounts aligned with form split math.
+- [Phase 03-subscription-setup-flow]: All split outputs (preview + persistence) now come from SplitCalculator using integer-cents math.
+- [Phase 03-subscription-setup-flow]: Repository add-member fallback computes default amount from current member rows + pending member, never from stale sharedWith/costPerPerson.
+- [Phase 03-subscription-setup-flow]: Create/edit flows persist billingAnchorDay and dueDate normalized via local date-only month normalization.
 
 ### Pending Todos
 
@@ -114,6 +118,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-08T23:14:38.142Z
-Stopped at: Completed 03-subscription-setup-flow-03-PLAN.md
+Last session: 2026-03-08T23:28:44.635Z
+Stopped at: Completed 03-subscription-setup-flow-04-PLAN.md
 Resume file: None
