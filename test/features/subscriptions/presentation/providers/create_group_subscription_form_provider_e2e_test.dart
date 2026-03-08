@@ -25,26 +25,24 @@ void main() {
       final container = _buildContainer(repository);
       addTearDown(container.dispose);
 
-      final notifier = container.read(
-        createGroupSubscriptionFormProvider.notifier,
-      );
-      notifier.updateServiceName('Co-working Office');
-      notifier.updateTotalPrice('18.00');
-      notifier.updateRenewalDate(DateTime.now().add(const Duration(days: 60)));
-
-      notifier.addOrReplaceMemberFromContact(
-        _contact(id: 'local-1', name: 'Alex', email: null),
-      );
-      notifier.addOrReplaceMemberFromContact(
-        _contact(id: 'local-2', name: 'Blair', email: 'blair@old.dev'),
-      );
-      notifier.syncMemberFromUpdatedContact(
-        _contact(id: 'local-2', name: 'Blair Updated', email: 'blair@new.dev'),
-      );
-      notifier.removeMemberByContactId('local-1');
-      notifier.addOrReplaceMemberFromContact(
-        _contact(id: 'local-3', name: 'Casey', email: 'casey@test.dev'),
-      );
+      container.read(createGroupSubscriptionFormProvider.notifier)
+        ..updateServiceName('Co-working Office')
+        ..updateTotalPrice('18.00')
+        ..updateRenewalDate(DateTime.now().add(const Duration(days: 60)))
+        ..addOrReplaceMemberFromContact(
+          _contact(id: 'local-1', name: 'Alex', email: null),
+        )
+        ..addOrReplaceMemberFromContact(
+          _contact(id: 'local-2', name: 'Blair', email: 'blair@old.dev'),
+        )
+        ..syncMemberFromUpdatedContact(
+          _contact(
+              id: 'local-2', name: 'Blair Updated', email: 'blair@new.dev'),
+        )
+        ..removeMemberByContactId('local-1')
+        ..addOrReplaceMemberFromContact(
+          _contact(id: 'local-3', name: 'Casey', email: 'casey@test.dev'),
+        );
 
       final beforeSubmit = container.read(createGroupSubscriptionFormProvider);
       expect(beforeSubmit.members, hasLength(2));
@@ -54,7 +52,9 @@ void main() {
       expect(beforeSubmit.memberFloorSplitAmount, closeTo(6.0, 0.001));
       expect(beforeSubmit.breakdown, hasLength(3));
 
-      await notifier.submit();
+      await container
+          .read(createGroupSubscriptionFormProvider.notifier)
+          .submit();
 
       expect(repository.createdSubscriptions, hasLength(1));
       expect(repository.addedMembers, hasLength(2));
@@ -104,8 +104,8 @@ Contact _contact({
     userId: 'owner-1',
     name: name,
     email: email,
-    createdAt: DateTime.utc(2026, 1, 1),
-    updatedAt: DateTime.utc(2026, 1, 1),
+    createdAt: DateTime.utc(2026),
+    updatedAt: DateTime.utc(2026),
   );
 }
 

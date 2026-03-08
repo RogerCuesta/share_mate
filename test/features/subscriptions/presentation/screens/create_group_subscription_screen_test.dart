@@ -83,11 +83,8 @@ ServiceTemplate _template({
     name: name,
     logoUrl: 'https://example.com/$slug.svg',
     brandColor: color,
-    aliases: const [],
-    searchTerms: const [],
-    isActive: true,
-    createdAt: DateTime.utc(2026, 1, 1),
-    updatedAt: DateTime.utc(2026, 1, 1),
+    createdAt: DateTime.utc(2026),
+    updatedAt: DateTime.utc(2026),
   );
 }
 

@@ -12,7 +12,6 @@ import 'package:flutter_project_agents/features/subscriptions/data/repositories/
 import 'package:flutter_project_agents/features/subscriptions/domain/entities/service_template.dart';
 import 'package:flutter_project_agents/features/subscriptions/domain/entities/subscription.dart';
 import 'package:flutter_project_agents/features/subscriptions/domain/entities/subscription_member.dart';
-import 'package:flutter_project_agents/features/subscriptions/domain/entities/subscription_member_input.dart';
 import 'package:flutter_project_agents/features/subscriptions/domain/failures/subscription_failure.dart';
 import 'package:flutter_project_agents/features/subscriptions/presentation/providers/create_group_subscription_form_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -26,31 +25,31 @@ void main() {
       final container = _buildContainer(repository);
       addTearDown(container.dispose);
 
-      final notifier = container.read(
-        createGroupSubscriptionFormProvider.notifier,
-      );
-
-      notifier
-          .applyServiceTemplate(_template(slug: 'netflix', name: 'Netflix'));
-      notifier.updateServiceName('Netflix Family+');
-      notifier.updateTotalPrice('19.99');
-      notifier.addOrReplaceMemberFromContact(
-        _contact(id: 'contact-1', name: 'Alex', email: null),
-      );
-      notifier.addOrReplaceMemberFromContact(
-        _contact(id: 'contact-2', name: 'Blair', email: 'blair@test.dev'),
-      );
+      container.read(createGroupSubscriptionFormProvider.notifier)
+        ..applyServiceTemplate(_template(slug: 'netflix', name: 'Netflix'))
+        ..updateServiceName('Netflix Family+')
+        ..updateTotalPrice('19.99')
+        ..addOrReplaceMemberFromContact(
+          _contact(id: 'contact-1', name: 'Alex', email: null),
+        )
+        ..addOrReplaceMemberFromContact(
+          _contact(id: 'contact-2', name: 'Blair', email: 'blair@test.dev'),
+        );
 
       final targetDate = DateTime.now().add(const Duration(days: 45));
-      notifier.updateRenewalDate(
-        DateTime(targetDate.year, targetDate.month, targetDate.day),
-      );
+      container
+          .read(createGroupSubscriptionFormProvider.notifier)
+          .updateRenewalDate(
+            DateTime(targetDate.year, targetDate.month, targetDate.day),
+          );
 
       final beforeSubmit = container.read(createGroupSubscriptionFormProvider);
       expect(beforeSubmit.memberFloorSplitAmount, closeTo(6.66, 0.001));
       expect(beforeSubmit.breakdown, hasLength(3));
 
-      await notifier.submit();
+      await container
+          .read(createGroupSubscriptionFormProvider.notifier)
+          .submit();
 
       final created = repository.createdSubscriptions.single;
       expect(created.name, 'Netflix Family+');
@@ -74,10 +73,6 @@ void main() {
       final repository = _RecordingSubscriptionRepository();
       final container = _buildContainer(repository);
       addTearDown(container.dispose);
-
-      final notifier = container.read(
-        createGroupSubscriptionFormProvider.notifier,
-      );
 
       final now = DateTime.now();
       final overflowDate = _nextShortMonthDate(now);
@@ -111,20 +106,25 @@ void main() {
         ),
       ];
 
-      notifier.initializeWithSubscription(existing, existingMembers);
+      container
+          .read(createGroupSubscriptionFormProvider.notifier)
+          .initializeWithSubscription(existing, existingMembers);
 
       final initialized = container.read(createGroupSubscriptionFormProvider);
       expect(initialized.hasBillingDayOverflowInSelectedMonth, isTrue);
       expect(initialized.normalizedRenewalDate.day, overflowDate.day);
       expect(initialized.billingAnchorDay, 31);
 
-      notifier.updateTotalPrice('15.00');
-      notifier.removeMemberByContactId('contact-b');
-      notifier.addOrReplaceMemberFromContact(
-        _contact(id: 'contact-c', name: 'Cara', email: 'cara@test.dev'),
-      );
+      container.read(createGroupSubscriptionFormProvider.notifier)
+        ..updateTotalPrice('15.00')
+        ..removeMemberByContactId('contact-b')
+        ..addOrReplaceMemberFromContact(
+          _contact(id: 'contact-c', name: 'Cara', email: 'cara@test.dev'),
+        );
 
-      await notifier.submit(existing.id);
+      await container
+          .read(createGroupSubscriptionFormProvider.notifier)
+          .submit(existing.id);
 
       final updated = repository.updatedSubscriptions.single;
       expect(updated.totalCost, 15);
@@ -194,11 +194,8 @@ ServiceTemplate _template({
     name: name,
     logoUrl: 'https://example.com/$slug.svg',
     brandColor: '#E50914',
-    aliases: const [],
-    searchTerms: const [],
-    isActive: true,
-    createdAt: DateTime.utc(2026, 1, 1),
-    updatedAt: DateTime.utc(2026, 1, 1),
+    createdAt: DateTime.utc(2026),
+    updatedAt: DateTime.utc(2026),
   );
 }
 
@@ -212,8 +209,8 @@ Contact _contact({
     userId: 'owner-1',
     name: name,
     email: email,
-    createdAt: DateTime.utc(2026, 1, 1),
-    updatedAt: DateTime.utc(2026, 1, 1),
+    createdAt: DateTime.utc(2026),
+    updatedAt: DateTime.utc(2026),
   );
 }
 
