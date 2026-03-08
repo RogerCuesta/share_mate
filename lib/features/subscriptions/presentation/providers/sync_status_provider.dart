@@ -33,6 +33,7 @@ abstract class SyncQueueRecoverySource {
   Future<int> clearTerminalOnly();
 }
 
+// ignore: one_member_abstracts
 abstract class SyncOrchestratorCommandSource {
   Future<void> triggerSync({
     String reason,

@@ -111,9 +111,10 @@ class SubscriptionDetailScreen extends ConsumerWidget {
                 const SizedBox(height: 24),
                 ElevatedButton.icon(
                   onPressed: () {
-                    ref.invalidate(subscriptionDetailProvider(subscriptionId));
-                    ref.invalidate(subscriptionMembersProvider(subscriptionId));
-                    ref.invalidate(subscriptionStatsProvider(subscriptionId));
+                    ref
+                      ..invalidate(subscriptionDetailProvider(subscriptionId))
+                      ..invalidate(subscriptionMembersProvider(subscriptionId))
+                      ..invalidate(subscriptionStatsProvider(subscriptionId));
                   },
                   icon: const Icon(Icons.refresh),
                   label: const Text('Retry'),
@@ -933,8 +934,9 @@ class _ActionButtons extends ConsumerWidget {
       },
       (_) {
         // Success - invalidate providers to refresh home screen
-        ref.invalidate(activeSubscriptionsProvider);
-        ref.invalidate(monthlyStatsProvider);
+        ref
+          ..invalidate(activeSubscriptionsProvider)
+          ..invalidate(monthlyStatsProvider);
 
         // Navigate back to home
         context.pop();
