@@ -15,21 +15,6 @@ class PaymentSyncPreflightResult {
     required this.backendCycleDueDate,
   });
 
-  final PaymentSyncPreflightDecision decision;
-  final DateTime backendCycleDueDate;
-
-  bool get shouldApplyMutation =>
-      decision == PaymentSyncPreflightDecision.applyMutation;
-
-  bool get shouldMarkAsAlreadySynced =>
-      decision == PaymentSyncPreflightDecision.alreadyAppliedNoop;
-
-  bool get shouldMarkTerminalConflict =>
-      decision == PaymentSyncPreflightDecision.terminalCycleConflictNoop;
-
-  String? get terminalReason =>
-      shouldMarkTerminalConflict ? cycleConflictNoopReason : null;
-
   factory PaymentSyncPreflightResult.applyMutation({
     required DateTime backendCycleDueDate,
   }) {
@@ -56,6 +41,21 @@ class PaymentSyncPreflightResult {
       backendCycleDueDate: backendCycleDueDate,
     );
   }
+
+  final PaymentSyncPreflightDecision decision;
+  final DateTime backendCycleDueDate;
+
+  bool get shouldApplyMutation =>
+      decision == PaymentSyncPreflightDecision.applyMutation;
+
+  bool get shouldMarkAsAlreadySynced =>
+      decision == PaymentSyncPreflightDecision.alreadyAppliedNoop;
+
+  bool get shouldMarkTerminalConflict =>
+      decision == PaymentSyncPreflightDecision.terminalCycleConflictNoop;
+
+  String? get terminalReason =>
+      shouldMarkTerminalConflict ? cycleConflictNoopReason : null;
 }
 
 class PaymentSyncConflictResolver {

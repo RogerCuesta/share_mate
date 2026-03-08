@@ -1,5 +1,5 @@
-import 'package:flutter_project_agents/core/supabase/supabase_service.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_project_agents/core/supabase/supabase_service.dart';
 import 'package:flutter_project_agents/features/subscriptions/data/models/analytics_data_model.dart';
 import 'package:flutter_project_agents/features/subscriptions/data/models/analytics_overview_model.dart';
 import 'package:flutter_project_agents/features/subscriptions/data/models/monthly_spending_model.dart';

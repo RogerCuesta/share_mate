@@ -731,9 +731,9 @@ class SubscriptionRepositoryImpl implements SubscriptionRepository {
   }
 
   DateTime _resolveCycleDueDate({
+    required DateTime paymentDate,
     DateTime? memberDueDate,
     DateTime? subscriptionDueDate,
-    required DateTime paymentDate,
   }) {
     return memberDueDate ?? subscriptionDueDate ?? paymentDate;
   }
