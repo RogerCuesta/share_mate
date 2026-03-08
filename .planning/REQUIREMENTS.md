@@ -7,12 +7,12 @@
 
 ### Data Safety
 
-- [ ] **SAFE-01**: La app no elimina suscripciones/contactos locales existentes durante arranque o migración.
-- [ ] **SAFE-02**: Las migraciones locales son idempotentes, versionadas y se ejecutan una sola vez por versión.
+- [x] **SAFE-01**: La app no elimina suscripciones/contactos locales existentes durante arranque o migración.
+- [x] **SAFE-02**: Las migraciones locales son idempotentes, versionadas y se ejecutan una sola vez por versión.
 
 ### Security & Privacy
 
-- [ ] **SECU-01**: Los datos locales de suscripciones/pagos/contactos están cifrados en reposo.
+- [x] **SECU-01**: Los datos locales de suscripciones/pagos/contactos están cifrados en reposo.
 - [x] **SECU-02**: Las operaciones sensibles de cuenta (incluido borrado) se ejecutan vía backend autorizado y no desde API admin en cliente.
 - [ ] **SECU-03**: RLS en Supabase garantiza aislamiento total por `user_id` en lecturas/escrituras de datos de negocio.
 
@@ -92,9 +92,9 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| SAFE-01 | Phase 1 | Pending |
-| SAFE-02 | Phase 1 | Pending |
-| SECU-01 | Phase 1 | Pending |
+| SAFE-01 | Phase 1 | Complete |
+| SAFE-02 | Phase 1 | Complete |
+| SECU-01 | Phase 1 | Complete |
 | SECU-02 | Phase 1 | Complete |
 | SECU-03 | Phase 1 | Pending |
 | CATA-01 | Phase 3 | Pending |
