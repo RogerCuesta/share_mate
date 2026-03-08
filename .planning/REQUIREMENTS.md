@@ -13,7 +13,7 @@
 ### Security & Privacy
 
 - [ ] **SECU-01**: Los datos locales de suscripciones/pagos/contactos están cifrados en reposo.
-- [ ] **SECU-02**: Las operaciones sensibles de cuenta (incluido borrado) se ejecutan vía backend autorizado y no desde API admin en cliente.
+- [x] **SECU-02**: Las operaciones sensibles de cuenta (incluido borrado) se ejecutan vía backend autorizado y no desde API admin en cliente.
 - [ ] **SECU-03**: RLS en Supabase garantiza aislamiento total por `user_id` en lecturas/escrituras de datos de negocio.
 
 ### Catalog
@@ -95,7 +95,7 @@
 | SAFE-01 | Phase 1 | Pending |
 | SAFE-02 | Phase 1 | Pending |
 | SECU-01 | Phase 1 | Pending |
-| SECU-02 | Phase 1 | Pending |
+| SECU-02 | Phase 1 | Complete |
 | SECU-03 | Phase 1 | Pending |
 | CATA-01 | Phase 3 | Pending |
 | CATA-02 | Phase 3 | Pending |
