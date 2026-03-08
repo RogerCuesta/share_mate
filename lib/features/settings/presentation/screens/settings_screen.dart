@@ -1,6 +1,9 @@
 // lib/features/settings/presentation/screens/settings_screen.dart
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_project_agents/core/sync/sync_status.dart';
 import 'package:flutter_project_agents/core/theme/theme_extensions.dart';
 import 'package:flutter_project_agents/features/auth/presentation/providers/auth_provider.dart';
 import 'package:flutter_project_agents/features/settings/domain/entities/app_settings.dart';
@@ -10,7 +13,9 @@ import 'package:flutter_project_agents/features/settings/presentation/providers/
 import 'package:flutter_project_agents/features/settings/presentation/providers/settings_provider.dart';
 import 'package:flutter_project_agents/features/settings/presentation/providers/theme_provider.dart'
     hide Theme;
+import 'package:flutter_project_agents/features/subscriptions/presentation/providers/sync_status_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -54,6 +59,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     final profileState = ref.watch(currentUserProfileProvider);
     final settingsState = ref.watch(settingsProvider);
     final themeMode = ref.watch(themeProvider);
+    final syncStatus = ref.watch(settingsSyncStatusProvider);
 
     return Scaffold(
       body: SafeArea(
@@ -138,6 +144,22 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     subtitle: 'New friend requests',
                     icon: Icons.person_add,
                     badge: 'Coming soon',
+                  ),
+                ],
+              ),
+
+              // Sync Health Section
+              _buildSection(
+                context,
+                title: 'Sync Health',
+                children: [
+                  SettingsSyncHealthSection(
+                    syncStatus: syncStatus,
+                    onRetryAll: () =>
+                        ref.read(syncStatusProvider.notifier).retryAll(),
+                    onClearTerminalOnly: () => ref
+                        .read(syncStatusProvider.notifier)
+                        .clearTerminalOnly(),
                   ),
                 ],
               ),
@@ -714,6 +736,159 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     final uri = Uri.parse(url);
     if (await canLaunchUrl(uri)) {
       await launchUrl(uri);
+    }
+  }
+}
+
+class SettingsSyncHealthSection extends StatefulWidget {
+  const SettingsSyncHealthSection({
+    required this.syncStatus,
+    required this.onRetryAll,
+    required this.onClearTerminalOnly,
+    super.key,
+  });
+
+  final SyncStatus syncStatus;
+  final Future<int> Function() onRetryAll;
+  final Future<int> Function() onClearTerminalOnly;
+
+  @override
+  State<SettingsSyncHealthSection> createState() =>
+      _SettingsSyncHealthSectionState();
+}
+
+class _SettingsSyncHealthSectionState extends State<SettingsSyncHealthSection> {
+  bool _retrying = false;
+  bool _clearing = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final statusLabel = syncStatusLabel(widget.syncStatus);
+    final statusColor = _statusColor(statusLabel);
+    final lastSyncLabel = widget.syncStatus.lastSuccessfulSyncAt == null
+        ? 'Last successful sync: Not available'
+        : 'Last successful sync: ${DateFormat('MMM dd, HH:mm').format(widget.syncStatus.lastSuccessfulSyncAt!.toLocal())}';
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.sync, color: theme.colorScheme.primary),
+              const SizedBox(width: 8),
+              Text(
+                statusLabel,
+                style: theme.textTheme.titleSmall?.copyWith(
+                  color: statusColor,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            lastSyncLabel,
+            style: theme.textTheme.bodySmall,
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Pending operations: ${widget.syncStatus.pendingCount}',
+            style: theme.textTheme.bodySmall,
+          ),
+          Text(
+            'Requires action: ${widget.syncStatus.terminalCount}',
+            style: theme.textTheme.bodySmall,
+          ),
+          const SizedBox(height: 12),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              FilledButton.tonalIcon(
+                onPressed: _retrying ? null : _handleRetryAll,
+                icon: _retrying
+                    ? const SizedBox(
+                        width: 16,
+                        height: 16,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Icon(Icons.refresh),
+                label: const Text('Retry all'),
+              ),
+              OutlinedButton.icon(
+                onPressed: _clearing ? null : _handleClearTerminalOnly,
+                icon: _clearing
+                    ? const SizedBox(
+                        width: 16,
+                        height: 16,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Icon(Icons.cleaning_services_outlined),
+                label: const Text('Clear terminal only'),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Color _statusColor(String label) {
+    return switch (label) {
+      syncedStatusLabel => const Color(0xFF43A047),
+      pendingStatusLabel => const Color(0xFFF9A825),
+      _ => const Color(0xFFE53935),
+    };
+  }
+
+  Future<void> _handleRetryAll() async {
+    setState(() {
+      _retrying = true;
+    });
+    try {
+      final retriedCount = await widget.onRetryAll();
+      if (!mounted) {
+        return;
+      }
+      final message = retriedCount > 0
+          ? 'Retry all started for $retriedCount terminal operations.'
+          : 'Retry all finished. No terminal operations found.';
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(message)),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _retrying = false;
+        });
+      }
+    }
+  }
+
+  Future<void> _handleClearTerminalOnly() async {
+    setState(() {
+      _clearing = true;
+    });
+    try {
+      final clearedCount = await widget.onClearTerminalOnly();
+      if (!mounted) {
+        return;
+      }
+      final message = clearedCount > 0
+          ? 'Cleared $clearedCount terminal operations.'
+          : 'Clear terminal only finished. Nothing to clear.';
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(message)),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _clearing = false;
+        });
+      }
     }
   }
 }
