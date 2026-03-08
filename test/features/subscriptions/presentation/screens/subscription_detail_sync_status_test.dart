@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_project_agents/core/sync/sync_status.dart';
+import 'package:flutter_project_agents/features/subscriptions/presentation/providers/sync_status_provider.dart';
 import 'package:flutter_project_agents/features/subscriptions/presentation/screens/subscription_detail_screen.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/intl.dart';
@@ -25,7 +26,7 @@ void main() {
 
       final expectedLastSync =
           'Last successful sync: ${DateFormat('MMM dd, HH:mm').format(lastSync.toLocal())}';
-      expect(find.text('Synced'), findsOneWidget);
+      expect(find.text(syncedStatusLabel), findsOneWidget);
       expect(
         find.text('Changes for this subscription are synchronized.'),
         findsOneWidget,
@@ -50,7 +51,7 @@ void main() {
         ),
       );
 
-      expect(find.text('Pending'), findsOneWidget);
+      expect(find.text(pendingStatusLabel), findsOneWidget);
       expect(
         find.text('Pending changes are syncing in the background.'),
         findsOneWidget,
@@ -75,7 +76,7 @@ void main() {
         ),
       );
 
-      expect(find.text('Requires action'), findsOneWidget);
+      expect(find.text(requiresActionStatusLabel), findsOneWidget);
       expect(
         find.text(
           'Requires action: recover terminal sync failures in Settings.',

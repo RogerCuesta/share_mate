@@ -1,7 +1,11 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_project_agents/core/sync/sync_status.dart';
+import 'package:flutter_project_agents/features/home/presentation/widgets/home_header.dart';
 import 'package:flutter_project_agents/features/settings/presentation/screens/settings_screen.dart';
 import 'package:flutter_project_agents/features/subscriptions/presentation/providers/sync_status_provider.dart';
+import 'package:flutter_project_agents/features/subscriptions/presentation/screens/subscription_detail_screen.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -188,6 +192,92 @@ void main() {
       expect(find.text('Requires action: 2'), findsOneWidget);
       expect(find.text('Retry all'), findsOneWidget);
       expect(find.text('Clear terminal only'), findsOneWidget);
+    });
+
+    testWidgets('manual actions do not block navigation while async work runs',
+        (tester) async {
+      final retryCompleter = Completer<int>();
+      var retryCalls = 0;
+
+      await tester.pumpWidget(
+        MaterialApp(
+          routes: {
+            '/next': (context) => const Scaffold(
+                  body: Center(child: Text('Next page')),
+                ),
+          },
+          home: Scaffold(
+            body: Builder(
+              builder: (context) => Column(
+                children: [
+                  SettingsSyncHealthSection(
+                    syncStatus: const SyncStatus(
+                      kind: SyncStatusKind.pending,
+                      pendingCount: 3,
+                      terminalCount: 0,
+                      lastSuccessfulSyncAt: null,
+                    ),
+                    onRetryAll: () {
+                      retryCalls += 1;
+                      return retryCompleter.future;
+                    },
+                    onClearTerminalOnly: () async => 0,
+                  ),
+                  ElevatedButton(
+                    onPressed: () => Navigator.of(context).pushNamed('/next'),
+                    child: const Text('Go next'),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+
+      await tester.tap(find.text('Retry all'));
+      await tester.pump();
+      expect(retryCalls, 1);
+
+      await tester.tap(find.text('Go next'));
+      await tester.pumpAndSettle();
+      expect(find.text('Next page'), findsOneWidget);
+
+      retryCompleter.complete(1);
+      await tester.pumpAndSettle();
+    });
+
+    testWidgets(
+        'state labels stay consistent across home, detail, and settings',
+        (tester) async {
+      const status = SyncStatus(
+        kind: SyncStatusKind.pending,
+        pendingCount: 2,
+        terminalCount: 0,
+        lastSuccessfulSyncAt: null,
+      );
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const HomeSyncStatusBadge(status: status),
+                const SizedBox(height: 12),
+                const SubscriptionDetailSyncStatusCard(syncStatus: status),
+                const SizedBox(height: 12),
+                SettingsSyncHealthSection(
+                  syncStatus: status,
+                  onRetryAll: () async => 0,
+                  onClearTerminalOnly: () async => 0,
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+
+      expect(find.text(pendingStatusLabel), findsNWidgets(3));
     });
   });
 }

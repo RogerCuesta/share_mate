@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_project_agents/core/sync/sync_status.dart';
 import 'package:flutter_project_agents/features/home/presentation/widgets/home_header.dart';
+import 'package:flutter_project_agents/features/subscriptions/presentation/providers/sync_status_provider.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/intl.dart';
 
@@ -24,7 +25,7 @@ void main() {
 
       final expected =
           'Last sync: ${DateFormat('MMM d, HH:mm').format(lastSync.toLocal())}';
-      expect(find.text('Synced'), findsOneWidget);
+      expect(find.text(syncedStatusLabel), findsOneWidget);
       expect(find.text(expected), findsOneWidget);
     });
 
@@ -43,7 +44,7 @@ void main() {
         ),
       );
 
-      expect(find.text('Pending'), findsOneWidget);
+      expect(find.text(pendingStatusLabel), findsOneWidget);
       expect(find.text('Last sync: Not available'), findsOneWidget);
     });
 
@@ -61,7 +62,7 @@ void main() {
         ),
       );
 
-      expect(find.text('Requires action'), findsOneWidget);
+      expect(find.text(requiresActionStatusLabel), findsOneWidget);
     });
   });
 }
