@@ -81,7 +81,7 @@ class PaymentAction extends _$PaymentAction {
   }
 
   bool hasLoadingMembersInSubscription(String subscriptionId) {
-    return (_loadingMembersBySubscription[subscriptionId]?.isNotEmpty ?? false);
+    return _loadingMembersBySubscription[subscriptionId]?.isNotEmpty ?? false;
   }
 
   void _startMemberLoading({
@@ -440,20 +440,13 @@ class PaymentAction extends _$PaymentAction {
       metadata: {'source': 'provider'},
     );
 
-    // Invalidate subscription members (payment status changed)
-    ref.invalidate(subscriptionMembersProvider(subscriptionId));
-
-    // Invalidate subscription stats (collected/remaining amounts changed)
-    ref.invalidate(subscriptionStatsProvider(subscriptionId));
-
-    // Invalidate monthly stats (pending to collect changed)
-    ref.invalidate(monthlyStatsProvider);
-
-    // Invalidate pending payments (may have decreased)
-    ref.invalidate(pendingPaymentsProvider);
-
-    // Invalidate debt-home snapshot (Home debt card + next collection)
-    ref.invalidate(debtHomeSnapshotProvider);
+    // Invalidate detail and home dependencies after payment mutations.
+    ref
+      ..invalidate(subscriptionMembersProvider(subscriptionId))
+      ..invalidate(subscriptionStatsProvider(subscriptionId))
+      ..invalidate(monthlyStatsProvider)
+      ..invalidate(pendingPaymentsProvider)
+      ..invalidate(debtHomeSnapshotProvider);
 
     _syncLogger.logSync(
       event: 'payment_provider_invalidation_completed',

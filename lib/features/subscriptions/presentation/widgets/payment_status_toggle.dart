@@ -59,6 +59,10 @@ class _PaymentStatusToggleState extends ConsumerState<PaymentStatusToggle> {
     _canUndo = false;
 
     final paymentNotifier = ref.read(paymentActionProvider.notifier);
+    if (paymentNotifier.loadingMember(widget.member.id) ||
+        paymentNotifier.loadingBulk(widget.subscriptionId)) {
+      return;
+    }
 
     if (newValue) {
       // Mark as paid
@@ -257,13 +261,10 @@ class _PaymentStatusToggleState extends ConsumerState<PaymentStatusToggle> {
       },
     );
 
-    final isLoading = ref.watch(paymentActionProvider).maybeWhen(
-          loadingMember: (loadingMemberId) =>
-              loadingMemberId == widget.member.id,
-          loadingBulk: (loadingSubscriptionId) =>
-              loadingSubscriptionId == widget.subscriptionId,
-          orElse: () => false,
-        );
+    final paymentNotifier = (ref..watch(paymentActionProvider))
+        .read(paymentActionProvider.notifier);
+    final isLoading = paymentNotifier.loadingMember(widget.member.id) ||
+        paymentNotifier.loadingBulk(widget.subscriptionId);
 
     final isPaid = widget.member.hasPaid;
 

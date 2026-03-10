@@ -119,11 +119,10 @@ class PaymentActionButtons extends ConsumerWidget {
       },
     );
 
-    final isLoading = ref.watch(paymentActionProvider).maybeWhen(
-          loadingBulk: (loadingSubscriptionId) =>
-              loadingSubscriptionId == subscriptionId,
-          orElse: () => false,
-        );
+    final paymentNotifier = (ref..watch(paymentActionProvider))
+        .read(paymentActionProvider.notifier);
+    final isLoading = paymentNotifier.loadingBulk(subscriptionId) ||
+        paymentNotifier.hasLoadingMembersInSubscription(subscriptionId);
 
     // Don't show button if no pending payments
     if (!hasPendingPayments) {
