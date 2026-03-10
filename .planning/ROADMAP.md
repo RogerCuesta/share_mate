@@ -95,6 +95,6 @@ Phases execute in numeric order: 1 → 1.1 → 1.2 → 2 → 2.1 → 3 → 4 →
 | 1. Data Safety & Access Security | 3/3 | Complete   | 2026-03-08 |
 | 2. Offline Sync Reliability Core | 5/5 | Complete | 2026-03-08 |
 | 3. Subscription Setup Flow | 5/5 | Complete | 2026-03-09 |
-| 4. Payment Tracking & Debt Home | 1/5 | In Progress|  |
+| 4. Payment Tracking & Debt Home | 3/5 | In Progress|  |
 | 5. Billing Automation Cycle | 0/TBD | Not started | - |
 | 6. UX System Consistency | 0/TBD | Not started | - |

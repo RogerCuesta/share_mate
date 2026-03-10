@@ -4,17 +4,17 @@ milestone: v1.0
 milestone_name: milestone
 current_phase: 04-payment-tracking-debt-home
 current_phase_name: Payment Tracking & Debt Home
-current_plan: 3
+current_plan: 4
 status: executing
-stopped_at: Completed 04-payment-tracking-debt-home-02-PLAN.md
-last_updated: "2026-03-10T22:11:14.106Z"
+stopped_at: Completed 04-payment-tracking-debt-home-03-PLAN.md
+last_updated: "2026-03-10T22:23:23.325Z"
 last_activity: 2026-03-10
 progress:
   total_phases: 6
   completed_phases: 3
   total_plans: 18
-  completed_plans: 15
-  percent: 83
+  completed_plans: 16
+  percent: 89
 ---
 
 # Project State
@@ -31,12 +31,12 @@ See: .planning/PROJECT.md (updated 2026-03-08)
 **Current Phase:** 04-payment-tracking-debt-home
 **Current Phase Name:** Payment Tracking & Debt Home
 **Total Phases:** 6
-**Current Plan:** 3
+**Current Plan:** 4
 **Total Plans in Phase:** 5
 **Status:** Ready to execute
 **Last Activity:** 2026-03-10
 
-**Progress:** [████████░░] 83%
+**Progress:** [█████████░] 89%
 
 ## Performance Metrics
 
@@ -72,6 +72,7 @@ See: .planning/PROJECT.md (updated 2026-03-08)
 | Phase 03-subscription-setup-flow P05 | 24 min | 3 tasks | 12 files |
 | Phase 04-payment-tracking-debt-home P01 | 5 min | 3 tasks | 5 files |
 | Phase 04-payment-tracking-debt-home P02 | 17 min | 3 tasks | 7 files |
+| Phase 04-payment-tracking-debt-home P03 | 7 min | 3 tasks | 8 files |
 
 ## Accumulated Context
 
@@ -125,6 +126,8 @@ Recent decisions affecting current work:
 - [Phase 04-payment-tracking-debt-home]: Allow concurrent member actions across different members while rejecting duplicate requests for the same member.
 - [Phase 04-payment-tracking-debt-home]: Disable bulk action when the same subscription has in-flight member actions to avoid false taps against blocked backend semantics.
 - [Phase 04-payment-tracking-debt-home]: Apply pending-first sorting only at detail render boundary to preserve persisted ordering.
+- [Phase 04-payment-tracking-debt-home]: Debt KPI + next-collection blocks are now the first Home content below the header; stats/actions remain secondary context.
+- [Phase 04-payment-tracking-debt-home]: Debt-priority Home tests use provider overrides to assert ordering and Todo al dia behavior deterministically.
 
 ### Pending Todos
 
@@ -136,6 +139,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-10T22:11:14.103Z
-Stopped at: Completed 04-payment-tracking-debt-home-02-PLAN.md
+Last session: 2026-03-10T22:23:23.322Z
+Stopped at: Completed 04-payment-tracking-debt-home-03-PLAN.md
 Resume file: None
