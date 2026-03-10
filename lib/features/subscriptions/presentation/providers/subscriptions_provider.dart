@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use_from_same_package
+
 import 'package:flutter_project_agents/core/di/injection.dart';
 import 'package:flutter_project_agents/features/auth/presentation/providers/auth_provider.dart';
 import 'package:flutter_project_agents/features/subscriptions/domain/entities/monthly_stats.dart';
@@ -25,7 +27,7 @@ Future<MonthlyStats> monthlyStats(MonthlyStatsRef ref) async {
       final result = await useCase(user.id);
 
       return result.fold(
-        (failure) => throw failure, // AsyncValue will catch and show error
+        (failure) => throw StateError(failure.toString()),
         (stats) => stats,
       );
     },
@@ -61,7 +63,7 @@ Future<List<Subscription>> activeSubscriptions(
       final result = await useCase(user.id);
 
       return result.fold(
-        (failure) => throw failure, // AsyncValue will catch and show error
+        (failure) => throw StateError(failure.toString()),
         (subscriptions) => subscriptions,
       );
     },
@@ -89,7 +91,7 @@ Future<List<SubscriptionMember>> pendingPayments(
       final result = await useCase(user.id);
 
       return result.fold(
-        (failure) => throw failure, // AsyncValue will catch and show error
+        (failure) => throw StateError(failure.toString()),
         (payments) => payments,
       );
     },
@@ -126,7 +128,7 @@ Future<Subscription> subscriptionDetails(
   final result = await useCase(subscriptionId);
 
   return result.fold(
-    (failure) => throw failure,
+    (failure) => throw StateError(failure.toString()),
     (subscription) => subscription,
   );
 }
@@ -145,7 +147,16 @@ class SelectedBottomNavIndex extends _$SelectedBottomNavIndex {
   int build() => 0; // Home by default
 
   /// Set the selected bottom navigation index
+  // ignore: use_setters_to_change_properties
   void setIndex(int index) {
     state = index;
   }
 }
+
+final activeSubscriptionsByIdProvider =
+    FutureProvider.autoDispose<Map<String, Subscription>>((ref) async {
+      final subscriptions = await ref.watch(activeSubscriptionsProvider.future);
+      return {
+        for (final subscription in subscriptions) subscription.id: subscription,
+      };
+    });

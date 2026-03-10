@@ -1,6 +1,20 @@
 import 'package:flutter_project_agents/features/home/presentation/models/debt_home_snapshot.dart';
 import 'package:flutter_project_agents/features/subscriptions/domain/entities/subscription.dart';
 import 'package:flutter_project_agents/features/subscriptions/domain/entities/subscription_member.dart';
+import 'package:flutter_project_agents/features/subscriptions/presentation/providers/subscriptions_provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+final debtHomeSnapshotProvider =
+    FutureProvider.autoDispose<DebtHomeSnapshot>((ref) async {
+      final pendingPayments = await ref.watch(pendingPaymentsProvider.future);
+      final activeSubscriptions =
+          await ref.watch(activeSubscriptionsProvider.future);
+
+      return buildDebtHomeSnapshot(
+        pendingPayments: pendingPayments,
+        activeSubscriptions: activeSubscriptions,
+      );
+    });
 
 Map<String, double> pendingAmountBySubscription(
   List<SubscriptionMember> pendingPayments,
