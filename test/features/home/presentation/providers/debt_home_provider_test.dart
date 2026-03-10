@@ -98,6 +98,69 @@ void main() {
       expect(snapshot.hasDebt, isTrue);
       expect(snapshot.nextCollection, isNull);
     });
+
+    test('prefers nearest due date and higher pending amount on ties',
+        () async {
+      final now = DateTime(2026, 3, 10);
+      final container = ProviderContainer(
+        overrides: [
+          pendingPaymentsProvider.overrideWith(
+            (ref) async => [
+              _member(
+                id: 'm-1',
+                subscriptionId: 'sub-far',
+                amountToPay: 25,
+                dueDate: DateTime(2026, 4, 1),
+              ),
+              _member(
+                id: 'm-2',
+                subscriptionId: 'sub-near-low',
+                amountToPay: 9,
+                dueDate: DateTime(2026, 3, 13),
+              ),
+              _member(
+                id: 'm-3',
+                subscriptionId: 'sub-near-high',
+                amountToPay: 14,
+                dueDate: DateTime(2026, 3, 13),
+              ),
+            ],
+          ),
+          activeSubscriptionsProvider.overrideWith(
+            (ref) async => [
+              _subscription(
+                id: 'sub-far',
+                name: 'Annual Tool',
+                dueDate: DateTime(2026, 4, 1),
+              ),
+              _subscription(
+                id: 'sub-near-low',
+                name: 'Streaming Lite',
+                dueDate: DateTime(2026, 3, 13),
+              ),
+              _subscription(
+                id: 'sub-near-high',
+                name: 'Streaming Pro',
+                dueDate: DateTime(2026, 3, 13),
+              ),
+            ],
+          ),
+        ],
+      );
+      addTearDown(container.dispose);
+
+      final snapshot = buildDebtHomeSnapshot(
+        pendingPayments: await container.read(pendingPaymentsProvider.future),
+        activeSubscriptions:
+            await container.read(activeSubscriptionsProvider.future),
+        now: now,
+      );
+
+      expect(snapshot.totalPendingDebt, 48);
+      expect(snapshot.nextCollection?.subscriptionId, 'sub-near-high');
+      expect(snapshot.nextCollection?.pendingAmount, 14);
+      expect(snapshot.nextCollection?.isOverdue, isFalse);
+    });
   });
 }
 

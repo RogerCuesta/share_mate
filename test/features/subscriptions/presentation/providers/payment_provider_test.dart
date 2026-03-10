@@ -377,7 +377,8 @@ void main() {
       expect(notifier.loadingBulk(subscriptionId), isFalse);
     });
 
-    test('invalidates detail and home debt dependencies after success',
+    test(
+        'invalidates detail and home debt dependencies after every success path',
         () async {
       var membersBuilds = 0;
       var monthlyBuilds = 0;
@@ -472,28 +473,70 @@ void main() {
       await container.read(pendingPaymentsProvider.future);
       await container.read(debtHomeSnapshotProvider.future);
 
-      expect(membersBuilds, greaterThanOrEqualTo(1));
-      expect(monthlyBuilds, greaterThanOrEqualTo(1));
-      expect(pendingBuilds, greaterThanOrEqualTo(1));
-      expect(debtBuilds, greaterThanOrEqualTo(1));
+      final initialMembersBuilds = membersBuilds;
+      final initialMonthlyBuilds = monthlyBuilds;
+      final initialPendingBuilds = pendingBuilds;
+      final initialDebtBuilds = debtBuilds;
 
       final notifier = container.read(paymentActionProvider.notifier);
-      final success = await notifier.markAsPaid(
+      final markAsPaidSuccess = await notifier.markAsPaid(
         subscriptionId: subscriptionId,
         memberId: memberIdA,
         amount: 10,
       );
-      expect(success, isTrue);
+      expect(markAsPaidSuccess, isTrue);
 
       await container.read(subscriptionMembersProvider(subscriptionId).future);
       await container.read(monthlyStatsProvider.future);
       await container.read(pendingPaymentsProvider.future);
       await container.read(debtHomeSnapshotProvider.future);
 
-      expect(membersBuilds, greaterThan(1));
-      expect(monthlyBuilds, greaterThan(1));
-      expect(pendingBuilds, greaterThan(1));
-      expect(debtBuilds, greaterThan(1));
+      expect(membersBuilds, greaterThan(initialMembersBuilds));
+      expect(monthlyBuilds, greaterThan(initialMonthlyBuilds));
+      expect(pendingBuilds, greaterThan(initialPendingBuilds));
+      expect(debtBuilds, greaterThan(initialDebtBuilds));
+
+      final afterMarkMembersBuilds = membersBuilds;
+      final afterMarkMonthlyBuilds = monthlyBuilds;
+      final afterMarkPendingBuilds = pendingBuilds;
+      final afterMarkDebtBuilds = debtBuilds;
+
+      final bulkCount = await notifier.markAllAsPaid(
+        subscriptionId: subscriptionId,
+      );
+      expect(bulkCount, 0);
+
+      await container.read(subscriptionMembersProvider(subscriptionId).future);
+      await container.read(monthlyStatsProvider.future);
+      await container.read(pendingPaymentsProvider.future);
+      await container.read(debtHomeSnapshotProvider.future);
+
+      expect(membersBuilds, greaterThan(afterMarkMembersBuilds));
+      expect(monthlyBuilds, greaterThan(afterMarkMonthlyBuilds));
+      expect(pendingBuilds, greaterThan(afterMarkPendingBuilds));
+      expect(debtBuilds, greaterThan(afterMarkDebtBuilds));
+
+      final afterBulkMembersBuilds = membersBuilds;
+      final afterBulkMonthlyBuilds = monthlyBuilds;
+      final afterBulkPendingBuilds = pendingBuilds;
+      final afterBulkDebtBuilds = debtBuilds;
+
+      final unmarkSuccess = await notifier.unmark(
+        subscriptionId: subscriptionId,
+        memberId: memberIdA,
+        amount: 10,
+      );
+      expect(unmarkSuccess, isTrue);
+
+      await container.read(subscriptionMembersProvider(subscriptionId).future);
+      await container.read(monthlyStatsProvider.future);
+      await container.read(pendingPaymentsProvider.future);
+      await container.read(debtHomeSnapshotProvider.future);
+
+      expect(membersBuilds, greaterThan(afterBulkMembersBuilds));
+      expect(monthlyBuilds, greaterThan(afterBulkMonthlyBuilds));
+      expect(pendingBuilds, greaterThan(afterBulkPendingBuilds));
+      expect(debtBuilds, greaterThan(afterBulkDebtBuilds));
     });
   });
 }

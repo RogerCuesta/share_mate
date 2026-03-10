@@ -126,6 +126,58 @@ void main() {
       expect(find.textContaining('Vencido'), findsNothing);
       expect(find.byKey(const Key('action-required-section')), findsNothing);
     });
+
+    testWidgets(
+        'renders upcoming urgency copy when next collection is not overdue',
+        (tester) async {
+      tester.view.devicePixelRatio = 1;
+      tester.view.physicalSize = const Size(1080, 2400);
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      final now = DateTime.now();
+      final snapshot = DebtHomeSnapshot(
+        totalPendingDebt: 10,
+        nextCollection: NextCollectionCandidate(
+          subscriptionId: 'sub-spotify',
+          subscriptionName: 'Spotify',
+          dueDate: now.add(const Duration(days: 3)),
+          pendingAmount: 10,
+          isOverdue: false,
+        ),
+      );
+
+      await tester.pumpWidget(
+        _buildHome(
+          snapshot: snapshot,
+          pendingPayments: [
+            _pendingMember(
+              id: 'member-2',
+              subscriptionId: 'sub-spotify',
+              amount: 10,
+              dueDate: now.add(const Duration(days: 3)),
+            ),
+          ],
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('Spotify'), findsOneWidget);
+      expect(
+        find.descendant(
+          of: find.byKey(const Key('next-collection-card')),
+          matching: find.textContaining('En'),
+        ),
+        findsOneWidget,
+      );
+      expect(
+        find.descendant(
+          of: find.byKey(const Key('next-collection-card')),
+          matching: find.textContaining('Vencido'),
+        ),
+        findsNothing,
+      );
+    });
   });
 }
 
