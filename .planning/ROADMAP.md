@@ -15,7 +15,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 1: Data Safety & Access Security** - Los datos del usuario sobreviven migraciones y quedan aislados/protegidos por diseño. (completed 2026-03-08)
 - [x] **Phase 2: Offline Sync Reliability Core** - La app converge de forma determinista entre estado local y backend. (completed 2026-03-08)
 - [x] **Phase 3: Subscription Setup Flow** - Alta de suscripción completa con catálogo, contactos locales y split robusto. (completed 2026-03-09)
-- [ ] **Phase 4: Payment Tracking & Debt Home** - Seguimiento de cobro por contacto con impacto inmediato y consistente en Home.
+- [x] **Phase 4: Payment Tracking & Debt Home** - Seguimiento de cobro por contacto con impacto inmediato y consistente en Home. (completed 2026-03-10)
 - [ ] **Phase 5: Billing Automation Cycle** - Recordatorios T-24h y reseteo mensual reconciliado de estados.
 - [ ] **Phase 6: UX System Consistency** - Pantallas núcleo y componentes quedan alineados al design system persistido.
 
@@ -95,6 +95,6 @@ Phases execute in numeric order: 1 → 1.1 → 1.2 → 2 → 2.1 → 3 → 4 →
 | 1. Data Safety & Access Security | 3/3 | Complete   | 2026-03-08 |
 | 2. Offline Sync Reliability Core | 5/5 | Complete | 2026-03-08 |
 | 3. Subscription Setup Flow | 5/5 | Complete | 2026-03-09 |
-| 4. Payment Tracking & Debt Home | 3/5 | In Progress|  |
+| 4. Payment Tracking & Debt Home | 5/5 | Complete    | 2026-03-10 |
 | 5. Billing Automation Cycle | 0/TBD | Not started | - |
 | 6. UX System Consistency | 0/TBD | Not started | - |
