@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_project_agents/core/di/injection.dart';
 import 'package:flutter_project_agents/core/sync/sync_logger.dart';
 import 'package:flutter_project_agents/features/auth/presentation/providers/auth_provider.dart';
+import 'package:flutter_project_agents/features/home/presentation/providers/debt_home_provider.dart';
 import 'package:flutter_project_agents/features/subscriptions/domain/entities/payment_history.dart';
 import 'package:flutter_project_agents/features/subscriptions/presentation/providers/subscription_detail_provider.dart';
 import 'package:flutter_project_agents/features/subscriptions/presentation/providers/subscriptions_provider.dart';
@@ -25,8 +26,13 @@ class PaymentActionState with _$PaymentActionState {
   /// Initial idle state - no action in progress
   const factory PaymentActionState.idle() = _Idle;
 
-  /// Loading state - action in progress
-  const factory PaymentActionState.loading() = _Loading;
+  /// Loading state for a single member action.
+  const factory PaymentActionState.loadingMember(String memberId) =
+      _LoadingMember;
+
+  /// Loading state for bulk action in a specific subscription.
+  const factory PaymentActionState.loadingBulk(String subscriptionId) =
+      _LoadingBulk;
 
   /// Success state - single payment marked
   const factory PaymentActionState.success(PaymentHistory payment) = _Success;
@@ -54,10 +60,62 @@ class PaymentActionState with _$PaymentActionState {
 @riverpod
 class PaymentAction extends _$PaymentAction {
   static const SyncLogger _syncLogger = SyncLogger(scope: 'PaymentAction');
+  final Set<String> _loadingMembers = <String>{};
+  final Set<String> _loadingBulkSubscriptions = <String>{};
+  final Map<String, Set<String>> _loadingMembersBySubscription =
+      <String, Set<String>>{};
 
   @override
   PaymentActionState build() {
     return const PaymentActionState.idle();
+  }
+
+  /// Returns true when the given member has an in-flight action.
+  bool loadingMember(String memberId) {
+    return _loadingMembers.contains(memberId);
+  }
+
+  /// Returns true when a bulk action for the given subscription is in-flight.
+  bool loadingBulk(String subscriptionId) {
+    return _loadingBulkSubscriptions.contains(subscriptionId);
+  }
+
+  bool hasLoadingMembersInSubscription(String subscriptionId) {
+    return (_loadingMembersBySubscription[subscriptionId]?.isNotEmpty ?? false);
+  }
+
+  void _startMemberLoading({
+    required String subscriptionId,
+    required String memberId,
+  }) {
+    _loadingMembers.add(memberId);
+    _loadingMembersBySubscription
+        .putIfAbsent(subscriptionId, () => <String>{})
+        .add(memberId);
+    state = PaymentActionState.loadingMember(memberId);
+  }
+
+  void _finishMemberLoading({
+    required String subscriptionId,
+    required String memberId,
+  }) {
+    _loadingMembers.remove(memberId);
+    final members = _loadingMembersBySubscription[subscriptionId];
+    if (members != null) {
+      members.remove(memberId);
+      if (members.isEmpty) {
+        _loadingMembersBySubscription.remove(subscriptionId);
+      }
+    }
+  }
+
+  void _startBulkLoading(String subscriptionId) {
+    _loadingBulkSubscriptions.add(subscriptionId);
+    state = PaymentActionState.loadingBulk(subscriptionId);
+  }
+
+  void _finishBulkLoading(String subscriptionId) {
+    _loadingBulkSubscriptions.remove(subscriptionId);
   }
 
   /// Mark a single member's payment as paid
@@ -74,14 +132,18 @@ class PaymentAction extends _$PaymentAction {
     required double amount,
     String? notes,
   }) async {
+    if (loadingMember(memberId) || loadingBulk(subscriptionId)) {
+      return false;
+    }
+
     _syncLogger.logSync(
       event: 'payment_mark_as_paid_started',
       actionType: 'paid',
       metadata: {'source': 'provider'},
     );
 
-    // Set loading state
-    state = const PaymentActionState.loading();
+    // Set scoped loading state
+    _startMemberLoading(subscriptionId: subscriptionId, memberId: memberId);
 
     try {
       // Get current user ID
@@ -154,6 +216,8 @@ class PaymentAction extends _$PaymentAction {
       );
       state = PaymentActionState.error('Unexpected error: $e');
       return false;
+    } finally {
+      _finishMemberLoading(subscriptionId: subscriptionId, memberId: memberId);
     }
   }
 
@@ -167,14 +231,19 @@ class PaymentAction extends _$PaymentAction {
     required String subscriptionId,
     String? notes,
   }) async {
+    if (loadingBulk(subscriptionId) ||
+        hasLoadingMembersInSubscription(subscriptionId)) {
+      return 0;
+    }
+
     _syncLogger.logSync(
       event: 'payment_mark_all_started',
       actionType: 'paid_bulk',
       metadata: {'source': 'provider'},
     );
 
-    // Set loading state
-    state = const PaymentActionState.loading();
+    // Set scoped loading state
+    _startBulkLoading(subscriptionId);
 
     try {
       // Get current user ID
@@ -246,6 +315,8 @@ class PaymentAction extends _$PaymentAction {
       );
       state = PaymentActionState.error('Unexpected error: $e');
       return 0;
+    } finally {
+      _finishBulkLoading(subscriptionId);
     }
   }
 
@@ -263,14 +334,18 @@ class PaymentAction extends _$PaymentAction {
     required double amount,
     String? notes,
   }) async {
+    if (loadingMember(memberId) || loadingBulk(subscriptionId)) {
+      return false;
+    }
+
     _syncLogger.logSync(
       event: 'payment_unmark_started',
       actionType: 'unpaid',
       metadata: {'source': 'provider'},
     );
 
-    // Set loading state
-    state = const PaymentActionState.loading();
+    // Set scoped loading state
+    _startMemberLoading(subscriptionId: subscriptionId, memberId: memberId);
 
     try {
       // Get current user ID
@@ -343,11 +418,16 @@ class PaymentAction extends _$PaymentAction {
       );
       state = PaymentActionState.error('Unexpected error: $e');
       return false;
+    } finally {
+      _finishMemberLoading(subscriptionId: subscriptionId, memberId: memberId);
     }
   }
 
   /// Reset state back to idle
   void reset() {
+    _loadingMembers.clear();
+    _loadingBulkSubscriptions.clear();
+    _loadingMembersBySubscription.clear();
     state = const PaymentActionState.idle();
   }
 
@@ -371,6 +451,9 @@ class PaymentAction extends _$PaymentAction {
 
     // Invalidate pending payments (may have decreased)
     ref.invalidate(pendingPaymentsProvider);
+
+    // Invalidate debt-home snapshot (Home debt card + next collection)
+    ref.invalidate(debtHomeSnapshotProvider);
 
     _syncLogger.logSync(
       event: 'payment_provider_invalidation_completed',
