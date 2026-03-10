@@ -6,6 +6,7 @@ import 'package:flutter_project_agents/features/home/presentation/widgets/debt_h
 import 'package:flutter_project_agents/features/home/presentation/widgets/home_header.dart';
 import 'package:flutter_project_agents/features/home/presentation/widgets/next_collection_card.dart';
 import 'package:flutter_project_agents/features/home/presentation/widgets/stats_cards.dart';
+import 'package:flutter_project_agents/features/subscriptions/presentation/providers/payment_reconciliation_provider.dart';
 import 'package:flutter_project_agents/features/subscriptions/presentation/providers/subscriptions_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -18,6 +19,19 @@ class HomeScreen extends ConsumerWidget {
     final monthlyStatsAsync = ref.watch(monthlyStatsProvider);
     final subscriptionsAsync = ref.watch(activeSubscriptionsProvider);
     final pendingAsync = ref.watch(pendingPaymentsProvider);
+    ref.listen<PaymentReconciliationSignal?>(
+      paymentReconciliationProvider,
+      (previous, next) {
+        if (next == null || previous?.sequence == next.sequence) {
+          return;
+        }
+        _handleReconciliationSignal(
+          context: context,
+          ref: ref,
+          signal: next,
+        );
+      },
+    );
 
     return Scaffold(
       backgroundColor: const Color(0xFF1A1A2E),
@@ -93,6 +107,48 @@ class HomeScreen extends ConsumerWidget {
         ),
       ),
     );
+  }
+
+  void _handleReconciliationSignal({
+    required BuildContext context,
+    required WidgetRef ref,
+    required PaymentReconciliationSignal signal,
+  }) {
+    ref
+      ..invalidate(debtHomeSnapshotProvider)
+      ..invalidate(monthlyStatsProvider)
+      ..invalidate(pendingPaymentsProvider)
+      ..invalidate(activeSubscriptionsProvider);
+
+    if (!context.mounted) {
+      return;
+    }
+
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          behavior: SnackBarBehavior.floating,
+          backgroundColor: const Color(0xFF1E1E2D),
+          duration: const Duration(seconds: 2),
+          content: Row(
+            children: [
+              const Icon(
+                Icons.info_outline,
+                color: Color(0xFF4FC3F7),
+                size: 18,
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  paymentReconciliationMessage(signal.reason),
+                  style: const TextStyle(color: Colors.white),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
   }
 }
 

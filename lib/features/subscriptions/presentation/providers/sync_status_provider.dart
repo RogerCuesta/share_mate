@@ -4,6 +4,7 @@ import 'package:flutter_project_agents/core/di/injection.dart';
 import 'package:flutter_project_agents/core/sync/payment_sync_orchestrator.dart';
 import 'package:flutter_project_agents/core/sync/payment_sync_queue.dart';
 import 'package:flutter_project_agents/core/sync/sync_status.dart';
+import 'package:flutter_project_agents/features/subscriptions/presentation/providers/payment_reconciliation_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 const String syncedStatusLabel = 'Synced';
@@ -146,7 +147,10 @@ class SyncStatusController extends AutoDisposeNotifier<SyncStatus> {
   }
 
   void refresh() {
-    state = _readStatus();
+    final previous = state;
+    final next = _readStatus();
+    _emitReconciliationIfNeeded(previous: previous, next: next);
+    state = next;
   }
 
   Future<int> retryAll() async {
@@ -180,6 +184,52 @@ class SyncStatusController extends AutoDisposeNotifier<SyncStatus> {
       inFlight: orchestratorStatus.isSyncInProgress,
       lastSuccessfulSyncAt: orchestratorStatus.lastSuccessfulSyncAt,
     );
+  }
+
+  void _emitReconciliationIfNeeded({
+    required SyncStatus previous,
+    required SyncStatus next,
+  }) {
+    final controller = ref.read(paymentReconciliationProvider.notifier);
+
+    final enteredRequiresAction =
+        previous.kind != SyncStatusKind.requiresAction &&
+            next.kind == SyncStatusKind.requiresAction;
+    if (enteredRequiresAction) {
+      controller.emit(reason: PaymentReconciliationReason.cycleConflictNoop);
+      return;
+    }
+
+    final recoveredFromTerminal =
+        previous.kind == SyncStatusKind.requiresAction &&
+            next.kind != SyncStatusKind.requiresAction;
+    if (recoveredFromTerminal) {
+      controller.emit(reason: PaymentReconciliationReason.terminalRecovery);
+      return;
+    }
+
+    final movedToSynced = previous.kind == SyncStatusKind.pending &&
+        next.kind == SyncStatusKind.synced;
+    if (movedToSynced &&
+        _syncTimestampAdvanced(
+          previous.lastSuccessfulSyncAt,
+          next.lastSuccessfulSyncAt,
+        )) {
+      controller.emit(reason: PaymentReconciliationReason.canonicalSyncRefresh);
+    }
+  }
+
+  bool _syncTimestampAdvanced(
+    DateTime? previousTimestamp,
+    DateTime? nextTimestamp,
+  ) {
+    if (nextTimestamp == null) {
+      return false;
+    }
+    if (previousTimestamp == null) {
+      return true;
+    }
+    return nextTimestamp.isAfter(previousTimestamp);
   }
 }
 

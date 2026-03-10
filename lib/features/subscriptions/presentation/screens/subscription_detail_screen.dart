@@ -3,8 +3,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_project_agents/core/di/injection.dart';
 import 'package:flutter_project_agents/core/sync/sync_status.dart';
+import 'package:flutter_project_agents/features/home/presentation/providers/debt_home_provider.dart';
 import 'package:flutter_project_agents/features/subscriptions/domain/entities/subscription.dart';
 import 'package:flutter_project_agents/features/subscriptions/domain/entities/subscription_member.dart';
+import 'package:flutter_project_agents/features/subscriptions/presentation/providers/payment_reconciliation_provider.dart';
 import 'package:flutter_project_agents/features/subscriptions/presentation/providers/subscription_detail_provider.dart';
 import 'package:flutter_project_agents/features/subscriptions/presentation/providers/subscriptions_provider.dart';
 import 'package:flutter_project_agents/features/subscriptions/presentation/providers/sync_status_provider.dart';
@@ -69,6 +71,19 @@ class SubscriptionDetailScreen extends ConsumerWidget {
     final membersAsync = ref.watch(subscriptionMembersProvider(subscriptionId));
     final statsAsync = ref.watch(subscriptionStatsProvider(subscriptionId));
     final syncStatus = ref.watch(subscriptionDetailSyncStatusProvider);
+    ref.listen<PaymentReconciliationSignal?>(
+      paymentReconciliationProvider,
+      (previous, next) {
+        if (next == null || previous?.sequence == next.sequence) {
+          return;
+        }
+        _handleReconciliationSignal(
+          context: context,
+          ref: ref,
+          signal: next,
+        );
+      },
+    );
 
     return subscriptionAsync.when(
       loading: () => Scaffold(
@@ -167,6 +182,49 @@ class SubscriptionDetailScreen extends ConsumerWidget {
         syncStatus,
       ),
     );
+  }
+
+  void _handleReconciliationSignal({
+    required BuildContext context,
+    required WidgetRef ref,
+    required PaymentReconciliationSignal signal,
+  }) {
+    ref
+      ..invalidate(subscriptionMembersProvider(subscriptionId))
+      ..invalidate(subscriptionStatsProvider(subscriptionId))
+      ..invalidate(debtHomeSnapshotProvider)
+      ..invalidate(monthlyStatsProvider)
+      ..invalidate(pendingPaymentsProvider);
+
+    if (!context.mounted) {
+      return;
+    }
+
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          behavior: SnackBarBehavior.floating,
+          backgroundColor: const Color(0xFF1E1E2D),
+          duration: const Duration(seconds: 2),
+          content: Row(
+            children: [
+              const Icon(
+                Icons.info_outline,
+                color: Color(0xFF4FC3F7),
+                size: 18,
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  paymentReconciliationMessage(signal.reason),
+                  style: const TextStyle(color: Colors.white),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
   }
 
   Widget _buildContent(
