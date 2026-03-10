@@ -4,17 +4,17 @@ milestone: v1.0
 milestone_name: milestone
 current_phase: 04-payment-tracking-debt-home
 current_phase_name: Payment Tracking & Debt Home
-current_plan: 2
+current_plan: 3
 status: executing
-stopped_at: Completed 04-payment-tracking-debt-home-01-PLAN.md
-last_updated: "2026-03-10T21:21:00.495Z"
+stopped_at: Completed 04-payment-tracking-debt-home-02-PLAN.md
+last_updated: "2026-03-10T22:11:14.106Z"
 last_activity: 2026-03-10
 progress:
   total_phases: 6
   completed_phases: 3
   total_plans: 18
-  completed_plans: 14
-  percent: 78
+  completed_plans: 15
+  percent: 83
 ---
 
 # Project State
@@ -31,12 +31,12 @@ See: .planning/PROJECT.md (updated 2026-03-08)
 **Current Phase:** 04-payment-tracking-debt-home
 **Current Phase Name:** Payment Tracking & Debt Home
 **Total Phases:** 6
-**Current Plan:** 2
+**Current Plan:** 3
 **Total Plans in Phase:** 5
 **Status:** Ready to execute
 **Last Activity:** 2026-03-10
 
-**Progress:** [████████░░] 78%
+**Progress:** [████████░░] 83%
 
 ## Performance Metrics
 
@@ -71,6 +71,7 @@ See: .planning/PROJECT.md (updated 2026-03-08)
 | Phase 03-subscription-setup-flow P04 | 11 min | 3 tasks | 13 files |
 | Phase 03-subscription-setup-flow P05 | 24 min | 3 tasks | 12 files |
 | Phase 04-payment-tracking-debt-home P01 | 5 min | 3 tasks | 5 files |
+| Phase 04-payment-tracking-debt-home P02 | 17 min | 3 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -121,6 +122,9 @@ Recent decisions affecting current work:
 - [Phase 04-payment-tracking-debt-home]: Use subscription-level dueDate as canonical urgency while keeping member-level pending sums for debt totals.
 - [Phase 04-payment-tracking-debt-home]: Model debt-free explicitly with totalPendingDebt=0 and nextCollection=null for direct Todo al dia rendering.
 - [Phase 04-payment-tracking-debt-home]: Centralize Home debt logic in debtHomeSnapshotProvider to avoid per-widget aggregation drift.
+- [Phase 04-payment-tracking-debt-home]: Allow concurrent member actions across different members while rejecting duplicate requests for the same member.
+- [Phase 04-payment-tracking-debt-home]: Disable bulk action when the same subscription has in-flight member actions to avoid false taps against blocked backend semantics.
+- [Phase 04-payment-tracking-debt-home]: Apply pending-first sorting only at detail render boundary to preserve persisted ordering.
 
 ### Pending Todos
 
@@ -132,6 +136,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-10T21:21:00.492Z
-Stopped at: Completed 04-payment-tracking-debt-home-01-PLAN.md
+Last session: 2026-03-10T22:11:14.103Z
+Stopped at: Completed 04-payment-tracking-debt-home-02-PLAN.md
 Resume file: None
