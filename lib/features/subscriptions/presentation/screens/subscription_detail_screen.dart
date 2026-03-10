@@ -1,7 +1,6 @@
 // lib/features/subscriptions/presentation/screens/subscription_detail_screen.dart
 
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_project_agents/core/di/injection.dart';
 import 'package:flutter_project_agents/core/sync/sync_status.dart';
 import 'package:flutter_project_agents/features/subscriptions/domain/entities/subscription.dart';
@@ -20,26 +19,25 @@ import 'package:intl/intl.dart';
 List<SubscriptionMember> sortMembersForDetail(
   Iterable<SubscriptionMember> members,
 ) {
-  final sortedMembers = [...members];
-  sortedMembers.sort((a, b) {
-    if (a.hasPaid != b.hasPaid) {
-      return a.hasPaid ? 1 : -1;
-    }
+  final sortedMembers = [...members]..sort((a, b) {
+      if (a.hasPaid != b.hasPaid) {
+        return a.hasPaid ? 1 : -1;
+      }
 
-    final dueDateComparison = a.dueDate.compareTo(b.dueDate);
-    if (dueDateComparison != 0) {
-      return dueDateComparison;
-    }
+      final dueDateComparison = a.dueDate.compareTo(b.dueDate);
+      if (dueDateComparison != 0) {
+        return dueDateComparison;
+      }
 
-    final nameComparison = a.userName.toLowerCase().compareTo(
-          b.userName.toLowerCase(),
-        );
-    if (nameComparison != 0) {
-      return nameComparison;
-    }
+      final nameComparison = a.userName.toLowerCase().compareTo(
+            b.userName.toLowerCase(),
+          );
+      if (nameComparison != 0) {
+        return nameComparison;
+      }
 
-    return a.id.compareTo(b.id);
-  });
+      return a.id.compareTo(b.id);
+    });
   return sortedMembers;
 }
 
