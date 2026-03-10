@@ -183,7 +183,8 @@ class SubscriptionRemoteDataSourceImpl implements SubscriptionRemoteDataSource {
       final subscriptions = <SubscriptionModel>[];
 
       // 2. For each subscription, fetch members and populate sharedWith
-      for (final json in data) {
+      for (final item in data) {
+        final json = Map<String, dynamic>.from(item as Map);
         final subscriptionId = json['id'] as String;
         debugPrint(
             '   📋 Processing subscription: ${json['name']} (ID: $subscriptionId)');
@@ -195,25 +196,23 @@ class SubscriptionRemoteDataSourceImpl implements SubscriptionRemoteDataSource {
               .select('user_id')
               .eq('subscription_id', subscriptionId);
 
+          final members = membersResponse as List<dynamic>;
           debugPrint(
-              '   👥 Found ${(membersResponse as List).length} members for ${json['name']}');
+              '   👥 Found ${members.length} members for ${json['name']}');
 
           // Add shared_with to JSON before parsing
-          json['shared_with'] = (membersResponse as List<dynamic>)
-              .map((m) => m['user_id'] as String)
+          json['shared_with'] = members
+              .map((member) => (member as Map<String, dynamic>)['user_id'])
+              .whereType<String>()
               .toList();
 
-          subscriptions.add(
-            SubscriptionModel.fromJson(json as Map<String, dynamic>),
-          );
+          subscriptions.add(SubscriptionModel.fromJson(json));
         } catch (memberError) {
           debugPrint(
               '   ⚠️ Error fetching members for $subscriptionId: $memberError');
           // Continue with empty shared_with if members query fails
           json['shared_with'] = <String>[];
-          subscriptions.add(
-            SubscriptionModel.fromJson(json as Map<String, dynamic>),
-          );
+          subscriptions.add(SubscriptionModel.fromJson(json));
         }
       }
 
@@ -249,7 +248,7 @@ class SubscriptionRemoteDataSourceImpl implements SubscriptionRemoteDataSource {
       debugPrint(
           '📦 [SubscriptionRemoteDS] Found subscription: ${response['name']}');
 
-      final json = response;
+      final json = Map<String, dynamic>.from(response as Map);
 
       // Fetch members for this subscription
       try {
@@ -262,7 +261,8 @@ class SubscriptionRemoteDataSourceImpl implements SubscriptionRemoteDataSource {
 
         // Add shared_with to JSON before parsing
         json['shared_with'] = (membersResponse as List<dynamic>)
-            .map((m) => m['user_id'] as String)
+            .map((member) => (member as Map<String, dynamic>)['user_id'])
+            .whereType<String>()
             .toList();
       } catch (memberError) {
         debugPrint('   ⚠️ Error fetching members: $memberError');
@@ -464,8 +464,7 @@ class SubscriptionRemoteDataSourceImpl implements SubscriptionRemoteDataSource {
           '🔍 [SubscriptionRemoteDS] Creating subscription: ${subscription.name}');
 
       // Remove shared_with before sending to Supabase
-      final jsonData = subscription.toJson();
-      jsonData.remove('shared_with');
+      final jsonData = subscription.toJson()..remove('shared_with');
 
       debugPrint('   📤 Sending data to Supabase: ${jsonData.keys.join(', ')}');
 
@@ -478,7 +477,7 @@ class SubscriptionRemoteDataSourceImpl implements SubscriptionRemoteDataSource {
       debugPrint(
           '📦 [SubscriptionRemoteDS] Supabase response: ${response['id']}');
 
-      final json = response;
+      final json = Map<String, dynamic>.from(response as Map);
       json['shared_with'] = <String>[]; // New subscription has no members yet
 
       debugPrint('✅ [SubscriptionRemoteDS] Successfully created subscription');
@@ -540,7 +539,8 @@ class SubscriptionRemoteDataSourceImpl implements SubscriptionRemoteDataSource {
             .eq('subscription_id', subscription.id);
 
         json['shared_with'] = (membersResponse as List<dynamic>)
-            .map((m) => m['user_id'] as String)
+            .map((member) => (member as Map<String, dynamic>)['user_id'])
+            .whereType<String>()
             .toList();
       } catch (memberError) {
         debugPrint('   ⚠️ Error fetching members after update: $memberError');
@@ -831,18 +831,18 @@ class SubscriptionRemoteDataSourceImpl implements SubscriptionRemoteDataSource {
     String? idempotencyKey,
   }) async {
     try {
-      _syncLogger.logSync(
-        event: 'remote_mark_paid_started',
-        actionType: 'paid',
-        metadata: {'layer': 'remote_datasource'},
-      );
-
-      // Call atomic RPC function (single transaction)
-      _syncLogger.logSync(
-        event: 'remote_mark_paid_rpc_call',
-        actionType: 'paid',
-        metadata: {'layer': 'remote_datasource', 'rpc': 'atomic_paid'},
-      );
+      _syncLogger
+        ..logSync(
+          event: 'remote_mark_paid_started',
+          actionType: 'paid',
+          metadata: {'layer': 'remote_datasource'},
+        )
+        // Call atomic RPC function (single transaction).
+        ..logSync(
+          event: 'remote_mark_paid_rpc_call',
+          actionType: 'paid',
+          metadata: {'layer': 'remote_datasource', 'rpc': 'atomic_paid'},
+        );
       final response = await _client
           .rpc('mark_payment_as_paid_atomic', params: {
             'p_subscription_id': subscriptionId,
@@ -923,20 +923,20 @@ class SubscriptionRemoteDataSourceImpl implements SubscriptionRemoteDataSource {
     String? notes,
   }) async {
     try {
-      _syncLogger.logSync(
-        event: 'remote_mark_all_started',
-        actionType: 'paid_bulk',
-        metadata: {'layer': 'remote_datasource'},
-      );
-
-      _syncLogger.logSync(
-        event: 'remote_mark_all_rpc_call',
-        actionType: 'paid_bulk',
-        metadata: {
-          'layer': 'remote_datasource',
-          'rpc': 'mark_all_payments_as_paid_atomic',
-        },
-      );
+      _syncLogger
+        ..logSync(
+          event: 'remote_mark_all_started',
+          actionType: 'paid_bulk',
+          metadata: {'layer': 'remote_datasource'},
+        )
+        ..logSync(
+          event: 'remote_mark_all_rpc_call',
+          actionType: 'paid_bulk',
+          metadata: {
+            'layer': 'remote_datasource',
+            'rpc': 'mark_all_payments_as_paid_atomic',
+          },
+        );
       final response =
           await _client.rpc('mark_all_payments_as_paid_atomic', params: {
         'p_subscription_id': subscriptionId,
@@ -946,11 +946,11 @@ class SubscriptionRemoteDataSourceImpl implements SubscriptionRemoteDataSource {
         'p_payment_method': 'cash',
       });
 
-      final count = switch (response) {
-        int value => value,
-        num value => value.toInt(),
-        _ => 0,
-      };
+      final count = response is int
+          ? response
+          : response is num
+              ? response.toInt()
+              : 0;
 
       _syncLogger.logSync(
         event: 'remote_mark_all_completed',
@@ -997,18 +997,18 @@ class SubscriptionRemoteDataSourceImpl implements SubscriptionRemoteDataSource {
     String? idempotencyKey,
   }) async {
     try {
-      _syncLogger.logSync(
-        event: 'remote_unmark_started',
-        actionType: 'unpaid',
-        metadata: {'layer': 'remote_datasource'},
-      );
-
-      // Call atomic RPC function (single transaction)
-      _syncLogger.logSync(
-        event: 'remote_unmark_rpc_call',
-        actionType: 'unpaid',
-        metadata: {'layer': 'remote_datasource', 'rpc': 'atomic_unmark'},
-      );
+      _syncLogger
+        ..logSync(
+          event: 'remote_unmark_started',
+          actionType: 'unpaid',
+          metadata: {'layer': 'remote_datasource'},
+        )
+        // Call atomic RPC function (single transaction).
+        ..logSync(
+          event: 'remote_unmark_rpc_call',
+          actionType: 'unpaid',
+          metadata: {'layer': 'remote_datasource', 'rpc': 'atomic_unmark'},
+        );
       final paymentHistoryId =
           await _client.rpc('unmark_payment_atomic', params: {
         'p_subscription_id': subscriptionId,
@@ -1243,24 +1243,24 @@ class SubscriptionRemoteDataSourceImpl implements SubscriptionRemoteDataSource {
     DateTime? endDate,
   }) async {
     try {
-      _syncLogger.logSync(
-        event: 'remote_get_payment_stats_started',
-        operationId: subscriptionId,
-        actionType: 'payment_stats_fetch',
-        metadata: {
-          'layer': 'remote_datasource',
-          'start_window_applied': startDate != null,
-          'end_window_applied': endDate != null,
-        },
-      );
-
-      // Call RPC function for aggregated stats
-      _syncLogger.logSync(
-        event: 'remote_get_payment_stats_rpc_call',
-        operationId: subscriptionId,
-        actionType: 'payment_stats_fetch',
-        metadata: {'layer': 'remote_datasource'},
-      );
+      _syncLogger
+        ..logSync(
+          event: 'remote_get_payment_stats_started',
+          operationId: subscriptionId,
+          actionType: 'payment_stats_fetch',
+          metadata: {
+            'layer': 'remote_datasource',
+            'start_window_applied': startDate != null,
+            'end_window_applied': endDate != null,
+          },
+        )
+        // Call RPC function for aggregated stats.
+        ..logSync(
+          event: 'remote_get_payment_stats_rpc_call',
+          operationId: subscriptionId,
+          actionType: 'payment_stats_fetch',
+          metadata: {'layer': 'remote_datasource'},
+        );
       final response = await _client.rpc('get_payment_history_stats', params: {
         'p_subscription_id': subscriptionId,
         'p_start_date': startDate?.toIso8601String(),
