@@ -808,6 +808,7 @@ class _MemberTile extends StatelessWidget {
   Widget build(BuildContext context) {
     // Use PaymentStatusToggle widget for interactive payment management
     return PaymentStatusToggle(
+      key: ValueKey('payment-toggle-${member.id}'),
       member: member,
       subscriptionId: subscriptionId,
     );

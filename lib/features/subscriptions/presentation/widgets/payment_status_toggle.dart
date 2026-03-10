@@ -159,9 +159,11 @@ class _PaymentStatusToggleState extends ConsumerState<PaymentStatusToggle> {
 
     // Cancel undo timer
     _undoTimer?.cancel();
-    setState(() {
-      _canUndo = false;
-    });
+    if (mounted) {
+      setState(() {
+        _canUndo = false;
+      });
+    }
 
     final paymentNotifier = ref.read(paymentActionProvider.notifier);
 
