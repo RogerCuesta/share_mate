@@ -5,16 +5,16 @@ milestone_name: milestone
 current_phase: 04-payment-tracking-debt-home
 current_phase_name: Payment Tracking & Debt Home
 current_plan: 5
-status: executing
-stopped_at: Completed 04-payment-tracking-debt-home-04-PLAN.md
-last_updated: "2026-03-10T22:41:34.657Z"
+status: verifying
+stopped_at: Completed 04-payment-tracking-debt-home-05-PLAN.md
+last_updated: "2026-03-10T23:02:46.954Z"
 last_activity: 2026-03-10
 progress:
   total_phases: 6
-  completed_phases: 3
+  completed_phases: 4
   total_plans: 18
-  completed_plans: 17
-  percent: 94
+  completed_plans: 18
+  percent: 100
 ---
 
 # Project State
@@ -33,10 +33,10 @@ See: .planning/PROJECT.md (updated 2026-03-08)
 **Total Phases:** 6
 **Current Plan:** 5
 **Total Plans in Phase:** 5
-**Status:** Ready to execute
+**Status:** Phase complete — ready for verification
 **Last Activity:** 2026-03-10
 
-**Progress:** [█████████░] 94%
+**Progress:** [██████████] 100%
 
 ## Performance Metrics
 
@@ -74,6 +74,7 @@ See: .planning/PROJECT.md (updated 2026-03-08)
 | Phase 04-payment-tracking-debt-home P02 | 17 min | 3 tasks | 7 files |
 | Phase 04-payment-tracking-debt-home P03 | 7 min | 3 tasks | 8 files |
 | Phase 04-payment-tracking-debt-home P04 | 14 min | 3 tasks | 9 files |
+| Phase 04-payment-tracking-debt-home P05 | 17 min | 3 tasks | 8 files |
 
 ## Accumulated Context
 
@@ -132,6 +133,9 @@ Recent decisions affecting current work:
 - [Phase 04-payment-tracking-debt-home]: Bulk mark-all now runs through a single atomic RPC to avoid partial remote divergence.
 - [Phase 04-payment-tracking-debt-home]: Sync status transitions emit reconciliation signals that trigger Home/detail refresh and concise info snackbars.
 - [Phase 04-payment-tracking-debt-home]: Conflict no-op and terminal recovery are surfaced as explicit reconciliation reasons for deterministic UX messaging.
+- [Phase 04-payment-tracking-debt-home]: Payment toggles in detail now use member-scoped keys so undo remains bound after reorder.
+- [Phase 04-payment-tracking-debt-home]: Phase verification runs integration and unit suites as separate flutter test invocations due mixed-mode runner limits.
+- [Phase 04-payment-tracking-debt-home]: Phase 4 closure now enforces PAYM/DASH requirement traceability via dedicated guard tests.
 
 ### Pending Todos
 
@@ -143,6 +147,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-10T22:41:34.654Z
-Stopped at: Completed 04-payment-tracking-debt-home-04-PLAN.md
+Last session: 2026-03-10T23:02:46.951Z
+Stopped at: Completed 04-payment-tracking-debt-home-05-PLAN.md
 Resume file: None
