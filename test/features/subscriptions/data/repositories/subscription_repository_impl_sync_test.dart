@@ -250,6 +250,64 @@ void main() {
         byMemberId['member-b']!.idempotencyKey,
         'sync:paid:$subscriptionId:${memberB.id}:${memberB.dueDate.toUtc().toIso8601String()}',
       );
+
+      verify(
+        () => mockRemoteDataSource.markAllPaymentsAsPaid(
+          subscriptionId: subscriptionId,
+          paymentDate: any(named: 'paymentDate'),
+          markedBy: markedBy,
+          notes: any(named: 'notes'),
+        ),
+      ).called(1);
+    });
+
+    test('uses bulk remote contract and keeps queue empty when remote succeeds',
+        () async {
+      final memberA = buildMember(
+        id: 'member-a',
+        dueDate: DateTime(2026, 6, 1),
+        hasPaid: false,
+      );
+      final memberB = buildMember(
+        id: 'member-b',
+        dueDate: DateTime(2026, 6, 2),
+        hasPaid: false,
+      );
+      final paymentDate = DateTime(2026, 6, 10);
+
+      when(
+        () => mockLocalDataSource.getMembersBySubscriptionId(subscriptionId),
+      ).thenAnswer((_) async => [memberA, memberB]);
+      when(
+        () => mockRemoteDataSource.markAllPaymentsAsPaid(
+          subscriptionId: subscriptionId,
+          paymentDate: paymentDate,
+          markedBy: markedBy,
+          notes: null,
+        ),
+      ).thenAnswer((_) async => 2);
+
+      final result = await repository.markAllPaymentsAsPaid(
+        subscriptionId: subscriptionId,
+        paymentDate: paymentDate,
+        markedBy: markedBy,
+      );
+
+      expect(result.getOrElse(() => -1), 2);
+      verify(
+        () => mockRemoteDataSource.markAllPaymentsAsPaid(
+          subscriptionId: subscriptionId,
+          paymentDate: paymentDate,
+          markedBy: markedBy,
+          notes: null,
+        ),
+      ).called(1);
+      verify(() => mockLocalDataSource.updateMember(any())).called(2);
+
+      final queued = await queueService.getPendingOrdered(
+        asOf: DateTime(2030, 1, 1),
+      );
+      expect(queued, isEmpty);
     });
   });
 }

@@ -185,5 +185,56 @@ void main() {
       expect(signal!.reason, PaymentReconciliationReason.canonicalSyncRefresh);
       expect(container.read(syncStatusProvider).kind, SyncStatusKind.synced);
     });
+
+    test('keeps reconciliation sequence ordered across recovery then sync', () {
+      final queueSource = FakeSyncQueueStatusSource(
+        pendingCount: 2,
+        terminalCount: 1,
+      );
+      final orchestratorSource = FakeSyncOrchestratorStatusSource(
+        isSyncInProgress: false,
+        lastSuccessfulSyncAt: DateTime(2026, 3, 10, 20, 20),
+      );
+      final container = ProviderContainer(
+        overrides: [
+          syncQueueStatusSourceProvider.overrideWithValue(queueSource),
+          syncOrchestratorStatusSourceProvider.overrideWithValue(
+            orchestratorSource,
+          ),
+          syncStatusRefreshIntervalProvider.overrideWithValue(
+            const Duration(days: 1),
+          ),
+        ],
+      );
+      addTearDown(container.dispose);
+
+      final notifier = container.read(syncStatusProvider.notifier);
+      expect(
+        container.read(syncStatusProvider).kind,
+        SyncStatusKind.requiresAction,
+      );
+
+      queueSource.terminalCount = 0;
+      notifier.refresh();
+      final recoverySignal = container.read(paymentReconciliationProvider);
+      expect(recoverySignal, isNotNull);
+      expect(recoverySignal!.sequence, 1);
+      expect(
+        recoverySignal.reason,
+        PaymentReconciliationReason.terminalRecovery,
+      );
+
+      queueSource.pendingCount = 0;
+      orchestratorSource.lastSuccessfulSyncAt = DateTime(2026, 3, 10, 20, 21);
+      notifier.refresh();
+      final syncedSignal = container.read(paymentReconciliationProvider);
+      expect(syncedSignal, isNotNull);
+      expect(syncedSignal!.sequence, 2);
+      expect(
+        syncedSignal.reason,
+        PaymentReconciliationReason.canonicalSyncRefresh,
+      );
+      expect(container.read(syncStatusProvider).kind, SyncStatusKind.synced);
+    });
   });
 }

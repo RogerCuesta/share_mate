@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:flutter_project_agents/core/sync/payment_sync_conflict_resolver.dart';
 import 'package:flutter_project_agents/core/sync/payment_sync_orchestrator.dart';
 import 'package:flutter_project_agents/core/sync/payment_sync_queue.dart';
 import 'package:flutter_project_agents/features/subscriptions/data/datasources/subscription_remote_datasource.dart';
@@ -247,6 +248,146 @@ void main() {
       ]);
 
       verifyNever(() => mockQueueService.markSynced(older.id));
+    });
+
+    test(
+        'terminalizes cycle conflict no-op and records conflict audit metadata',
+        () async {
+      final fixedNow = DateTime(2026, 1, 10, 12);
+      final operation = buildOperation(
+        id: 'cycle-conflict',
+        createdAt: fixedNow.subtract(const Duration(minutes: 1)),
+        cycleDueDate: DateTime(2026, 1, 1),
+      );
+
+      var readCount = 0;
+      when(
+        () => mockQueueService.getPendingOrdered(
+          asOf: any(named: 'asOf'),
+        ),
+      ).thenAnswer((_) async {
+        readCount += 1;
+        if (readCount == 1) {
+          return [operation];
+        }
+        return <PaymentSyncOperation>[];
+      });
+
+      when(
+        () => mockRemoteDataSource.getPaymentSyncMemberCycleContext(
+          subscriptionId: operation.subscriptionId,
+          memberId: operation.memberId,
+        ),
+      ).thenAnswer(
+        (_) async => PaymentSyncMemberCycleContext(
+          cycleDueDate: DateTime(2026, 2, 1),
+          hasPaid: false,
+        ),
+      );
+
+      final orchestrator = PaymentSyncOrchestrator(
+        queueService: mockQueueService,
+        remoteDataSource: mockRemoteDataSource,
+        now: () => fixedNow,
+      );
+      await orchestrator.start();
+      await orchestrator.triggerSync(reason: 'test');
+
+      verify(
+        () => mockQueueService.markTerminal(
+          operation.id,
+          retryCount: operation.retryCount,
+          terminalReason: cycleConflictNoopReason,
+          terminalAt: fixedNow,
+          lastAttemptAt: fixedNow,
+          lastErrorClass: 'sync_conflict',
+          lastErrorCode: cycleConflictNoopReason,
+        ),
+      ).called(1);
+      verify(
+        () => mockRemoteDataSource.recordPaymentSyncConflictAudit(
+          operationId: operation.id,
+          subscriptionId: operation.subscriptionId,
+          memberId: operation.memberId,
+          action: operation.action,
+          terminalReason: cycleConflictNoopReason,
+          queuedCycleDueDate: operation.cycleDueDate,
+          backendCycleDueDate: DateTime(2026, 2, 1),
+          retryCount: operation.retryCount,
+          idempotencyKey: operation.idempotencyKey!,
+        ),
+      ).called(1);
+
+      verifyNever(
+        () => mockQueueService.markProcessing(
+          any(),
+          attemptedAt: any(named: 'attemptedAt'),
+        ),
+      );
+      verifyNever(() => mockQueueService.markSynced(any()));
+    });
+
+    test('marks operation as synced when backend already has desired state',
+        () async {
+      final fixedNow = DateTime(2026, 1, 10, 12);
+      final operation = buildOperation(
+        id: 'already-synced',
+        createdAt: fixedNow.subtract(const Duration(minutes: 1)),
+        cycleDueDate: DateTime(2026, 1, 1),
+      );
+
+      var readCount = 0;
+      when(
+        () => mockQueueService.getPendingOrdered(
+          asOf: any(named: 'asOf'),
+        ),
+      ).thenAnswer((_) async {
+        readCount += 1;
+        if (readCount == 1) {
+          return [operation];
+        }
+        return <PaymentSyncOperation>[];
+      });
+
+      when(
+        () => mockRemoteDataSource.getPaymentSyncMemberCycleContext(
+          subscriptionId: operation.subscriptionId,
+          memberId: operation.memberId,
+        ),
+      ).thenAnswer(
+        (_) async => PaymentSyncMemberCycleContext(
+          cycleDueDate: operation.cycleDueDate,
+          hasPaid: true,
+        ),
+      );
+
+      final orchestrator = PaymentSyncOrchestrator(
+        queueService: mockQueueService,
+        remoteDataSource: mockRemoteDataSource,
+        now: () => fixedNow,
+      );
+      await orchestrator.start();
+      await orchestrator.triggerSync(reason: 'test');
+
+      verify(() => mockQueueService.markSynced(operation.id)).called(1);
+      verifyNever(
+        () => mockQueueService.markProcessing(
+          any(),
+          attemptedAt: any(named: 'attemptedAt'),
+        ),
+      );
+      verifyNever(
+        () => mockRemoteDataSource.markPaymentAsPaid(
+          subscriptionId: any(named: 'subscriptionId'),
+          memberId: any(named: 'memberId'),
+          amount: any(named: 'amount'),
+          paymentDate: any(named: 'paymentDate'),
+          markedBy: any(named: 'markedBy'),
+          notes: any(named: 'notes'),
+          idempotencyKey: any(named: 'idempotencyKey'),
+        ),
+      );
+      expect(orchestrator.lastSuccessfulSyncAt, fixedNow);
     });
 
     test('schedules exponential retry with jitter for transient failures',
