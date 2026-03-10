@@ -258,7 +258,10 @@ class _PaymentStatusToggleState extends ConsumerState<PaymentStatusToggle> {
     );
 
     final isLoading = ref.watch(paymentActionProvider).maybeWhen(
-          loading: () => true,
+          loadingMember: (loadingMemberId) =>
+              loadingMemberId == widget.member.id,
+          loadingBulk: (loadingSubscriptionId) =>
+              loadingSubscriptionId == widget.subscriptionId,
           orElse: () => false,
         );
 
@@ -311,9 +314,8 @@ class _PaymentStatusToggleState extends ConsumerState<PaymentStatusToggle> {
                   Text(
                     '\$${widget.member.amountToPay.toStringAsFixed(2)}',
                     style: TextStyle(
-                      color: isPaid
-                          ? const Color(0xFF4CAF50)
-                          : Colors.grey[400],
+                      color:
+                          isPaid ? const Color(0xFF4CAF50) : Colors.grey[400],
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
                     ),

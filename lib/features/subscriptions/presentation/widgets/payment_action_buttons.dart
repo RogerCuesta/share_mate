@@ -120,7 +120,8 @@ class PaymentActionButtons extends ConsumerWidget {
     );
 
     final isLoading = ref.watch(paymentActionProvider).maybeWhen(
-          loading: () => true,
+          loadingBulk: (loadingSubscriptionId) =>
+              loadingSubscriptionId == subscriptionId,
           orElse: () => false,
         );
 
@@ -133,9 +134,7 @@ class PaymentActionButtons extends ConsumerWidget {
       width: double.infinity,
       height: 50,
       child: OutlinedButton.icon(
-        onPressed: isLoading
-            ? null
-            : () => _handleMarkAllAsPaid(context, ref),
+        onPressed: isLoading ? null : () => _handleMarkAllAsPaid(context, ref),
         icon: isLoading
             ? const SizedBox(
                 width: 20,
@@ -151,7 +150,8 @@ class PaymentActionButtons extends ConsumerWidget {
         ),
         style: OutlinedButton.styleFrom(
           foregroundColor: const Color(0xFF6B4FBB),
-          disabledForegroundColor: const Color(0xFF6B4FBB).withValues(alpha: 0.5),
+          disabledForegroundColor:
+              const Color(0xFF6B4FBB).withValues(alpha: 0.5),
           side: BorderSide(
             color: isLoading
                 ? const Color(0xFF6B4FBB).withValues(alpha: 0.5)
