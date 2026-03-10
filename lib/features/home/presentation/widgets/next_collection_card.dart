@@ -61,7 +61,7 @@ class NextCollectionCard extends StatelessWidget {
             ),
           ] else ...[
             const Text(
-              '\$0.00',
+              r'$0.00',
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 22,

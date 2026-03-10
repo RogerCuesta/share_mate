@@ -26,6 +26,7 @@ class ActionRequiredSection extends StatelessWidget {
     }
 
     return Padding(
+      key: const Key('action-required-section'),
       padding: const EdgeInsets.symmetric(horizontal: 24),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

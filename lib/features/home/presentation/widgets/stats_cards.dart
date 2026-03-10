@@ -19,6 +19,7 @@ class StatsCards extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
+      key: const Key('secondary-stats-cards'),
       padding: const EdgeInsets.symmetric(horizontal: 24),
       child: Row(
         children: [
