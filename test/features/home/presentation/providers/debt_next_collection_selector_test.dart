@@ -51,15 +51,50 @@ void main() {
       expect(selected?.subscriptionId, 'sub-1');
     });
 
-    test('uses nearest due date, then highest amount, then stable id', () {
+    test('selects nearest due date when no candidates are overdue', () {
       final selected = selectNextCollectionCandidate([
         NextCollectionCandidate(
-          subscriptionId: 'sub-b',
-          subscriptionName: 'B',
+          subscriptionId: 'sub-late',
+          subscriptionName: 'Late',
+          dueDate: DateTime(2026, 3, 20),
+          pendingAmount: 100,
+          isOverdue: false,
+        ),
+        NextCollectionCandidate(
+          subscriptionId: 'sub-near',
+          subscriptionName: 'Near',
+          dueDate: DateTime(2026, 3, 11),
+          pendingAmount: 1,
+          isOverdue: false,
+        ),
+      ]);
+
+      expect(selected?.subscriptionId, 'sub-near');
+    });
+
+    test('uses highest pending amount as tie-break for same due date', () {
+      final selected = selectNextCollectionCandidate([
+        NextCollectionCandidate(
+          subscriptionId: 'sub-small',
+          subscriptionName: 'Small',
           dueDate: DateTime(2026, 3, 11),
           pendingAmount: 15,
           isOverdue: false,
         ),
+        NextCollectionCandidate(
+          subscriptionId: 'sub-large',
+          subscriptionName: 'Large',
+          dueDate: DateTime(2026, 3, 11),
+          pendingAmount: 30,
+          isOverdue: false,
+        ),
+      ]);
+
+      expect(selected?.subscriptionId, 'sub-large');
+    });
+
+    test('uses stable subscription-id fallback ordering', () {
+      final selected = selectNextCollectionCandidate([
         NextCollectionCandidate(
           subscriptionId: 'sub-c',
           subscriptionName: 'C',
@@ -74,16 +109,38 @@ void main() {
           pendingAmount: 30,
           isOverdue: false,
         ),
+      ]);
+
+      expect(selected?.subscriptionId, 'sub-a');
+    });
+
+    test('regression: same due date with mixed amounts picks highest first', () {
+      final selected = selectNextCollectionCandidate([
         NextCollectionCandidate(
-          subscriptionId: 'sub-z',
-          subscriptionName: 'Z',
-          dueDate: DateTime(2026, 3, 15),
-          pendingAmount: 300,
+          subscriptionId: 'sub-2',
+          subscriptionName: 'Two',
+          dueDate: DateTime(2026, 3, 18),
+          pendingAmount: 20,
+          isOverdue: false,
+        ),
+        NextCollectionCandidate(
+          subscriptionId: 'sub-1',
+          subscriptionName: 'One',
+          dueDate: DateTime(2026, 3, 18),
+          pendingAmount: 45,
+          isOverdue: false,
+        ),
+        NextCollectionCandidate(
+          subscriptionId: 'sub-3',
+          subscriptionName: 'Three',
+          dueDate: DateTime(2026, 3, 18),
+          pendingAmount: 5,
           isOverdue: false,
         ),
       ]);
 
-      expect(selected?.subscriptionId, 'sub-a');
+      expect(selected?.subscriptionId, 'sub-1');
+      expect(selected?.pendingAmount, 45);
     });
 
     test('builds candidates using subscription-level due date as canonical',
