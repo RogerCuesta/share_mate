@@ -2,16 +2,19 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: completed
-stopped_at: Completed 03-subscription-setup-flow-05-PLAN.md
-last_updated: "2026-03-09T00:25:50.775Z"
-last_activity: 2026-03-09 — Completed 03-05 plan (phase verification and traceability)
+current_phase: 04-payment-tracking-debt-home
+current_phase_name: Payment Tracking & Debt Home
+current_plan: 2
+status: executing
+stopped_at: Completed 04-payment-tracking-debt-home-01-PLAN.md
+last_updated: "2026-03-10T21:21:00.495Z"
+last_activity: 2026-03-10
 progress:
   total_phases: 6
   completed_phases: 3
-  total_plans: 13
-  completed_plans: 13
-  percent: 100
+  total_plans: 18
+  completed_plans: 14
+  percent: 78
 ---
 
 # Project State
@@ -21,16 +24,19 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-08)
 
 **Core value:** Saber en segundos quién te debe dinero este mes por cada suscripción, sin invitar a nadie ni depender de que otros usen la app.
-**Current focus:** Phase 3 - Subscription Setup Flow
+**Current focus:** Phase 4 - Payment Tracking & Debt Home
 
 ## Current Position
 
-Phase: 3 of 6 (Subscription Setup Flow)
-Plan: 5 of 5
-Status: Phase Complete
-Last activity: 2026-03-09 — Completed 03-05 plan (phase verification and traceability)
+**Current Phase:** 04-payment-tracking-debt-home
+**Current Phase Name:** Payment Tracking & Debt Home
+**Total Phases:** 6
+**Current Plan:** 2
+**Total Plans in Phase:** 5
+**Status:** Ready to execute
+**Last Activity:** 2026-03-10
 
-Progress: [██████████] 100%
+**Progress:** [████████░░] 78%
 
 ## Performance Metrics
 
@@ -64,6 +70,7 @@ Progress: [██████████] 100%
 | Phase 03-subscription-setup-flow P03 | 15 min | 3 tasks | 20 files |
 | Phase 03-subscription-setup-flow P04 | 11 min | 3 tasks | 13 files |
 | Phase 03-subscription-setup-flow P05 | 24 min | 3 tasks | 12 files |
+| Phase 04-payment-tracking-debt-home P01 | 5 min | 3 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -111,6 +118,9 @@ Recent decisions affecting current work:
 - [Phase 03-subscription-setup-flow]: Template reselection now preserves manual service-name edits while still applying template metadata.
 - [Phase 03-subscription-setup-flow]: Integration tests in integration_test/ are executed on iOS simulator with UTF-8 locale env to satisfy runner constraints.
 - [Phase 03-subscription-setup-flow]: Phase closure requires a dedicated traceability test that fails if any Phase 3 requirement loses mapped evidence.
+- [Phase 04-payment-tracking-debt-home]: Use subscription-level dueDate as canonical urgency while keeping member-level pending sums for debt totals.
+- [Phase 04-payment-tracking-debt-home]: Model debt-free explicitly with totalPendingDebt=0 and nextCollection=null for direct Todo al dia rendering.
+- [Phase 04-payment-tracking-debt-home]: Centralize Home debt logic in debtHomeSnapshotProvider to avoid per-widget aggregation drift.
 
 ### Pending Todos
 
@@ -122,6 +132,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-08T23:53:53.776Z
-Stopped at: Completed 03-subscription-setup-flow-05-PLAN.md
+Last session: 2026-03-10T21:21:00.492Z
+Stopped at: Completed 04-payment-tracking-debt-home-01-PLAN.md
 Resume file: None

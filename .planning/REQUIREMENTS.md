@@ -41,8 +41,8 @@
 
 ### Debt Dashboard
 
-- [ ] **DASH-01**: Home muestra deuda total a favor y próximo cobro de forma prioritaria.
-- [ ] **DASH-02**: Los totales en Home permanecen consistentes tras toggles, sincronización y reseteos de ciclo.
+- [x] **DASH-01**: Home muestra deuda total a favor y próximo cobro de forma prioritaria.
+- [x] **DASH-02**: Los totales en Home permanecen consistentes tras toggles, sincronización y reseteos de ciclo.
 
 ### Notifications & Monthly Cycle
 
@@ -108,8 +108,8 @@
 | PAYM-01 | Phase 4 | Pending |
 | PAYM-02 | Phase 4 | Pending |
 | PAYM-03 | Phase 4 | Pending |
-| DASH-01 | Phase 4 | Pending |
-| DASH-02 | Phase 4 | Pending |
+| DASH-01 | Phase 4 | Complete |
+| DASH-02 | Phase 4 | Complete |
 | BILL-01 | Phase 5 | Pending |
 | BILL-02 | Phase 5 | Pending |
 | BILL-03 | Phase 5 | Pending |
