@@ -37,7 +37,7 @@
 
 - [x] **PAYM-01**: En detalle de suscripción, cada contacto puede pasar entre estado `pendiente` y `pagado`.
 - [x] **PAYM-02**: El cambio de estado actualiza inmediatamente la UI local (optimistic update) y la deuda agregada en Home.
-- [ ] **PAYM-03**: Si no hay red, el cambio de pago se encola y se sincroniza luego sin perder consistencia.
+- [x] **PAYM-03**: Si no hay red, el cambio de pago se encola y se sincroniza luego sin perder consistencia.
 
 ### Debt Dashboard
 
@@ -107,7 +107,7 @@
 | SPLT-03 | Phase 3 | Complete |
 | PAYM-01 | Phase 4 | Complete |
 | PAYM-02 | Phase 4 | Complete |
-| PAYM-03 | Phase 4 | Pending |
+| PAYM-03 | Phase 4 | Complete |
 | DASH-01 | Phase 4 | Complete |
 | DASH-02 | Phase 4 | Complete |
 | BILL-01 | Phase 5 | Pending |

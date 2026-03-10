@@ -4,17 +4,17 @@ milestone: v1.0
 milestone_name: milestone
 current_phase: 04-payment-tracking-debt-home
 current_phase_name: Payment Tracking & Debt Home
-current_plan: 4
+current_plan: 5
 status: executing
-stopped_at: Completed 04-payment-tracking-debt-home-03-PLAN.md
-last_updated: "2026-03-10T22:23:23.325Z"
+stopped_at: Completed 04-payment-tracking-debt-home-04-PLAN.md
+last_updated: "2026-03-10T22:41:34.657Z"
 last_activity: 2026-03-10
 progress:
   total_phases: 6
   completed_phases: 3
   total_plans: 18
-  completed_plans: 16
-  percent: 89
+  completed_plans: 17
+  percent: 94
 ---
 
 # Project State
@@ -31,12 +31,12 @@ See: .planning/PROJECT.md (updated 2026-03-08)
 **Current Phase:** 04-payment-tracking-debt-home
 **Current Phase Name:** Payment Tracking & Debt Home
 **Total Phases:** 6
-**Current Plan:** 4
+**Current Plan:** 5
 **Total Plans in Phase:** 5
 **Status:** Ready to execute
 **Last Activity:** 2026-03-10
 
-**Progress:** [█████████░] 89%
+**Progress:** [█████████░] 94%
 
 ## Performance Metrics
 
@@ -73,6 +73,7 @@ See: .planning/PROJECT.md (updated 2026-03-08)
 | Phase 04-payment-tracking-debt-home P01 | 5 min | 3 tasks | 5 files |
 | Phase 04-payment-tracking-debt-home P02 | 17 min | 3 tasks | 7 files |
 | Phase 04-payment-tracking-debt-home P03 | 7 min | 3 tasks | 8 files |
+| Phase 04-payment-tracking-debt-home P04 | 14 min | 3 tasks | 9 files |
 
 ## Accumulated Context
 
@@ -128,6 +129,9 @@ Recent decisions affecting current work:
 - [Phase 04-payment-tracking-debt-home]: Apply pending-first sorting only at detail render boundary to preserve persisted ordering.
 - [Phase 04-payment-tracking-debt-home]: Debt KPI + next-collection blocks are now the first Home content below the header; stats/actions remain secondary context.
 - [Phase 04-payment-tracking-debt-home]: Debt-priority Home tests use provider overrides to assert ordering and Todo al dia behavior deterministically.
+- [Phase 04-payment-tracking-debt-home]: Bulk mark-all now runs through a single atomic RPC to avoid partial remote divergence.
+- [Phase 04-payment-tracking-debt-home]: Sync status transitions emit reconciliation signals that trigger Home/detail refresh and concise info snackbars.
+- [Phase 04-payment-tracking-debt-home]: Conflict no-op and terminal recovery are surfaced as explicit reconciliation reasons for deterministic UX messaging.
 
 ### Pending Todos
 
@@ -139,6 +143,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-10T22:23:23.322Z
-Stopped at: Completed 04-payment-tracking-debt-home-03-PLAN.md
+Last session: 2026-03-10T22:41:34.654Z
+Stopped at: Completed 04-payment-tracking-debt-home-04-PLAN.md
 Resume file: None
