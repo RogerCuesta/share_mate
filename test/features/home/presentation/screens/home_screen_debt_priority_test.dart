@@ -32,7 +32,7 @@ class _TestAuthNotifier extends AuthNotifier {
         id: 'owner-1',
         email: 'owner@example.com',
         fullName: 'Owner',
-        createdAt: DateTime(2026, 1, 1),
+        createdAt: DateTime(2026),
       ),
     );
   }
@@ -99,7 +99,7 @@ void main() {
       expect(
         find.descendant(
           of: find.byKey(const Key('next-collection-card')),
-          matching: find.text('\$38.00'),
+          matching: find.text(r'$38.00'),
         ),
         findsOneWidget,
       );
@@ -225,6 +225,6 @@ SubscriptionMember _pendingMember({
     userName: 'Member $id',
     amountToPay: amount,
     dueDate: dueDate,
-    createdAt: DateTime(2026, 1, 1),
+    createdAt: DateTime(2026),
   );
 }

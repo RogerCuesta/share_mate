@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:dartz/dartz.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_project_agents/core/di/injection.dart';
@@ -30,7 +32,7 @@ void main() {
         id: 'owner-1',
         email: 'owner@test.dev',
         fullName: 'Owner',
-        createdAt: DateTime(2026, 1, 1),
+        createdAt: DateTime(2026),
       );
       final now = DateTime.now();
       final repository = _InMemorySubscriptionRepository(
@@ -43,7 +45,7 @@ void main() {
             billingCycle: BillingCycle.monthly,
             dueDate: DateTime(now.year, now.month, now.day - 1),
             ownerId: user.id,
-            createdAt: DateTime(2026, 1, 1),
+            createdAt: DateTime(2026),
           ),
           Subscription(
             id: 'sub-spotify',
@@ -53,7 +55,7 @@ void main() {
             billingCycle: BillingCycle.monthly,
             dueDate: DateTime(now.year, now.month, now.day + 2),
             ownerId: user.id,
-            createdAt: DateTime(2026, 1, 1),
+            createdAt: DateTime(2026),
           ),
         ],
         members: [
@@ -237,7 +239,7 @@ Future<void> _openSubscriptionByRoute({
   required GoRouter router,
   required String subscriptionId,
 }) async {
-  router.push('/subscription/$subscriptionId');
+  unawaited(router.push('/subscription/$subscriptionId'));
   await tester.pumpAndSettle();
 }
 
@@ -600,6 +602,6 @@ SubscriptionMember _member({
     userName: userName,
     amountToPay: amountToPay,
     dueDate: dueDate,
-    createdAt: DateTime(2026, 1, 1),
+    createdAt: DateTime(2026),
   );
 }
