@@ -13,7 +13,6 @@ import 'package:flutter_project_agents/features/subscriptions/data/models/subscr
 import 'package:flutter_project_agents/features/subscriptions/domain/entities/payment_stats.dart';
 import 'package:flutter_project_agents/features/subscriptions/domain/entities/time_range.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:uuid/uuid.dart';
 
 /// Exception thrown when subscription remote operations fail
 class SubscriptionRemoteException implements Exception {
@@ -930,96 +929,39 @@ class SubscriptionRemoteDataSourceImpl implements SubscriptionRemoteDataSource {
         metadata: {'layer': 'remote_datasource'},
       );
 
-      // Step 1: Get all unpaid members for this subscription
       _syncLogger.logSync(
-        event: 'remote_mark_all_fetch_unpaid_members',
-        actionType: 'paid_bulk',
-        metadata: {'layer': 'remote_datasource'},
-      );
-      final unpaidResponse = await _client
-          .from('subscription_members')
-          .select()
-          .eq('subscription_id', subscriptionId)
-          .eq('has_paid', false);
-
-      final unpaidMembers = (unpaidResponse as List<dynamic>)
-          .map((json) =>
-              SubscriptionMemberModel.fromJson(json as Map<String, dynamic>))
-          .toList();
-
-      _syncLogger.logSync(
-        event: 'remote_mark_all_unpaid_members_loaded',
+        event: 'remote_mark_all_rpc_call',
         actionType: 'paid_bulk',
         metadata: {
           'layer': 'remote_datasource',
-          'unpaid_count': unpaidMembers.length,
+          'rpc': 'mark_all_payments_as_paid_atomic',
         },
       );
+      final response =
+          await _client.rpc('mark_all_payments_as_paid_atomic', params: {
+        'p_subscription_id': subscriptionId,
+        'p_payment_date': paymentDate.toIso8601String(),
+        'p_marked_by': markedBy,
+        'p_notes': notes,
+        'p_payment_method': 'cash',
+      });
 
-      if (unpaidMembers.isEmpty) {
-        _syncLogger.logSync(
-          event: 'remote_mark_all_no_unpaid_members',
-          actionType: 'paid_bulk',
-          metadata: {'layer': 'remote_datasource'},
-        );
-        return 0;
-      }
-
-      const uuid = Uuid();
-
-      // Step 2: Update all members to paid
-      _syncLogger.logSync(
-        event: 'remote_mark_all_update_members',
-        actionType: 'paid_bulk',
-        metadata: {'layer': 'remote_datasource'},
-      );
-      await _client
-          .from('subscription_members')
-          .update({
-            'has_paid': true,
-            'last_payment_date': paymentDate.toIso8601String(),
-          })
-          .eq('subscription_id', subscriptionId)
-          .eq('has_paid', false);
-
-      _syncLogger.logSync(
-        event: 'remote_mark_all_members_updated',
-        actionType: 'paid_bulk',
-        metadata: {'layer': 'remote_datasource'},
-      );
-
-      // Step 3: Insert payment history records for all members
-      _syncLogger.logSync(
-        event: 'remote_mark_all_insert_history_started',
-        actionType: 'paid_bulk',
-        metadata: {'layer': 'remote_datasource'},
-      );
-      final historyRecords = unpaidMembers.map((member) {
-        return {
-          'id': uuid.v4(),
-          'subscription_id': subscriptionId,
-          'member_id': member.id,
-          'amount': member.amountToPay,
-          'payment_date': paymentDate.toIso8601String(),
-          'marked_by': markedBy,
-          'action': 'paid',
-          'notes': notes,
-          'created_at': DateTime.now().toIso8601String(),
-        };
-      }).toList();
-
-      await _client.from('payment_history').insert(historyRecords);
+      final count = switch (response) {
+        int value => value,
+        num value => value.toInt(),
+        _ => 0,
+      };
 
       _syncLogger.logSync(
         event: 'remote_mark_all_completed',
         actionType: 'paid_bulk',
         metadata: {
           'layer': 'remote_datasource',
-          'updated_count': unpaidMembers.length,
+          'updated_count': count,
         },
       );
 
-      return unpaidMembers.length;
+      return count;
     } on PostgrestException catch (e) {
       _syncLogger.logTerminal(
         event: 'remote_mark_all_postgrest_exception',
