@@ -216,6 +216,14 @@ class RecordingLocalNotificationAdapter implements LocalNotificationAdapter {
     scheduledIds.add(plan.notificationId);
   }
 
+  @override
+  Future<NotificationPermissionStatus> getPermissionStatus() async {
+    return NotificationPermissionStatus.granted;
+  }
+
+  @override
+  Future<void> openPermissionSettings() async {}
+
   void reset() {
     scheduledIds.clear();
     cancelledIds.clear();
