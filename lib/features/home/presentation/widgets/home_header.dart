@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_project_agents/core/di/injection.dart';
 import 'package:flutter_project_agents/core/sync/sync_status.dart';
 import 'package:flutter_project_agents/features/auth/presentation/providers/auth_provider.dart';
+import 'package:flutter_project_agents/features/billing_automation/domain/services/billing_automation_orchestrator.dart';
 import 'package:flutter_project_agents/features/subscriptions/presentation/providers/sync_status_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -18,6 +20,7 @@ class HomeHeader extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final authState = ref.watch(authProvider);
     final syncStatus = ref.watch(homeSyncStatusProvider);
+    final automationHealth = ref.watch(billingAutomationHealthProvider);
     final now = DateTime.now();
     final greeting = _getGreeting(now.hour);
 
@@ -42,7 +45,10 @@ class HomeHeader extends ConsumerWidget {
                   ),
                 ),
                 const SizedBox(height: 10),
-                HomeSyncStatusBadge(status: syncStatus),
+                HomeSyncStatusBadge(
+                  status: syncStatus,
+                  automationHealth: automationHealth,
+                ),
               ],
             ),
           ),
@@ -70,10 +76,12 @@ class HomeHeader extends ConsumerWidget {
 class HomeSyncStatusBadge extends StatelessWidget {
   const HomeSyncStatusBadge({
     required this.status,
+    this.automationHealth = const BillingAutomationHealth.initial(),
     super.key,
   });
 
   final SyncStatus status;
+  final BillingAutomationHealth automationHealth;
 
   @override
   Widget build(BuildContext context) {
@@ -114,6 +122,24 @@ class HomeSyncStatusBadge extends StatelessWidget {
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
+          if (automationHealth.needsAttention ||
+              automationHealth.scheduledCount > 0) ...[
+            const SizedBox(height: 2),
+            Text(
+              automationHealth.detailLabel,
+              style: TextStyle(
+                color: automationHealth.needsAttention
+                    ? const Color(0xFFEF5350)
+                    : Colors.grey[300],
+                fontSize: 11,
+                fontWeight: automationHealth.needsAttention
+                    ? FontWeight.w600
+                    : FontWeight.w400,
+              ),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ],
         ],
       ),
     );

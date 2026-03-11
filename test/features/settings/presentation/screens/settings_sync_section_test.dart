@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_project_agents/core/sync/sync_status.dart';
+import 'package:flutter_project_agents/features/billing_automation/data/platform/local_notification_adapter.dart';
+import 'package:flutter_project_agents/features/billing_automation/domain/services/billing_automation_orchestrator.dart';
 import 'package:flutter_project_agents/features/home/presentation/widgets/home_header.dart';
 import 'package:flutter_project_agents/features/settings/presentation/screens/settings_screen.dart';
 import 'package:flutter_project_agents/features/subscriptions/presentation/providers/sync_status_provider.dart';
@@ -180,6 +182,8 @@ void main() {
           home: Scaffold(
             body: SettingsSyncHealthSection(
               syncStatus: status,
+              automationHealth: const BillingAutomationHealth.initial(),
+              onOpenNotificationSettings: () async {},
               onRetryAll: () async => 2,
               onClearTerminalOnly: () async => 2,
             ),
@@ -217,6 +221,8 @@ void main() {
                       terminalCount: 0,
                       lastSuccessfulSyncAt: null,
                     ),
+                    automationHealth: const BillingAutomationHealth.initial(),
+                    onOpenNotificationSettings: () async {},
                     onRetryAll: () {
                       retryCalls += 1;
                       return retryCompleter.future;
@@ -268,6 +274,8 @@ void main() {
                 const SizedBox(height: 12),
                 SettingsSyncHealthSection(
                   syncStatus: status,
+                  automationHealth: const BillingAutomationHealth.initial(),
+                  onOpenNotificationSettings: () async {},
                   onRetryAll: () async => 0,
                   onClearTerminalOnly: () async => 0,
                 ),
@@ -278,6 +286,42 @@ void main() {
       );
 
       expect(find.text(pendingStatusLabel), findsNWidgets(3));
+    });
+
+    testWidgets('shows notification CTA when reminder permission is denied',
+        (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: SettingsSyncHealthSection(
+              syncStatus: const SyncStatus(
+                kind: SyncStatusKind.synced,
+                pendingCount: 0,
+                terminalCount: 0,
+                lastSuccessfulSyncAt: null,
+              ),
+              automationHealth: const BillingAutomationHealth(
+                remindersEnabled: true,
+                permissionStatus: NotificationPermissionStatus.denied,
+                scheduledCount: 0,
+                timezoneId: 'Europe/Madrid',
+                lastRunAt: null,
+                lastRunReason: 'app_start',
+                issue: BillingAutomationIssue.permissionDenied,
+              ),
+              onOpenNotificationSettings: () async {},
+              onRetryAll: () async => 0,
+              onClearTerminalOnly: () async => 0,
+            ),
+          ),
+        ),
+      );
+
+      expect(find.text('Enable notifications'), findsOneWidget);
+      expect(
+        find.text('Enable notifications to schedule payment reminders.'),
+        findsOneWidget,
+      );
     });
   });
 }

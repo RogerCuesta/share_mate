@@ -3,9 +3,11 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_project_agents/core/di/injection.dart';
 import 'package:flutter_project_agents/core/sync/sync_status.dart';
 import 'package:flutter_project_agents/core/theme/theme_extensions.dart';
 import 'package:flutter_project_agents/features/auth/presentation/providers/auth_provider.dart';
+import 'package:flutter_project_agents/features/billing_automation/domain/services/billing_automation_orchestrator.dart';
 import 'package:flutter_project_agents/features/settings/domain/entities/app_settings.dart';
 import 'package:flutter_project_agents/features/settings/domain/entities/user_profile.dart';
 import 'package:flutter_project_agents/features/settings/presentation/providers/account_actions_provider.dart';
@@ -60,6 +62,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     final settingsState = ref.watch(settingsProvider);
     final themeMode = ref.watch(themeProvider);
     final syncStatus = ref.watch(settingsSyncStatusProvider);
+    final automationHealth = ref.watch(billingAutomationHealthProvider);
 
     return Scaffold(
       body: SafeArea(
@@ -118,18 +121,35 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 ],
               ),
 
-              // Notifications Section (Placeholders)
+              // Notifications Section
               _buildSection(
                 context,
                 title: 'Notifications',
-                badge: 'Coming soon',
                 children: [
-                  _buildTileWithBadge(
-                    context,
-                    title: 'Payment Reminders',
-                    subtitle: 'Get notified before payments are due',
-                    icon: Icons.notifications,
-                    badge: 'Coming soon',
+                  settingsState.when(
+                    data: (settings) => SwitchListTile.adaptive(
+                      value: settings.paymentRemindersEnabled,
+                      onChanged: (enabled) {
+                        unawaited(
+                          ref
+                              .read(settingsProvider.notifier)
+                              .togglePaymentReminders(enabled: enabled),
+                        );
+                      },
+                      secondary: const Icon(Icons.notifications),
+                      title: const Text('Payment Reminders'),
+                      subtitle: Text(automationHealth.detailLabel),
+                    ),
+                    loading: () => const ListTile(
+                      leading: Icon(Icons.notifications),
+                      title: Text('Payment Reminders'),
+                      subtitle: Text('Loading reminder settings...'),
+                    ),
+                    error: (_, __) => const ListTile(
+                      leading: Icon(Icons.notifications),
+                      title: Text('Payment Reminders'),
+                      subtitle: Text('Unable to load reminder settings'),
+                    ),
                   ),
                   _buildTileWithBadge(
                     context,
@@ -155,6 +175,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 children: [
                   SettingsSyncHealthSection(
                     syncStatus: syncStatus,
+                    automationHealth: automationHealth,
+                    onOpenNotificationSettings: () => ref
+                        .read(billingAutomationOrchestratorProvider)
+                        .openPermissionSettings(),
                     onRetryAll: () =>
                         ref.read(syncStatusProvider.notifier).retryAll(),
                     onClearTerminalOnly: () => ref
@@ -743,12 +767,16 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 class SettingsSyncHealthSection extends StatefulWidget {
   const SettingsSyncHealthSection({
     required this.syncStatus,
+    required this.automationHealth,
+    required this.onOpenNotificationSettings,
     required this.onRetryAll,
     required this.onClearTerminalOnly,
     super.key,
   });
 
   final SyncStatus syncStatus;
+  final BillingAutomationHealth automationHealth;
+  final Future<void> Function() onOpenNotificationSettings;
   final Future<int> Function() onRetryAll;
   final Future<int> Function() onClearTerminalOnly;
 
@@ -802,11 +830,32 @@ class _SettingsSyncHealthSectionState extends State<SettingsSyncHealthSection> {
             'Requires action: ${widget.syncStatus.terminalCount}',
             style: theme.textTheme.bodySmall,
           ),
+          const SizedBox(height: 8),
+          Text(
+            widget.automationHealth.statusLabel,
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: widget.automationHealth.needsAttention
+                  ? theme.colorScheme.error
+                  : theme.colorScheme.primary,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          Text(
+            widget.automationHealth.detailLabel,
+            style: theme.textTheme.bodySmall,
+          ),
           const SizedBox(height: 12),
           Wrap(
             spacing: 8,
             runSpacing: 8,
             children: [
+              if (widget.automationHealth.issue ==
+                  BillingAutomationIssue.permissionDenied)
+                OutlinedButton.icon(
+                  onPressed: widget.onOpenNotificationSettings,
+                  icon: const Icon(Icons.notifications_active_outlined),
+                  label: const Text('Enable notifications'),
+                ),
               FilledButton.tonalIcon(
                 onPressed: _retrying ? null : _handleRetryAll,
                 icon: _retrying
