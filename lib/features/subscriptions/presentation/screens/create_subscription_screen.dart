@@ -351,7 +351,7 @@ class _CreateSubscriptionScreenState
                                           ),
                                           const SizedBox(height: 2),
                                           Text(
-                                            member.email,
+                                            member.email ?? 'Sin email',
                                             style: TextStyle(
                                               color: Colors.grey[400],
                                               fontSize: 12,
@@ -722,7 +722,7 @@ class _CreateSubscriptionScreenState
                   style: const TextStyle(color: Colors.white),
                 ),
                 subtitle: Text(
-                  member.email,
+                  member.email ?? 'Sin email',
                   style: const TextStyle(color: Colors.white70),
                 ),
                 onTap: () {
