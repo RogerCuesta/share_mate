@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_project_agents/core/sync/sync_status.dart';
+import 'package:flutter_project_agents/features/subscriptions/presentation/providers/payment_reconciliation_provider.dart';
 import 'package:flutter_project_agents/features/subscriptions/presentation/providers/sync_status_provider.dart';
 import 'package:flutter_project_agents/features/subscriptions/presentation/screens/subscription_detail_screen.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/intl.dart';
 
@@ -84,5 +86,58 @@ void main() {
         findsOneWidget,
       );
     });
+
+    testWidgets('shows backend cycle reset reconciliation copy in detail flow',
+        (tester) async {
+      final container = ProviderContainer();
+      addTearDown(container.dispose);
+
+      await tester.pumpWidget(
+        UncontrolledProviderScope(
+          container: container,
+          child: const MaterialApp(
+            home: _DetailReconciliationHarness(),
+          ),
+        ),
+      );
+
+      container.read(paymentReconciliationProvider.notifier).emit(
+            reason: PaymentReconciliationReason.backendCycleReset,
+            emittedAt: DateTime(2026, 4, 10, 8),
+          );
+      await tester.pump();
+
+      expect(
+        find.text('New billing cycle started. Pending payments were refreshed.'),
+        findsOneWidget,
+      );
+    });
   });
+}
+
+class _DetailReconciliationHarness extends ConsumerWidget {
+  const _DetailReconciliationHarness();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    ref.listen<PaymentReconciliationSignal?>(
+      paymentReconciliationProvider,
+      (previous, next) {
+        if (next == null || previous?.sequence == next.sequence) {
+          return;
+        }
+        ScaffoldMessenger.of(context)
+          ..hideCurrentSnackBar()
+          ..showSnackBar(
+            SnackBar(
+              content: Text(paymentReconciliationMessage(next.reason)),
+            ),
+          );
+      },
+    );
+
+    return const Scaffold(
+      body: SizedBox.expand(),
+    );
+  }
 }

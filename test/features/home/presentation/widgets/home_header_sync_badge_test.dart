@@ -101,5 +101,36 @@ void main() {
         findsOneWidget,
       );
     });
+
+    testWidgets('renders scheduled reminder detail when automation is healthy',
+        (tester) async {
+      const status = SyncStatus(
+        kind: SyncStatusKind.synced,
+        pendingCount: 0,
+        terminalCount: 0,
+        lastSuccessfulSyncAt: null,
+      );
+      const automationHealth = BillingAutomationHealth(
+        remindersEnabled: true,
+        permissionStatus: NotificationPermissionStatus.granted,
+        scheduledCount: 2,
+        timezoneId: 'Europe/Madrid',
+        lastRunAt: null,
+        lastRunReason: 'app_start',
+      );
+
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: Scaffold(
+            body: HomeSyncStatusBadge(
+              status: status,
+              automationHealth: automationHealth,
+            ),
+          ),
+        ),
+      );
+
+      expect(find.text('Scheduled reminders: 2'), findsOneWidget);
+    });
   });
 }

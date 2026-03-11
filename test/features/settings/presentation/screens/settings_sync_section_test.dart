@@ -323,5 +323,39 @@ void main() {
         findsOneWidget,
       );
     });
+
+    testWidgets('shows reminders off state without blocking recovery controls',
+        (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: SettingsSyncHealthSection(
+              syncStatus: const SyncStatus(
+                kind: SyncStatusKind.pending,
+                pendingCount: 1,
+                terminalCount: 0,
+                lastSuccessfulSyncAt: null,
+              ),
+              automationHealth: const BillingAutomationHealth(
+                remindersEnabled: false,
+                permissionStatus: NotificationPermissionStatus.granted,
+                scheduledCount: 0,
+                timezoneId: 'Europe/Madrid',
+                lastRunAt: null,
+                lastRunReason: 'settings_payment_reminders_disabled',
+                issue: BillingAutomationIssue.remindersDisabled,
+              ),
+              onOpenNotificationSettings: () async {},
+              onRetryAll: () async => 0,
+              onClearTerminalOnly: () async => 0,
+            ),
+          ),
+        ),
+      );
+
+      expect(find.text('Reminders off'), findsOneWidget);
+      expect(find.text('Payment reminders are currently disabled.'), findsOneWidget);
+      expect(find.text('Retry all'), findsOneWidget);
+    });
   });
 }
