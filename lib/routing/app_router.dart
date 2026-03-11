@@ -13,12 +13,24 @@ import 'package:go_router/go_router.dart';
 
 // Route paths
 class AppRoutes {
+  const AppRoutes._();
+
   static const splash = '/';
   static const login = '/login';
   static const register = '/register';
   static const app = '/app';
   static const createSubscription = '/create-subscription';
   static const createGroupSubscription = '/create-group-subscription';
+  static const subscriptionDetail = '/subscription/:id';
+  static const editSubscription = '/subscription/:id/edit';
+
+  static String subscriptionDetailPath(String subscriptionId) {
+    return '/subscription/$subscriptionId';
+  }
+
+  static String editSubscriptionPath(String subscriptionId) {
+    return '/subscription/$subscriptionId/edit';
+  }
 }
 
 /// Provider for GoRouter instance
@@ -106,7 +118,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const CreateGroupSubscriptionScreen(),
       ),
       GoRoute(
-        path: '/subscription/:id',
+        path: AppRoutes.subscriptionDetail,
         name: 'subscription-detail',
         builder: (context, state) {
           final subscriptionId = state.pathParameters['id']!;
@@ -114,7 +126,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         },
       ),
       GoRoute(
-        path: '/subscription/:id/edit',
+        path: AppRoutes.editSubscription,
         name: 'edit-subscription',
         builder: (context, state) {
           final subscriptionId = state.pathParameters['id']!;

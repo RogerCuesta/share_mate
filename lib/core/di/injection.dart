@@ -14,6 +14,9 @@ import 'package:flutter_project_agents/features/auth/domain/usecases/get_current
 import 'package:flutter_project_agents/features/auth/domain/usecases/login_user.dart';
 import 'package:flutter_project_agents/features/auth/domain/usecases/logout_user.dart';
 import 'package:flutter_project_agents/features/auth/domain/usecases/register_user.dart';
+import 'package:flutter_project_agents/features/billing_automation/data/local/billing_reminder_registry.dart';
+import 'package:flutter_project_agents/features/billing_automation/data/platform/local_notification_adapter.dart';
+import 'package:flutter_project_agents/features/billing_automation/domain/services/billing_reminder_scheduler.dart';
 import 'package:flutter_project_agents/features/contacts/data/datasources/contact_local_datasource.dart';
 import 'package:flutter_project_agents/features/contacts/data/datasources/contact_remote_datasource.dart';
 import 'package:flutter_project_agents/features/contacts/data/repositories/contact_repository_impl.dart';
@@ -79,6 +82,21 @@ SupabaseClient supabaseClient(Ref ref) {
 // ═══════════════════════════════════════════════════════════════════════════
 // AUTH FEATURE - DATA SOURCES
 // ═══════════════════════════════════════════════════════════════════════════
+
+@riverpod
+BillingReminderScheduler billingReminderScheduler(Ref ref) {
+  return const BillingReminderScheduler();
+}
+
+@riverpod
+BillingReminderRegistry billingReminderRegistry(Ref ref) {
+  return BillingReminderRegistry();
+}
+
+@riverpod
+LocalNotificationAdapter localNotificationAdapter(Ref ref) {
+  return const NoopLocalNotificationAdapter();
+}
 
 /// Provider for UserLocalDataSource (Hive)
 ///
