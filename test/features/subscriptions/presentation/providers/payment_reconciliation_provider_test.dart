@@ -1,4 +1,5 @@
 import 'package:flutter_project_agents/core/sync/sync_status.dart';
+import 'package:flutter_project_agents/features/subscriptions/data/datasources/subscription_remote_datasource.dart';
 import 'package:flutter_project_agents/features/subscriptions/presentation/providers/payment_reconciliation_provider.dart';
 import 'package:flutter_project_agents/features/subscriptions/presentation/providers/sync_status_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -28,6 +29,19 @@ class FakeSyncOrchestratorStatusSource implements SyncOrchestratorStatusSource {
 
   @override
   DateTime? lastSuccessfulSyncAt;
+}
+
+class FakeBillingCycleResetSource implements BillingCycleResetSource {
+  FakeBillingCycleResetSource({
+    this.latestReset,
+  });
+
+  BillingCycleResetSnapshot? latestReset;
+
+  @override
+  Future<BillingCycleResetSnapshot?> getLatestReset() async {
+    return latestReset;
+  }
 }
 
 void main() {
@@ -72,6 +86,12 @@ void main() {
       );
       expect(
         paymentReconciliationMessage(
+          PaymentReconciliationReason.backendCycleReset,
+        ),
+        contains('billing cycle'),
+      );
+      expect(
+        paymentReconciliationMessage(
           PaymentReconciliationReason.canonicalSyncRefresh,
         ),
         contains('refreshed'),
@@ -91,12 +111,14 @@ void main() {
       final orchestratorSource = FakeSyncOrchestratorStatusSource(
         isSyncInProgress: true,
       );
+      final resetSource = FakeBillingCycleResetSource();
       final container = ProviderContainer(
         overrides: [
           syncQueueStatusSourceProvider.overrideWithValue(queueSource),
           syncOrchestratorStatusSourceProvider.overrideWithValue(
             orchestratorSource,
           ),
+          billingCycleResetSourceProvider.overrideWithValue(resetSource),
           syncStatusRefreshIntervalProvider.overrideWithValue(
             const Duration(days: 1),
           ),
@@ -126,12 +148,14 @@ void main() {
       final orchestratorSource = FakeSyncOrchestratorStatusSource(
         isSyncInProgress: false,
       );
+      final resetSource = FakeBillingCycleResetSource();
       final container = ProviderContainer(
         overrides: [
           syncQueueStatusSourceProvider.overrideWithValue(queueSource),
           syncOrchestratorStatusSourceProvider.overrideWithValue(
             orchestratorSource,
           ),
+          billingCycleResetSourceProvider.overrideWithValue(resetSource),
           syncStatusRefreshIntervalProvider.overrideWithValue(
             const Duration(days: 1),
           ),
@@ -160,12 +184,14 @@ void main() {
         isSyncInProgress: false,
         lastSuccessfulSyncAt: DateTime(2026, 3, 10, 20, 20),
       );
+      final resetSource = FakeBillingCycleResetSource();
       final container = ProviderContainer(
         overrides: [
           syncQueueStatusSourceProvider.overrideWithValue(queueSource),
           syncOrchestratorStatusSourceProvider.overrideWithValue(
             orchestratorSource,
           ),
+          billingCycleResetSourceProvider.overrideWithValue(resetSource),
           syncStatusRefreshIntervalProvider.overrideWithValue(
             const Duration(days: 1),
           ),
@@ -195,12 +221,14 @@ void main() {
         isSyncInProgress: false,
         lastSuccessfulSyncAt: DateTime(2026, 3, 10, 20, 20),
       );
+      final resetSource = FakeBillingCycleResetSource();
       final container = ProviderContainer(
         overrides: [
           syncQueueStatusSourceProvider.overrideWithValue(queueSource),
           syncOrchestratorStatusSourceProvider.overrideWithValue(
             orchestratorSource,
           ),
+          billingCycleResetSourceProvider.overrideWithValue(resetSource),
           syncStatusRefreshIntervalProvider.overrideWithValue(
             const Duration(days: 1),
           ),
@@ -235,6 +263,66 @@ void main() {
         PaymentReconciliationReason.canonicalSyncRefresh,
       );
       expect(container.read(syncStatusProvider).kind, SyncStatusKind.synced);
+    });
+
+    test('emits backend cycle reset signal once per new reset batch', () async {
+      final queueSource = FakeSyncQueueStatusSource();
+      final orchestratorSource = FakeSyncOrchestratorStatusSource();
+      final resetSource = FakeBillingCycleResetSource();
+      final container = ProviderContainer(
+        overrides: [
+          syncQueueStatusSourceProvider.overrideWithValue(queueSource),
+          syncOrchestratorStatusSourceProvider.overrideWithValue(
+            orchestratorSource,
+          ),
+          billingCycleResetSourceProvider.overrideWithValue(resetSource),
+          syncStatusRefreshIntervalProvider.overrideWithValue(
+            const Duration(days: 1),
+          ),
+        ],
+      );
+      addTearDown(container.dispose);
+
+      final notifier = container.read(syncStatusProvider.notifier);
+      resetSource.latestReset = BillingCycleResetSnapshot(
+        batchId: 'batch-1',
+        subscriptionId: 'subscription-1',
+        previousDueDate: DateTime(2026, 3, 1),
+        nextDueDate: DateTime(2026, 4, 1),
+        resetAt: DateTime(2026, 3, 11, 8),
+        processedMemberCount: 2,
+      );
+
+      notifier.refresh();
+      await Future<void>.delayed(Duration.zero);
+
+      final firstSignal = container.read(paymentReconciliationProvider);
+      expect(firstSignal, isNotNull);
+      expect(firstSignal!.reason, PaymentReconciliationReason.backendCycleReset);
+      expect(firstSignal.emittedAt, DateTime(2026, 3, 11, 8));
+
+      notifier.refresh();
+      await Future<void>.delayed(Duration.zero);
+      final repeatedSignal = container.read(paymentReconciliationProvider);
+      expect(repeatedSignal!.sequence, 1);
+
+      resetSource.latestReset = BillingCycleResetSnapshot(
+        batchId: 'batch-2',
+        subscriptionId: 'subscription-1',
+        previousDueDate: DateTime(2026, 4, 1),
+        nextDueDate: DateTime(2026, 5, 1),
+        resetAt: DateTime(2026, 4, 11, 8),
+        processedMemberCount: 2,
+      );
+      notifier.refresh();
+      await Future<void>.delayed(Duration.zero);
+
+      final secondSignal = container.read(paymentReconciliationProvider);
+      expect(secondSignal!.sequence, 2);
+      expect(
+        secondSignal.reason,
+        PaymentReconciliationReason.backendCycleReset,
+      );
     });
   });
 }

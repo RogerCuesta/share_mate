@@ -1,4 +1,5 @@
 import 'package:flutter_project_agents/core/sync/sync_status.dart';
+import 'package:flutter_project_agents/features/subscriptions/data/datasources/subscription_remote_datasource.dart';
 import 'package:flutter_project_agents/features/subscriptions/presentation/providers/sync_status_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -29,11 +30,17 @@ class FakeSyncOrchestratorStatusSource implements SyncOrchestratorStatusSource {
   DateTime? lastSuccessfulSyncAt;
 }
 
+class FakeBillingCycleResetSource implements BillingCycleResetSource {
+  @override
+  Future<BillingCycleResetSnapshot?> getLatestReset() async => null;
+}
+
 void main() {
   group('syncStatusProvider', () {
     test('returns synced state when queue has no pending or terminal rows', () {
       final queueSource = FakeSyncQueueStatusSource();
       final orchestratorSource = FakeSyncOrchestratorStatusSource();
+      final resetSource = FakeBillingCycleResetSource();
 
       final container = ProviderContainer(
         overrides: [
@@ -41,6 +48,7 @@ void main() {
           syncOrchestratorStatusSourceProvider.overrideWithValue(
             orchestratorSource,
           ),
+          billingCycleResetSourceProvider.overrideWithValue(resetSource),
           syncStatusRefreshIntervalProvider.overrideWithValue(
             const Duration(days: 1),
           ),
@@ -63,6 +71,7 @@ void main() {
       final orchestratorSource = FakeSyncOrchestratorStatusSource(
         isSyncInProgress: true,
       );
+      final resetSource = FakeBillingCycleResetSource();
 
       final container = ProviderContainer(
         overrides: [
@@ -70,6 +79,7 @@ void main() {
           syncOrchestratorStatusSourceProvider.overrideWithValue(
             orchestratorSource,
           ),
+          billingCycleResetSourceProvider.overrideWithValue(resetSource),
           syncStatusRefreshIntervalProvider.overrideWithValue(
             const Duration(days: 1),
           ),
@@ -90,6 +100,7 @@ void main() {
       final orchestratorSource = FakeSyncOrchestratorStatusSource(
         lastSuccessfulSyncAt: DateTime(2026, 3, 8, 10),
       );
+      final resetSource = FakeBillingCycleResetSource();
 
       final container = ProviderContainer(
         overrides: [
@@ -97,6 +108,7 @@ void main() {
           syncOrchestratorStatusSourceProvider.overrideWithValue(
             orchestratorSource,
           ),
+          billingCycleResetSourceProvider.overrideWithValue(resetSource),
           syncStatusRefreshIntervalProvider.overrideWithValue(
             const Duration(days: 1),
           ),
@@ -128,12 +140,14 @@ void main() {
     test('status aliases expose same read-only projection', () {
       final queueSource = FakeSyncQueueStatusSource(pendingCount: 1);
       final orchestratorSource = FakeSyncOrchestratorStatusSource();
+      final resetSource = FakeBillingCycleResetSource();
       final container = ProviderContainer(
         overrides: [
           syncQueueStatusSourceProvider.overrideWithValue(queueSource),
           syncOrchestratorStatusSourceProvider.overrideWithValue(
             orchestratorSource,
           ),
+          billingCycleResetSourceProvider.overrideWithValue(resetSource),
           syncStatusRefreshIntervalProvider.overrideWithValue(
             const Duration(days: 1),
           ),
@@ -159,12 +173,14 @@ void main() {
         isSyncInProgress: false,
         lastSuccessfulSyncAt: DateTime(2026, 3, 8, 12),
       );
+      final resetSource = FakeBillingCycleResetSource();
       final container = ProviderContainer(
         overrides: [
           syncQueueStatusSourceProvider.overrideWithValue(queueSource),
           syncOrchestratorStatusSourceProvider.overrideWithValue(
             orchestratorSource,
           ),
+          billingCycleResetSourceProvider.overrideWithValue(resetSource),
           syncStatusRefreshIntervalProvider.overrideWithValue(
             const Duration(days: 1),
           ),

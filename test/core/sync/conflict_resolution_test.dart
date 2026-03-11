@@ -258,6 +258,32 @@ void main() {
       ).called(1);
     });
 
+    test(
+        'new backend cycle stays canonical even if queued paid state matches previous cycle',
+        () async {
+      final operation = buildOperation(id: 'canonical-paid');
+
+      when(
+        () => mockRemoteDataSource.getPaymentSyncMemberCycleContext(
+          subscriptionId: operation.subscriptionId,
+          memberId: operation.memberId,
+        ),
+      ).thenAnswer(
+        (_) async => PaymentSyncMemberCycleContext(
+          cycleDueDate: DateTime(2026, 2, 1),
+          hasPaid: true,
+        ),
+      );
+
+      final result = await PaymentSyncConflictResolver(
+        remoteDataSource: mockRemoteDataSource,
+      ).preflight(operation);
+
+      expect(result.shouldMarkTerminalConflict, isTrue);
+      expect(result.terminalReason, cycleConflictNoopReason);
+      expect(result.backendCycleDueDate, DateTime(2026, 2, 1));
+    });
+
     test('same-cycle already-applied operation is treated as success',
         () async {
       final operation = buildOperation(id: 'already-applied');

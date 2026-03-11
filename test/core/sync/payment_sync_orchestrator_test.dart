@@ -588,5 +588,72 @@ void main() {
         ),
       ).called(1);
     });
+
+    test(
+        'cycle reset precedence terminalizes stale paid replay even when backend already has paid state',
+        () async {
+      final fixedNow = DateTime(2026, 1, 10, 12);
+      final operation = buildOperation(
+        id: 'cycle-reset-precedence',
+        createdAt: fixedNow.subtract(const Duration(minutes: 1)),
+        cycleDueDate: DateTime(2026, 1, 1),
+      );
+
+      var readCount = 0;
+      when(
+        () => mockQueueService.getPendingOrdered(
+          asOf: any(named: 'asOf'),
+        ),
+      ).thenAnswer((_) async {
+        readCount += 1;
+        if (readCount == 1) {
+          return [operation];
+        }
+        return <PaymentSyncOperation>[];
+      });
+
+      when(
+        () => mockRemoteDataSource.getPaymentSyncMemberCycleContext(
+          subscriptionId: operation.subscriptionId,
+          memberId: operation.memberId,
+        ),
+      ).thenAnswer(
+        (_) async => PaymentSyncMemberCycleContext(
+          cycleDueDate: DateTime(2026, 2, 1),
+          hasPaid: true,
+        ),
+      );
+
+      final orchestrator = PaymentSyncOrchestrator(
+        queueService: mockQueueService,
+        remoteDataSource: mockRemoteDataSource,
+        now: () => fixedNow,
+      );
+      await orchestrator.start();
+      await orchestrator.triggerSync(reason: 'test');
+
+      verifyNever(
+        () => mockRemoteDataSource.markPaymentAsPaid(
+          subscriptionId: any(named: 'subscriptionId'),
+          memberId: any(named: 'memberId'),
+          amount: any(named: 'amount'),
+          paymentDate: any(named: 'paymentDate'),
+          markedBy: any(named: 'markedBy'),
+          notes: any(named: 'notes'),
+          idempotencyKey: any(named: 'idempotencyKey'),
+        ),
+      );
+      verify(
+        () => mockQueueService.markTerminal(
+          operation.id,
+          retryCount: operation.retryCount,
+          terminalReason: cycleConflictNoopReason,
+          terminalAt: fixedNow,
+          lastAttemptAt: fixedNow,
+          lastErrorClass: 'sync_conflict',
+          lastErrorCode: cycleConflictNoopReason,
+        ),
+      ).called(1);
+    });
   });
 }
