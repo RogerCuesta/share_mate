@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_project_agents/core/sync/payment_sync_orchestrator.dart';
 import 'package:flutter_project_agents/core/sync/payment_sync_queue.dart';
 import 'package:flutter_project_agents/core/sync/sync_logger.dart';
+import 'package:flutter_project_agents/features/billing_automation/domain/services/billing_automation_orchestrator.dart';
 import 'package:flutter_project_agents/features/subscriptions/data/datasources/subscription_local_datasource.dart';
 import 'package:flutter_project_agents/features/subscriptions/data/datasources/subscription_remote_datasource.dart';
 import 'package:flutter_project_agents/features/subscriptions/data/models/subscription_member_model.dart';
@@ -31,14 +32,17 @@ class SubscriptionRepositoryImpl implements SubscriptionRepository {
     required SubscriptionRemoteDataSource remoteDataSource,
     required SubscriptionLocalDataSource localDataSource,
     PaymentSyncOrchestrator? syncOrchestrator,
+    BillingAutomationOrchestrator? billingAutomationOrchestrator,
     SyncLogger syncLogger = const SyncLogger(scope: 'SubscriptionRepository'),
   })  : _remoteDataSource = remoteDataSource,
         _localDataSource = localDataSource,
         _syncOrchestrator = syncOrchestrator,
+        _billingAutomationOrchestrator = billingAutomationOrchestrator,
         _syncLogger = syncLogger;
   final SubscriptionRemoteDataSource _remoteDataSource;
   final SubscriptionLocalDataSource _localDataSource;
   final PaymentSyncOrchestrator? _syncOrchestrator;
+  final BillingAutomationOrchestrator? _billingAutomationOrchestrator;
   final SyncLogger _syncLogger;
 
   @override
@@ -275,6 +279,7 @@ class SubscriptionRepositoryImpl implements SubscriptionRepository {
 
       // Update local with server version
       await _localDataSource.updateSubscription(remoteModel);
+      _triggerBillingAutomationRefresh(reason: 'subscription_created');
 
       return Right(remoteModel.toEntity());
     } on SubscriptionRemoteException {
@@ -301,6 +306,7 @@ class SubscriptionRepositoryImpl implements SubscriptionRepository {
 
       // Update local with server version
       await _localDataSource.updateSubscription(remoteModel);
+      _triggerBillingAutomationRefresh(reason: 'subscription_updated');
 
       return Right(remoteModel.toEntity());
     } on SubscriptionRemoteException {
@@ -320,6 +326,7 @@ class SubscriptionRepositoryImpl implements SubscriptionRepository {
 
       // Delete from remote
       await _remoteDataSource.deleteSubscription(subscriptionId);
+      _triggerBillingAutomationRefresh(reason: 'subscription_deleted');
 
       return const Right(unit);
     } on SubscriptionRemoteException {
@@ -833,6 +840,16 @@ class SubscriptionRepositoryImpl implements SubscriptionRepository {
     unawaited(
       orchestrator.triggerSync(reason: 'post_remote_write'),
     );
+  }
+
+  void _triggerBillingAutomationRefresh({
+    required String reason,
+  }) {
+    final billingAutomationOrchestrator = _billingAutomationOrchestrator;
+    if (billingAutomationOrchestrator == null) {
+      return;
+    }
+    unawaited(billingAutomationOrchestrator.run(reason: reason));
   }
 
   String? _extractRemoteErrorCode(String message) {

@@ -1,5 +1,7 @@
 // lib/features/settings/presentation/providers/settings_provider.dart
 
+import 'dart:async';
+
 import 'package:flutter_project_agents/core/di/injection.dart';
 import 'package:flutter_project_agents/features/settings/domain/entities/app_settings.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -86,6 +88,15 @@ class Settings extends _$Settings {
       (_) {
         // Update state with new settings
         state = AsyncData(settings);
+        final orchestrator = ref.read(billingAutomationOrchestratorProvider);
+        final reason = settings.paymentRemindersEnabled
+            ? 'settings_payment_reminders_enabled'
+            : 'settings_payment_reminders_disabled';
+        if (settings.paymentRemindersEnabled) {
+          unawaited(orchestrator.run(reason: reason));
+        } else {
+          unawaited(orchestrator.clearAll(reason: reason));
+        }
         return true;
       },
     );

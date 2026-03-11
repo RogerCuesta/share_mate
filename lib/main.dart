@@ -160,11 +160,16 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
       return;
     }
     final orchestrator = ref.read(paymentSyncOrchestratorProvider);
+    final billingAutomationOrchestrator =
+        ref.read(billingAutomationOrchestratorProvider);
     unawaited(
       orchestrator.triggerSync(
         reason: 'app_resume',
         force: true,
       ),
+    );
+    unawaited(
+      billingAutomationOrchestrator.run(reason: 'app_resume'),
     );
   }
 
@@ -179,11 +184,14 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
 
   Future<void> _initializeSyncOrchestrator() async {
     final orchestrator = ref.read(paymentSyncOrchestratorProvider);
+    final billingAutomationOrchestrator =
+        ref.read(billingAutomationOrchestratorProvider);
     await orchestrator.start();
     await orchestrator.triggerSync(
       reason: 'app_start',
       force: true,
     );
+    await billingAutomationOrchestrator.run(reason: 'app_start');
     _startForegroundSyncInterval(orchestrator);
   }
 

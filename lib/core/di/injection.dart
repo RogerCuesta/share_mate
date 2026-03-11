@@ -16,6 +16,7 @@ import 'package:flutter_project_agents/features/auth/domain/usecases/logout_user
 import 'package:flutter_project_agents/features/auth/domain/usecases/register_user.dart';
 import 'package:flutter_project_agents/features/billing_automation/data/local/billing_reminder_registry.dart';
 import 'package:flutter_project_agents/features/billing_automation/data/platform/local_notification_adapter.dart';
+import 'package:flutter_project_agents/features/billing_automation/domain/services/billing_automation_orchestrator.dart';
 import 'package:flutter_project_agents/features/billing_automation/domain/services/billing_reminder_scheduler.dart';
 import 'package:flutter_project_agents/features/contacts/data/datasources/contact_local_datasource.dart';
 import 'package:flutter_project_agents/features/contacts/data/datasources/contact_remote_datasource.dart';
@@ -32,6 +33,7 @@ import 'package:flutter_project_agents/features/settings/data/datasources/settin
 import 'package:flutter_project_agents/features/settings/data/repositories/account_repository_impl.dart';
 import 'package:flutter_project_agents/features/settings/data/repositories/profile_repository_impl.dart';
 import 'package:flutter_project_agents/features/settings/data/repositories/settings_repository_impl.dart';
+import 'package:flutter_project_agents/features/settings/domain/entities/app_settings.dart';
 import 'package:flutter_project_agents/features/settings/domain/repositories/account_repository.dart';
 import 'package:flutter_project_agents/features/settings/domain/repositories/profile_repository.dart';
 import 'package:flutter_project_agents/features/settings/domain/repositories/settings_repository.dart';
@@ -83,20 +85,53 @@ SupabaseClient supabaseClient(Ref ref) {
 // AUTH FEATURE - DATA SOURCES
 // ═══════════════════════════════════════════════════════════════════════════
 
-@riverpod
-BillingReminderScheduler billingReminderScheduler(Ref ref) {
+final billingReminderSchedulerProvider =
+    Provider<BillingReminderScheduler>((Ref ref) {
   return const BillingReminderScheduler();
-}
+});
 
-@riverpod
-BillingReminderRegistry billingReminderRegistry(Ref ref) {
+final billingReminderRegistryProvider =
+    Provider<BillingReminderRegistry>((Ref ref) {
   return BillingReminderRegistry();
-}
+});
 
-@riverpod
-LocalNotificationAdapter localNotificationAdapter(Ref ref) {
+final localNotificationAdapterProvider =
+    Provider<LocalNotificationAdapter>((Ref ref) {
   return const NoopLocalNotificationAdapter();
-}
+});
+
+final billingAutomationHealthProvider =
+    StateProvider<BillingAutomationHealth>((Ref ref) {
+  return const BillingAutomationHealth.initial();
+});
+
+final billingAutomationOrchestratorProvider =
+    Provider<BillingAutomationOrchestrator>((Ref ref) {
+  return BillingAutomationOrchestrator(
+    scheduler: ref.watch(billingReminderSchedulerProvider),
+    registry: ref.watch(billingReminderRegistryProvider),
+    notificationAdapter: ref.watch(localNotificationAdapterProvider),
+    loadSubscriptions: () async {
+      final userId = ref.read(supabaseClientProvider).auth.currentUser?.id ?? '';
+      if (userId.isEmpty) {
+        return const [];
+      }
+
+      final getActiveSubscriptions = ref.read(getActiveSubscriptionsProvider);
+      final result = await getActiveSubscriptions(userId);
+      return result.fold((_) => const [], (subscriptions) => subscriptions);
+    },
+    loadSettings: () async {
+      final getSettings = ref.read(getSettingsProvider);
+      final result = await getSettings();
+      return result.fold((_) => const AppSettings(), (settings) => settings);
+    },
+    loadTimezoneId: () async => DateTime.now().timeZoneName,
+    publishHealth: (BillingAutomationHealth health) {
+      ref.read(billingAutomationHealthProvider.notifier).state = health;
+    },
+  );
+});
 
 /// Provider for UserLocalDataSource (Hive)
 ///
@@ -261,6 +296,8 @@ SubscriptionRepository subscriptionRepository(Ref ref) {
     remoteDataSource: ref.watch(subscriptionRemoteDataSourceProvider),
     localDataSource: ref.watch(subscriptionLocalDataSourceProvider),
     syncOrchestrator: ref.watch(paymentSyncOrchestratorProvider),
+    billingAutomationOrchestrator:
+        ref.watch(billingAutomationOrchestratorProvider),
   );
 }
 
