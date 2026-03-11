@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 enum PaymentReconciliationReason {
   cycleConflictNoop,
+  backendCycleReset,
   canonicalSyncRefresh,
   terminalRecovery,
 }
@@ -38,6 +39,8 @@ String paymentReconciliationMessage(PaymentReconciliationReason reason) {
   return switch (reason) {
     PaymentReconciliationReason.cycleConflictNoop =>
       'Cycle changed. We refreshed totals to match synced data.',
+    PaymentReconciliationReason.backendCycleReset =>
+      'New billing cycle started. Pending payments were refreshed.',
     PaymentReconciliationReason.canonicalSyncRefresh =>
       'Synced updates refreshed payment totals.',
     PaymentReconciliationReason.terminalRecovery =>

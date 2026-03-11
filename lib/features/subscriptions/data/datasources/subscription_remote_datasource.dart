@@ -33,6 +33,36 @@ class PaymentSyncMemberCycleContext {
   final bool hasPaid;
 }
 
+class BillingCycleResetSnapshot {
+  const BillingCycleResetSnapshot({
+    required this.batchId,
+    required this.subscriptionId,
+    required this.previousDueDate,
+    required this.nextDueDate,
+    required this.resetAt,
+    required this.processedMemberCount,
+  });
+
+  factory BillingCycleResetSnapshot.fromJson(Map<String, dynamic> json) {
+    return BillingCycleResetSnapshot(
+      batchId: json['batch_id'] as String,
+      subscriptionId: json['subscription_id'] as String,
+      previousDueDate: DateTime.parse(json['previous_due_date'] as String),
+      nextDueDate: DateTime.parse(json['next_due_date'] as String),
+      resetAt: DateTime.parse(json['reset_at'] as String),
+      processedMemberCount:
+          (json['processed_member_count'] as num?)?.toInt() ?? 0,
+    );
+  }
+
+  final String batchId;
+  final String subscriptionId;
+  final DateTime previousDueDate;
+  final DateTime nextDueDate;
+  final DateTime resetAt;
+  final int processedMemberCount;
+}
+
 /// Remote data source for subscription operations using Supabase
 abstract class SubscriptionRemoteDataSource {
   /// Get all subscriptions for a user
@@ -128,6 +158,11 @@ abstract class SubscriptionRemoteDataSource {
     required DateTime backendCycleDueDate,
     required int retryCount,
     required String idempotencyKey,
+  });
+
+  /// Fetch latest backend-driven billing cycle reset visible to the owner.
+  Future<BillingCycleResetSnapshot?> getLatestBillingCycleReset({
+    String? subscriptionId,
   });
 
   /// Get payment history for a subscription
@@ -1150,6 +1185,44 @@ class SubscriptionRemoteDataSourceImpl implements SubscriptionRemoteDataSource {
     } catch (e) {
       throw SubscriptionRemoteException(
         'Failed to record sync conflict audit: ${e.toString()}',
+      );
+    }
+  }
+
+  @override
+  Future<BillingCycleResetSnapshot?> getLatestBillingCycleReset({
+    String? subscriptionId,
+  }) async {
+    try {
+      final response = await _client.rpc(
+        'get_latest_billing_cycle_reset',
+        params: {
+          if (subscriptionId != null) 'p_subscription_id': subscriptionId,
+        },
+      );
+      if (response == null) {
+        return null;
+      }
+
+      final raw = switch (response) {
+        final List<dynamic> rows when rows.isEmpty => null,
+        final List<dynamic> rows => rows.first,
+        _ => response,
+      };
+      if (raw == null) {
+        return null;
+      }
+
+      return BillingCycleResetSnapshot.fromJson(
+        Map<String, dynamic>.from(raw as Map),
+      );
+    } on PostgrestException catch (e) {
+      throw SubscriptionRemoteException(
+        'Database error fetching billing cycle reset: ${e.message}',
+      );
+    } catch (e) {
+      throw SubscriptionRemoteException(
+        'Failed to fetch billing cycle reset: ${e.toString()}',
       );
     }
   }

@@ -4,6 +4,7 @@ import 'package:flutter_project_agents/core/di/injection.dart';
 import 'package:flutter_project_agents/core/sync/payment_sync_orchestrator.dart';
 import 'package:flutter_project_agents/core/sync/payment_sync_queue.dart';
 import 'package:flutter_project_agents/core/sync/sync_status.dart';
+import 'package:flutter_project_agents/features/subscriptions/data/datasources/subscription_remote_datasource.dart';
 import 'package:flutter_project_agents/features/subscriptions/presentation/providers/payment_reconciliation_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -32,6 +33,11 @@ abstract class SyncOrchestratorStatusSource {
 abstract class SyncQueueRecoverySource {
   Future<int> retryTerminal({DateTime? retryAt});
   Future<int> clearTerminalOnly();
+}
+
+// ignore: one_member_abstracts
+abstract class BillingCycleResetSource {
+  Future<BillingCycleResetSnapshot?> getLatestReset();
 }
 
 // ignore: one_member_abstracts
@@ -101,6 +107,17 @@ class _PaymentSyncOrchestratorCommandSource
   }
 }
 
+class _RemoteBillingCycleResetSource implements BillingCycleResetSource {
+  _RemoteBillingCycleResetSource(this._remoteDataSource);
+
+  final SubscriptionRemoteDataSource _remoteDataSource;
+
+  @override
+  Future<BillingCycleResetSnapshot?> getLatestReset() {
+    return _remoteDataSource.getLatestBillingCycleReset();
+  }
+}
+
 final syncQueueStatusSourceProvider = Provider<SyncQueueStatusSource>((ref) {
   return _PaymentSyncQueueStatusSource(
     ref.watch(paymentSyncQueueServiceProvider),
@@ -132,8 +149,16 @@ final syncOrchestratorCommandSourceProvider =
   );
 });
 
+final billingCycleResetSourceProvider = Provider<BillingCycleResetSource>((ref) {
+  return _RemoteBillingCycleResetSource(
+    ref.watch(subscriptionRemoteDataSourceProvider),
+  );
+});
+
 class SyncStatusController extends AutoDisposeNotifier<SyncStatus> {
   Timer? _pollTimer;
+  String? _lastBillingCycleResetBatchId;
+  bool _billingCycleResetCheckInFlight = false;
 
   @override
   SyncStatus build() {
@@ -151,6 +176,7 @@ class SyncStatusController extends AutoDisposeNotifier<SyncStatus> {
     final next = _readStatus();
     _emitReconciliationIfNeeded(previous: previous, next: next);
     state = next;
+    unawaited(_emitBillingCycleResetIfNeeded());
   }
 
   Future<int> retryAll() async {
@@ -216,6 +242,35 @@ class SyncStatusController extends AutoDisposeNotifier<SyncStatus> {
           next.lastSuccessfulSyncAt,
         )) {
       controller.emit(reason: PaymentReconciliationReason.canonicalSyncRefresh);
+    }
+  }
+
+  Future<void> _emitBillingCycleResetIfNeeded() async {
+    if (_billingCycleResetCheckInFlight) {
+      return;
+    }
+    _billingCycleResetCheckInFlight = true;
+
+    try {
+      final latestReset =
+          await ref.read(billingCycleResetSourceProvider).getLatestReset();
+      if (latestReset == null) {
+        return;
+      }
+
+      if (latestReset.batchId == _lastBillingCycleResetBatchId) {
+        return;
+      }
+
+      _lastBillingCycleResetBatchId = latestReset.batchId;
+      ref.read(paymentReconciliationProvider.notifier).emit(
+            reason: PaymentReconciliationReason.backendCycleReset,
+            emittedAt: latestReset.resetAt,
+          );
+    } catch (_) {
+      // Reconciliation hints are best-effort and must not affect sync status.
+    } finally {
+      _billingCycleResetCheckInFlight = false;
     }
   }
 
