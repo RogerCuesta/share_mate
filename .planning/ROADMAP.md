@@ -16,7 +16,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 2: Offline Sync Reliability Core** - La app converge de forma determinista entre estado local y backend. (completed 2026-03-08)
 - [x] **Phase 3: Subscription Setup Flow** - Alta de suscripción completa con catálogo, contactos locales y split robusto. (completed 2026-03-09)
 - [x] **Phase 4: Payment Tracking & Debt Home** - Seguimiento de cobro por contacto con impacto inmediato y consistente en Home. (completed 2026-03-10)
-- [ ] **Phase 5: Billing Automation Cycle** - Recordatorios T-24h y reseteo mensual reconciliado de estados.
+- [x] **Phase 5: Billing Automation Cycle** - Recordatorios T-24h y reseteo mensual reconciliado de estados. (completed 2026-03-11)
 - [ ] **Phase 6: UX System Consistency** - Pantallas núcleo y componentes quedan alineados al design system persistido.
 
 ## Phase Details
@@ -41,7 +41,7 @@ Decimal phases appear between their surrounding integers in numeric order.
   2. Ante fallos transitorios, la app reintenta sin intervención del usuario y evita pérdida silenciosa de operaciones.
   3. Cuando hay conflicto entre estado local optimista y reset mensual backend, el resultado final es estable y consistente en todos los dispositivos del usuario.
   4. El usuario puede ver el estado de sincronización de forma clara sin exposición de datos sensibles en logs.
-**Plans**: TBD
+**Plans**: 05-01, 05-02, 05-03, 05-04
 
 ### Phase 3: Subscription Setup Flow
 **Goal**: El usuario completa de extremo a extremo la creación/edición de suscripciones compartidas con datos correctos desde el primer intento.
@@ -96,5 +96,5 @@ Phases execute in numeric order: 1 → 1.1 → 1.2 → 2 → 2.1 → 3 → 4 →
 | 2. Offline Sync Reliability Core | 5/5 | Complete | 2026-03-08 |
 | 3. Subscription Setup Flow | 5/5 | Complete | 2026-03-09 |
 | 4. Payment Tracking & Debt Home | 5/5 | Complete    | 2026-03-10 |
-| 5. Billing Automation Cycle | 0/TBD | Not started | - |
+| 5. Billing Automation Cycle | 4/4 | Complete | 2026-03-11 |
 | 6. UX System Consistency | 0/TBD | Not started | - |
