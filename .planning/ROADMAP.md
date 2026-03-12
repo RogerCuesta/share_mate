@@ -30,7 +30,7 @@ Decimal phases appear between their surrounding integers in numeric order.
   2. Reabrir la app múltiples veces en la misma versión no duplica ni corrompe datos por migraciones repetidas.
   3. El usuario conserva su información local tras activar cifrado en reposo, sin perder acceso funcional a sus datos.
   4. Con dos cuentas distintas, cada usuario solo puede leer/escribir sus propios datos de negocio y las acciones sensibles de cuenta funcionan por backend autorizado.
-**Plans**: 03-01, 03-02, 03-03, 03-04, 03-05
+**Plans**: 01-01, 01-02, 01-03
 
 ### Phase 2: Offline Sync Reliability Core
 **Goal**: Los cambios hechos sin red se aplican localmente y terminan sincronizando de forma predecible con el backend.
@@ -41,7 +41,7 @@ Decimal phases appear between their surrounding integers in numeric order.
   2. Ante fallos transitorios, la app reintenta sin intervención del usuario y evita pérdida silenciosa de operaciones.
   3. Cuando hay conflicto entre estado local optimista y reset mensual backend, el resultado final es estable y consistente en todos los dispositivos del usuario.
   4. El usuario puede ver el estado de sincronización de forma clara sin exposición de datos sensibles en logs.
-**Plans**: 05-01, 05-02, 05-03, 05-04
+**Plans**: 02-01, 02-02, 02-03, 02-04, 02-05
 
 ### Phase 3: Subscription Setup Flow
 **Goal**: El usuario completa de extremo a extremo la creación/edición de suscripciones compartidas con datos correctos desde el primer intento.
@@ -53,7 +53,7 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. El split se calcula automáticamente a partes iguales para todos los miembros seleccionados y se recalcula al cambiar importe o miembros.
   4. Si el día de cobro no existe en un mes concreto, el sistema lo normaliza al último día válido sin bloquear el flujo.
   5. El catálogo se puede usar desde caché local sin congelar la UI cuando hay mala conexión.
-**Plans**: TBD
+**Plans**: 03-01, 03-02, 03-03, 03-04, 03-05
 
 ### Phase 4: Payment Tracking & Debt Home
 **Goal**: El usuario controla quién pagó cada suscripción y ve de inmediato su deuda total agregada y próximo cobro.
@@ -64,7 +64,7 @@ Decimal phases appear between their surrounding integers in numeric order.
   2. Al cambiar estado de pago, la UI local responde al instante y Home actualiza la deuda agregada sin refresco manual.
   3. Si no hay red, el cambio de pago persiste localmente y, tras sincronizar, no aparecen divergencias en deuda ni estados.
   4. Home prioriza visualmente deuda total a favor y próximo cobro, manteniendo consistencia tras toggles, sync y resets.
-**Plans**: TBD
+**Plans**: 04-01, 04-02, 04-03, 04-04, 04-05
 
 ### Phase 5: Billing Automation Cycle
 **Goal**: La app automatiza la rutina mensual de cobro con recordatorios y reinicio de ciclo confiables.
@@ -74,7 +74,7 @@ Decimal phases appear between their surrounding integers in numeric order.
   1. El usuario recibe una notificación local T-24h para cada suscripción activa.
   2. Al reabrir la app o migrar de dispositivo, las notificaciones se reprograman correctamente sin duplicados críticos.
   3. Al iniciar un nuevo ciclo mensual, los estados vuelven a `pendiente` por cron backend y el cliente refleja ese estado tras reconciliación.
-**Plans**: TBD
+**Plans**: 05-01, 05-02, 05-03, 05-04
 
 ### Phase 6: UX System Consistency
 **Goal**: Las pantallas críticas del flujo de cobro presentan una experiencia visual uniforme basada en el design system acordado.
@@ -83,7 +83,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Success Criteria** (what must be TRUE):
   1. Home, Catálogo, Crear, Split y Detalle se perciben como parte de un mismo sistema visual (tokens, tipografías, espaciado, componentes).
   2. Nuevos componentes reutilizan theming/tokens compartidos y los cambios de tema impactan de forma coherente en todas las pantallas núcleo.
-**Plans**: TBD
+**Plans**: 06-01, 06-02, 06-03, 06-04, 06-05
 
 ## Progress
 
@@ -97,4 +97,4 @@ Phases execute in numeric order: 1 → 1.1 → 1.2 → 2 → 2.1 → 3 → 4 →
 | 3. Subscription Setup Flow | 5/5 | Complete | 2026-03-09 |
 | 4. Payment Tracking & Debt Home | 5/5 | Complete    | 2026-03-10 |
 | 5. Billing Automation Cycle | 4/4 | Complete | 2026-03-11 |
-| 6. UX System Consistency | 0/TBD | Not started | - |
+| 6. UX System Consistency | 0/5 | Planned | - |

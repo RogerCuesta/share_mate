@@ -46,9 +46,9 @@
 
 ### Notifications & Monthly Cycle
 
-- [ ] **BILL-01**: El sistema programa notificación local T-24h para cada suscripción activa.
-- [ ] **BILL-02**: Las notificaciones se reprograman automáticamente al reabrir app/migrar dispositivo.
-- [ ] **BILL-03**: El ciclo mensual reinicia estados a pendiente mediante cron backend y reconciliación en cliente.
+- [x] **BILL-01**: El sistema programa notificación local T-24h para cada suscripción activa.
+- [x] **BILL-02**: Las notificaciones se reprograman automáticamente al reabrir app/migrar dispositivo.
+- [x] **BILL-03**: El ciclo mensual reinicia estados a pendiente mediante cron backend y reconciliación en cliente.
 
 ### Offline Sync Reliability
 
@@ -110,9 +110,9 @@
 | PAYM-03 | Phase 4 | Complete |
 | DASH-01 | Phase 4 | Complete |
 | DASH-02 | Phase 4 | Complete |
-| BILL-01 | Phase 5 | Pending |
-| BILL-02 | Phase 5 | Pending |
-| BILL-03 | Phase 5 | Pending |
+| BILL-01 | Phase 5 | Complete |
+| BILL-02 | Phase 5 | Complete |
+| BILL-03 | Phase 5 | Complete |
 | SYNC-01 | Phase 2 | Complete |
 | SYNC-02 | Phase 2 | Complete |
 | SYNC-03 | Phase 2 | Complete |
@@ -126,4 +126,4 @@
 
 ---
 *Requirements defined: 2026-03-08*
-*Last updated: 2026-03-08 after roadmap phase mapping*
+*Last updated: 2026-03-12 after Phase 5 close and Phase 6 planning*
