@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_project_agents/core/widgets/app_section_card.dart';
+import 'package:flutter_project_agents/core/widgets/app_status_badge.dart';
 import 'package:flutter_project_agents/features/home/presentation/models/debt_home_snapshot.dart';
 
 class NextCollectionCard extends StatelessWidget {
@@ -17,82 +19,47 @@ class NextCollectionCard extends StatelessWidget {
     final nowDate = _dateOnly(now ?? DateTime.now());
     final hasCandidate = candidate != null;
     final dueDate = hasCandidate ? _dateOnly(candidate.dueDate) : null;
-    final urgency = hasCandidate ? _urgencyCopy(dueDate!, nowDate) : 'Todo al dia';
-    final urgencyColor = hasCandidate
-        ? _urgencyTone(dueDate!, nowDate)
-        : const Color(0xFF26A69A);
+    final urgency =
+        hasCandidate ? _urgencyCopy(dueDate!, nowDate) : 'Todo al dia';
+    final tone =
+        hasCandidate ? _urgencyTone(dueDate!, nowDate) : AppStatusTone.synced;
 
-    return Container(
+    return AppSectionCard(
       key: const Key('next-collection-card'),
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: const Color(0xFF2D2D44),
-        borderRadius: BorderRadius.circular(20),
-      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Proximo cobro',
-            style: TextStyle(
-              color: Colors.grey[300],
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
+          Text('Proximo cobro', style: Theme.of(context).textTheme.bodyMedium),
           const SizedBox(height: 12),
           if (hasCandidate) ...[
             Text(
               candidate.subscriptionName,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 20,
-                fontWeight: FontWeight.w700,
-              ),
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.w700,
+                  ),
             ),
             const SizedBox(height: 4),
             Text(
               _currency(candidate.pendingAmount),
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 18,
-                fontWeight: FontWeight.w600,
-              ),
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w700,
+                  ),
             ),
           ] else ...[
-            const Text(
+            Text(
               r'$0.00',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 22,
-                fontWeight: FontWeight.w700,
-              ),
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.w700,
+                  ),
             ),
             const SizedBox(height: 4),
             Text(
               'No hay cobros pendientes.',
-              style: TextStyle(
-                color: Colors.grey[400],
-                fontSize: 13,
-              ),
+              style: Theme.of(context).textTheme.bodySmall,
             ),
           ],
           const SizedBox(height: 12),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-            decoration: BoxDecoration(
-              color: urgencyColor.withValues(alpha: 0.14),
-              borderRadius: BorderRadius.circular(999),
-            ),
-            child: Text(
-              urgency,
-              style: TextStyle(
-                color: urgencyColor,
-                fontSize: 12,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-          ),
+          AppStatusBadge(label: urgency, tone: tone),
         ],
       ),
     );
@@ -120,14 +87,14 @@ class NextCollectionCard extends StatelessWidget {
     return 'En $remainingDays dias';
   }
 
-  Color _urgencyTone(DateTime dueDate, DateTime today) {
+  AppStatusTone _urgencyTone(DateTime dueDate, DateTime today) {
     if (dueDate.isBefore(today)) {
-      return const Color(0xFFEF5350);
+      return AppStatusTone.error;
     }
     final remainingDays = dueDate.difference(today).inDays;
     if (remainingDays <= 3) {
-      return const Color(0xFFFFB74D);
+      return AppStatusTone.warning;
     }
-    return const Color(0xFF42A5F5);
+    return AppStatusTone.info;
   }
 }

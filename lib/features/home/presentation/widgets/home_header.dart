@@ -1,18 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_project_agents/core/di/injection.dart';
 import 'package:flutter_project_agents/core/sync/sync_status.dart';
+import 'package:flutter_project_agents/core/theme/theme_extensions.dart';
+import 'package:flutter_project_agents/core/widgets/app_status_badge.dart';
 import 'package:flutter_project_agents/features/auth/presentation/providers/auth_provider.dart';
 import 'package:flutter_project_agents/features/billing_automation/domain/services/billing_automation_orchestrator.dart';
 import 'package:flutter_project_agents/features/subscriptions/presentation/providers/sync_status_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
-/// Home screen header with greeting and notifications
-///
-/// Displays:
-/// - Dynamic greeting based on time of day
-/// - User's full name
-/// - Notification icon with badge (if unread notifications exist)
 class HomeHeader extends ConsumerWidget {
   const HomeHeader({super.key});
 
@@ -23,13 +19,13 @@ class HomeHeader extends ConsumerWidget {
     final automationHealth = ref.watch(billingAutomationHealthProvider);
     final now = DateTime.now();
     final greeting = _getGreeting(now.hour);
+    final tokens = Theme.of(context).appTokens;
 
     return Padding(
-      padding: const EdgeInsets.all(24),
+      padding: EdgeInsets.all(tokens.spacingLarge),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // User greeting
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -44,7 +40,7 @@ class HomeHeader extends ConsumerWidget {
                     userName: 'Guest',
                   ),
                 ),
-                const SizedBox(height: 10),
+                SizedBox(height: tokens.spacingSmall + 2),
                 HomeSyncStatusBadge(
                   status: syncStatus,
                   automationHealth: automationHealth,
@@ -52,20 +48,13 @@ class HomeHeader extends ConsumerWidget {
               ],
             ),
           ),
-
-          // Notification button
-          const SizedBox(width: 16),
+          SizedBox(width: tokens.spacingMedium),
           const _NotificationButton(),
         ],
       ),
     );
   }
 
-  /// Get greeting based on hour of the day
-  ///
-  /// - Morning: 0-11
-  /// - Afternoon: 12-17
-  /// - Evening: 18-23
   String _getGreeting(int hour) {
     if (hour < 12) return 'Good morning';
     if (hour < 18) return 'Good afternoon';
@@ -86,107 +75,60 @@ class HomeSyncStatusBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final label = syncStatusLabel(status);
-    final tone = _toneForLabel(label);
     final timestamp = status.lastSuccessfulSyncAt == null
         ? 'Last sync: Not available'
         : 'Last sync: ${DateFormat('MMM d, HH:mm').format(status.lastSuccessfulSyncAt!.toLocal())}';
 
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-      decoration: BoxDecoration(
-        color: tone.withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: tone.withValues(alpha: 0.45),
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            label,
-            style: TextStyle(
-              color: tone,
-              fontSize: 12,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-          const SizedBox(height: 2),
-          Text(
-            timestamp,
-            style: TextStyle(
-              color: Colors.grey[300],
-              fontSize: 11,
-              fontWeight: FontWeight.w400,
-            ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-          if (automationHealth.needsAttention ||
-              automationHealth.scheduledCount > 0) ...[
-            const SizedBox(height: 2),
-            Text(
-              automationHealth.detailLabel,
-              style: TextStyle(
-                color: automationHealth.needsAttention
-                    ? const Color(0xFFEF5350)
-                    : Colors.grey[300],
-                fontSize: 11,
-                fontWeight: automationHealth.needsAttention
-                    ? FontWeight.w600
-                    : FontWeight.w400,
-              ),
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ],
-        ],
-      ),
+    final detailText =
+        automationHealth.needsAttention || automationHealth.scheduledCount > 0
+            ? automationHealth.detailLabel
+            : null;
+
+    return AppStatusBadge(
+      label: label,
+      detail: detailText ?? timestamp,
+      tone: _tone(status.kind),
     );
   }
 
-  Color _toneForLabel(String label) {
-    return switch (label) {
-      syncedStatusLabel => const Color(0xFF26A69A),
-      pendingStatusLabel => const Color(0xFFFFB74D),
-      _ => const Color(0xFFEF5350),
+  AppStatusTone _tone(SyncStatusKind kind) {
+    return switch (kind) {
+      SyncStatusKind.synced => AppStatusTone.synced,
+      SyncStatusKind.pending => AppStatusTone.pending,
+      SyncStatusKind.requiresAction => AppStatusTone.requiresAction,
     };
   }
 }
-
-// ═══════════════════════════════════════════════════════════════════════════
-// USER GREETING
-// ═══════════════════════════════════════════════════════════════════════════
 
 class _UserGreeting extends StatelessWidget {
   const _UserGreeting({
     required this.greeting,
     required this.userName,
   });
+
   final String greeting;
   final String userName;
 
   @override
   Widget build(BuildContext context) {
+    final tokens = Theme.of(context).appTokens;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Greeting (time-based)
         Text(
           greeting,
           style: TextStyle(
-            color: Colors.grey[400],
+            color: tokens.textSecondary,
             fontSize: 14,
             fontWeight: FontWeight.w400,
           ),
         ),
         const SizedBox(height: 4),
-
-        // User name
         Text(
           userName,
-          style: const TextStyle(
-            color: Colors.white,
+          style: TextStyle(
+            color: tokens.textPrimary,
             fontSize: 24,
             fontWeight: FontWeight.bold,
           ),
@@ -198,34 +140,25 @@ class _UserGreeting extends StatelessWidget {
   }
 }
 
-// ═══════════════════════════════════════════════════════════════════════════
-// NOTIFICATION BUTTON
-// ═══════════════════════════════════════════════════════════════════════════
-
 class _NotificationButton extends StatelessWidget {
   const _NotificationButton();
 
   @override
   Widget build(BuildContext context) {
-    // TODO: Replace with actual unread count from notification provider
+    final tokens = Theme.of(context).appTokens;
     const unreadCount = 3;
 
     return Container(
       decoration: BoxDecoration(
-        color: const Color(0xFF2D2D44),
-        borderRadius: BorderRadius.circular(12),
+        color: tokens.surfaceRaised,
+        borderRadius: BorderRadius.circular(tokens.borderRadiusMedium),
+        border: Border.all(color: tokens.borderSubtle),
       ),
       child: IconButton(
         icon: const Stack(
           clipBehavior: Clip.none,
           children: [
-            Icon(
-              Icons.notifications_outlined,
-              color: Colors.white,
-              size: 24,
-            ),
-
-            // Badge (only show if unread count > 0)
+            Icon(Icons.notifications_outlined, size: 24),
             if (unreadCount > 0)
               Positioned(
                 right: -2,
@@ -235,7 +168,6 @@ class _NotificationButton extends StatelessWidget {
           ],
         ),
         onPressed: () {
-          // TODO: Navigate to notifications screen
           debugPrint('Navigate to notifications');
         },
       ),
@@ -243,36 +175,30 @@ class _NotificationButton extends StatelessWidget {
   }
 }
 
-// ═══════════════════════════════════════════════════════════════════════════
-// NOTIFICATION BADGE
-// ═══════════════════════════════════════════════════════════════════════════
-
 class _NotificationBadge extends StatelessWidget {
   const _NotificationBadge({required this.count});
+
   final int count;
 
   @override
   Widget build(BuildContext context) {
+    final tokens = Theme.of(context).appTokens;
     final displayCount = count > 99 ? '99+' : count.toString();
 
     return Container(
       padding: const EdgeInsets.all(4),
-      constraints: const BoxConstraints(
-        minWidth: 18,
-        minHeight: 18,
+      constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
+      decoration: BoxDecoration(
+        color: tokens.statusError,
+        borderRadius: BorderRadius.circular(8),
       ),
-      decoration: const BoxDecoration(
-        color: Color(0xFFFF6B6B),
-        shape: BoxShape.circle,
-      ),
-      child: Center(
-        child: Text(
-          displayCount,
-          style: const TextStyle(
-            fontSize: 10,
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-          ),
+      child: Text(
+        displayCount,
+        textAlign: TextAlign.center,
+        style: TextStyle(
+          color: tokens.textOnAccent,
+          fontSize: 10,
+          fontWeight: FontWeight.w700,
         ),
       ),
     );

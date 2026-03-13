@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_project_agents/core/widgets/app_operational_snackbar.dart';
+import 'package:flutter_project_agents/core/widgets/app_screen_scaffold.dart';
+import 'package:flutter_project_agents/core/widgets/app_section_card.dart';
 import 'package:flutter_project_agents/features/home/presentation/providers/debt_home_provider.dart';
 import 'package:flutter_project_agents/features/home/presentation/widgets/action_required_section.dart';
 import 'package:flutter_project_agents/features/home/presentation/widgets/active_subscriptions_section.dart';
@@ -19,6 +22,7 @@ class HomeScreen extends ConsumerWidget {
     final monthlyStatsAsync = ref.watch(monthlyStatsProvider);
     final subscriptionsAsync = ref.watch(activeSubscriptionsProvider);
     final pendingAsync = ref.watch(pendingPaymentsProvider);
+
     ref.listen<PaymentReconciliationSignal?>(
       paymentReconciliationProvider,
       (previous, next) {
@@ -33,79 +37,56 @@ class HomeScreen extends ConsumerWidget {
       },
     );
 
-    return Scaffold(
-      backgroundColor: const Color(0xFF1A1A2E),
-      body: SafeArea(
-        child: CustomScrollView(
-          slivers: [
-            // 1. Header
-            const SliverToBoxAdapter(
-              child: HomeHeader(),
-            ),
-
-            // 2. Debt-priority section (primary)
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
-                child: debtSnapshotAsync.when(
-                  data: (snapshot) => Column(
-                    key: const Key('home-debt-priority-section'),
-                    children: [
-                      DebtHomeKpiCard(snapshot: snapshot),
-                      const SizedBox(height: 16),
-                      NextCollectionCard(snapshot: snapshot),
-                    ],
-                  ),
-                  loading: () => const _DebtPriorityLoading(),
-                  error: (error, _) => _DebtPriorityError(error: error),
-                ),
+    return AppScreenScaffold.slivers(
+      slivers: [
+        const SliverToBoxAdapter(child: HomeHeader()),
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
+            child: debtSnapshotAsync.when(
+              data: (snapshot) => Column(
+                key: const Key('home-debt-priority-section'),
+                children: [
+                  DebtHomeKpiCard(snapshot: snapshot),
+                  const SizedBox(height: 16),
+                  NextCollectionCard(snapshot: snapshot),
+                ],
               ),
+              loading: () => const _DebtPriorityLoading(),
+              error: (error, _) => _DebtPriorityError(error: error),
             ),
-
-            // 3. Stats cards (secondary context)
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.only(bottom: 24),
-                child: monthlyStatsAsync.when(
-                  data: (stats) => StatsCards(stats: stats),
-                  loading: () => const StatsCardsLoading(),
-                  error: (error, _) => StatsCardsError(error: error),
-                ),
-              ),
-            ),
-
-            // 4. Action-required section (secondary context)
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.only(bottom: 24),
-                child: pendingAsync.when(
-                  data: (pending) => ActionRequiredSection(
-                    pendingPayments: pending.take(2).toList(),
-                  ),
-                  loading: () => const ActionRequiredLoading(),
-                  error: (_, __) => const SizedBox.shrink(),
-                ),
-              ),
-            ),
-
-            // 5. Active subscriptions grid
-            SliverToBoxAdapter(
-              child: subscriptionsAsync.when(
-                data: (subs) => ActiveSubscriptionsSection(
-                  subscriptions: subs,
-                ),
-                loading: () => const ActiveSubscriptionsLoading(),
-                error: (_, __) => const SizedBox.shrink(),
-              ),
-            ),
-
-            // Bottom padding (accounts for BottomAppBar + FAB + SafeArea)
-            const SliverToBoxAdapter(
-              child: SizedBox(height: 120),
-            ),
-          ],
+          ),
         ),
-      ),
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: const EdgeInsets.only(bottom: 24),
+            child: monthlyStatsAsync.when(
+              data: (stats) => StatsCards(stats: stats),
+              loading: () => const StatsCardsLoading(),
+              error: (error, _) => StatsCardsError(error: error),
+            ),
+          ),
+        ),
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: const EdgeInsets.only(bottom: 24),
+            child: pendingAsync.when(
+              data: (pending) => ActionRequiredSection(
+                pendingPayments: pending.take(2).toList(),
+              ),
+              loading: () => const ActionRequiredLoading(),
+              error: (_, __) => const SizedBox.shrink(),
+            ),
+          ),
+        ),
+        SliverToBoxAdapter(
+          child: subscriptionsAsync.when(
+            data: (subs) => ActiveSubscriptionsSection(subscriptions: subs),
+            loading: () => const ActiveSubscriptionsLoading(),
+            error: (_, __) => const SizedBox.shrink(),
+          ),
+        ),
+      ],
     );
   }
 
@@ -124,31 +105,10 @@ class HomeScreen extends ConsumerWidget {
       return;
     }
 
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(
-        SnackBar(
-          behavior: SnackBarBehavior.floating,
-          backgroundColor: const Color(0xFF1E1E2D),
-          duration: const Duration(seconds: 2),
-          content: Row(
-            children: [
-              const Icon(
-                Icons.info_outline,
-                color: Color(0xFF4FC3F7),
-                size: 18,
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: Text(
-                  paymentReconciliationMessage(signal.reason),
-                  style: const TextStyle(color: Colors.white),
-                ),
-              ),
-            ],
-          ),
-        ),
-      );
+    AppOperationalSnackbar.show(
+      context,
+      message: paymentReconciliationMessage(signal.reason),
+    );
   }
 }
 
@@ -174,17 +134,12 @@ class _DebtPriorityPlaceholder extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: height,
-      width: double.infinity,
-      decoration: BoxDecoration(
-        color: const Color(0xFF2D2D44),
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: const Center(
-        child: CircularProgressIndicator(
-          strokeWidth: 2,
-          color: Colors.white70,
+    return AppSectionCard(
+      tone: AppSectionCardTone.raised,
+      child: SizedBox(
+        height: height,
+        child: const Center(
+          child: CircularProgressIndicator(strokeWidth: 2),
         ),
       ),
     );
@@ -198,25 +153,17 @@ class _DebtPriorityError extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: const Color(0xFF2D2D44),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: const Color(0xFFEF5350).withValues(alpha: 0.45),
-        ),
-      ),
+    return AppSectionCard(
+      tone: AppSectionCardTone.critical,
       child: Row(
         children: [
-          const Icon(Icons.error_outline, color: Color(0xFFEF5350), size: 20),
+          const Icon(Icons.error_outline),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
               error.toString(),
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
-              style: TextStyle(color: Colors.grey[300], fontSize: 12),
             ),
           ),
         ],

@@ -1,19 +1,10 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
-
+import 'package:flutter_project_agents/core/widgets/app_section_card.dart';
 import 'package:flutter_project_agents/features/subscriptions/domain/entities/monthly_stats.dart';
 
-/// Stats cards displaying monthly cost and pending to collect
-///
-/// Shows two cards side by side:
-/// - Total Monthly Cost (purple gradient, trending up icon)
-/// - Pending to Collect (red gradient, info icon)
-///
-/// Features glassmorphism effect with gradient backgrounds.
 class StatsCards extends StatelessWidget {
-
   const StatsCards({required this.stats, super.key});
+
   final MonthlyStats stats;
 
   @override
@@ -23,33 +14,21 @@ class StatsCards extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 24),
       child: Row(
         children: [
-          // Total Monthly Cost Card
           Expanded(
             child: _StatCard(
               title: 'Total Monthly Cost',
               amount: stats.totalMonthlyCost,
               icon: Icons.trending_up,
-              gradient: const LinearGradient(
-                colors: [Color(0xFF6B4FBB), Color(0xFF4834DF)],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
+              tone: AppSectionCardTone.raised,
             ),
           ),
           const SizedBox(width: 16),
-
-          // Pending to Collect Card
           Expanded(
             child: _StatCard(
               title: 'Pending to Collect',
               amount: stats.pendingToCollect,
               icon: Icons.info_outline,
-              gradient: const LinearGradient(
-                colors: [Color(0xFFEB4747), Color(0xFFFF6B6B)],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-              isWarning: true,
+              tone: AppSectionCardTone.accent,
             ),
           ),
         ],
@@ -58,125 +37,49 @@ class StatsCards extends StatelessWidget {
   }
 }
 
-// ═══════════════════════════════════════════════════════════════════════════
-// STAT CARD
-// ═══════════════════════════════════════════════════════════════════════════
-
 class _StatCard extends StatelessWidget {
-
   const _StatCard({
     required this.title,
     required this.amount,
     required this.icon,
-    required this.gradient,
-    this.isWarning = false,
+    required this.tone,
   });
+
   final String title;
   final double amount;
   final IconData icon;
-  final Gradient gradient;
-  final bool isWarning;
+  final AppSectionCardTone tone;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: 140,
-      decoration: BoxDecoration(
-        gradient: gradient,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: isWarning
-                ? const Color(0xFFEB4747).withValues(alpha: 0.3)
-                : const Color(0xFF6B4FBB).withValues(alpha: 0.3),
-            blurRadius: 20,
-            offset: const Offset(0, 10),
-          ),
-        ],
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(20),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-          child: Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  Colors.white.withValues(alpha: 0.1),
-                  Colors.white.withValues(alpha: 0.05),
-                ],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
+    return AppSectionCard(
+      tone: tone,
+      child: SizedBox(
+        height: 108,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Icon(icon, size: 20),
+            const Spacer(),
+            Text(
+              title,
+              style: Theme.of(context).textTheme.bodySmall,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
             ),
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Header (icon + more button)
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.2),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: Icon(
-                          icon,
-                          color: Colors.white,
-                          size: 20,
-                        ),
-                      ),
-                      Icon(
-                        Icons.more_horiz,
-                        color: Colors.white.withValues(alpha: 0.7),
-                        size: 20,
-                      ),
-                    ],
+            const SizedBox(height: 4),
+            Text(
+              '\$${amount.toStringAsFixed(2)}',
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.bold,
                   ),
-
-                  const Spacer(),
-
-                  // Title
-                  Text(
-                    title,
-                    style: TextStyle(
-                      color: Colors.white.withValues(alpha: 0.9),
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
-                      letterSpacing: 0.5,
-                    ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 4),
-
-                  // Amount
-                  Text(
-                    '\$${amount.toStringAsFixed(2)}',
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: -0.5,
-                    ),
-                  ),
-                ],
-              ),
             ),
-          ),
+          ],
         ),
       ),
     );
   }
 }
-
-// ═══════════════════════════════════════════════════════════════════════════
-// LOADING STATE
-// ═══════════════════════════════════════════════════════════════════════════
 
 class StatsCardsLoading extends StatelessWidget {
   const StatsCardsLoading({super.key});
@@ -187,25 +90,9 @@ class StatsCardsLoading extends StatelessWidget {
       padding: EdgeInsets.symmetric(horizontal: 24),
       child: Row(
         children: [
-          Expanded(
-            child: _LoadingCard(
-              gradient: LinearGradient(
-                colors: [Color(0xFF6B4FBB), Color(0xFF4834DF)],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-            ),
-          ),
+          Expanded(child: _LoadingCard()),
           SizedBox(width: 16),
-          Expanded(
-            child: _LoadingCard(
-              gradient: LinearGradient(
-                colors: [Color(0xFFEB4747), Color(0xFFFF6B6B)],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-            ),
-          ),
+          Expanded(child: _LoadingCard()),
         ],
       ),
     );
@@ -213,52 +100,21 @@ class StatsCardsLoading extends StatelessWidget {
 }
 
 class _LoadingCard extends StatelessWidget {
-
-  const _LoadingCard({required this.gradient});
-  final Gradient gradient;
+  const _LoadingCard();
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: 140,
-      decoration: BoxDecoration(
-        gradient: gradient,
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(20),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-          child: Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  Colors.white.withValues(alpha: 0.1),
-                  Colors.white.withValues(alpha: 0.05),
-                ],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-            ),
-            child: Center(
-              child: CircularProgressIndicator(
-                color: Colors.white.withValues(alpha: 0.7),
-                strokeWidth: 2,
-              ),
-            ),
-          ),
-        ),
+    return const AppSectionCard(
+      tone: AppSectionCardTone.raised,
+      child: SizedBox(
+        height: 108,
+        child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
       ),
     );
   }
 }
 
-// ═══════════════════════════════════════════════════════════════════════════
-// ERROR STATE
-// ═══════════════════════════════════════════════════════════════════════════
-
 class StatsCardsError extends StatelessWidget {
-
   const StatsCardsError({required this.error, super.key});
   final Object error;
 
@@ -266,53 +122,17 @@ class StatsCardsError extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24),
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: const Color(0xFF2D2D44),
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: const Color(0xFFEB4747).withValues(alpha: 0.3),
-          ),
-        ),
+      child: AppSectionCard(
+        tone: AppSectionCardTone.critical,
         child: Row(
           children: [
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: const Color(0xFFEB4747).withValues(alpha: 0.2),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: const Icon(
-                Icons.error_outline,
-                color: Color(0xFFEB4747),
-                size: 20,
-              ),
-            ),
+            const Icon(Icons.error_outline),
             const SizedBox(width: 12),
             Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'Error loading stats',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    error.toString(),
-                    style: TextStyle(
-                      color: Colors.grey[400],
-                      fontSize: 12,
-                    ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ],
+              child: Text(
+                error.toString(),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
               ),
             ),
           ],
