@@ -1,203 +1,86 @@
-# Design System Master File
+# Share Mate Design System
 
-> **LOGIC:** When building a specific page, first check `design-system/pages/[page-name].md`.
-> If that file exists, its rules **override** this Master file.
-> If not, strictly follow the rules below.
+## Purpose
+This file is the persistent source of truth for Share Mate Phase 6.
+The product language is **dark**, **transactional**, and **trust-first**: users should read debt status quickly, execute payment actions safely, and understand sync state without visual noise.
 
----
+## Product Surfaces
+- Home: debt-first summary, next collection urgency, concise operational state.
+- Create and Split: compact guided flow, dense forms, restrained accent usage.
+- Catalog and selectors: sheet-based exploration with clear selection states.
+- Detail: summary-first hero, members and actions grouped in disciplined sections.
 
-**Project:** Share Mate
-**Generated:** 2026-03-08 01:26:30
-**Category:** Mental Health App
+## System Principles
+- Prioritize legibility over decorative effects.
+- Reserve high-contrast accent for the most important CTA or status in each fold.
+- Keep secondary cards quieter than KPI and summary blocks.
+- Use shared primitives for cards, headers, status badges, snackbar feedback, and confirmation dialogs.
+- Avoid per-screen ad-hoc gradients, hardcoded dark hexes, and local dialog/snackbar themes.
 
----
+## Semantic Token Model
 
-## Global Rules
+### Surface Roles
+- `surfaceBase`: app background.
+- `surfaceRaised`: default card/background container.
+- `surfaceAccent`: elevated emphasis card.
+- `surfaceCritical`: destructive or high-risk context card.
 
-### Color Palette
+### Content Roles
+- `textPrimary`: main labels and values.
+- `textSecondary`: supporting copy.
+- `textMuted`: helper text and tertiary metadata.
+- `textOnAccent`: text/icons on primary CTA blocks.
+- `iconPrimary` / `iconSecondary`: icon contrast hierarchy.
 
-| Role | Hex | CSS Variable |
-|------|-----|--------------|
-| Primary | `#2563EB` | `--color-primary` |
-| Secondary | `#3B82F6` | `--color-secondary` |
-| CTA/Accent | `#F97316` | `--color-cta` |
-| Background | `#EFF6FF` | `--color-background` |
-| Text | `#1E40AF` | `--color-text` |
+### Feedback Roles
+- `statusSynced`: healthy sync and settled states.
+- `statusPending`: in-progress or queued sync/payment status.
+- `statusRequiresAction`: terminal failure or manual recovery state.
+- `statusInfo`: neutral operational updates.
+- `statusSuccess`, `statusWarning`, `statusError`: global feedback tones.
 
-**Color Notes:** Tracking blue + delivery orange
+### CTA Roles
+- `ctaPrimary`: strongest action for current screen/fold.
+- `ctaSecondary`: supportive action with lower contrast.
+- `ctaDestructive`: irreversible actions (delete, dangerous resets).
 
-### Typography
+### Density Roles
+- `densityCompact`: dense list/form spacing for transactional flows.
+- `densityRegular`: default section spacing between blocks.
 
-- **Heading Font:** Inter
-- **Body Font:** Inter
-- **Mood:** minimal, clean, swiss, functional, neutral, professional
-- **Google Fonts:** [Inter + Inter](https://fonts.google.com/share?selection.family=Inter:wght@300;400;500;600;700)
+## Shared Primitive Contract
+- `AppScreenScaffold`: consistent safe-area behavior, baseline horizontal rhythm, bottom breathing space.
+- `AppSectionCard`: reusable container with base/raised/accent/critical tones.
+- `AppSectionHeader`: unified section title + subtitle + optional trailing action/count.
+- `AppStatusBadge`: normalized status treatment for sync, payment, and automation.
+- `AppOperationalSnackbar`: concise non-blocking feedback with tone-specific icon/color.
+- `AppConfirmationDialog`: unified confirm/cancel pattern with optional destructive emphasis.
 
-**CSS Import:**
-```css
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-```
+## Home Contract
+- First fold must always prioritize debt total and next collection.
+- KPI and next collection can use stronger accents than secondary sections.
+- Secondary sections (`stats`, `action required`, `active subscriptions`) keep quieter surfaces and denser spacing.
+- Sync and automation feedback must remain concise and non-blocking.
 
-### Spacing Variables
+## Create/Split/Catalog Contract
+- Form fields, date selectors, segmented controls, and sticky submit bars use shared primitives.
+- Catalog and contact selection use consistent sheet treatment and search field language.
+- Split preview can highlight money math; surrounding form sections should remain restrained.
+- Contact editing dialogs reuse shared confirmation/feedback patterns.
 
-| Token | Value | Usage |
-|-------|-------|-------|
-| `--space-xs` | `4px` / `0.25rem` | Tight gaps |
-| `--space-sm` | `8px` / `0.5rem` | Icon gaps, inline spacing |
-| `--space-md` | `16px` / `1rem` | Standard padding |
-| `--space-lg` | `24px` / `1.5rem` | Section padding |
-| `--space-xl` | `32px` / `2rem` | Large gaps |
-| `--space-2xl` | `48px` / `3rem` | Section margins |
-| `--space-3xl` | `64px` / `4rem` | Hero padding |
+## Detail Contract
+- First fold is summary-first: value, urgency, and sync state.
+- Members, analytics, and secondary actions sit below the summary fold in consistent section cards.
+- Payment toggles and ordering semantics remain behaviorally unchanged from prior phases.
+- Destructive actions must use shared confirmation dialog styling.
 
-### Shadow Depths
+## Anti-Patterns
+- Reintroducing local `SnackBar` visual styling inside feature screens.
+- Reintroducing local `AlertDialog` visual styling inside scoped Phase 6 surfaces.
+- Adding new hardcoded dark-surface hex values directly in Home/Create/Detail files.
+- Adding competing visual systems for cards/badges outside shared primitives.
 
-| Level | Value | Usage |
-|-------|-------|-------|
-| `--shadow-sm` | `0 1px 2px rgba(0,0,0,0.05)` | Subtle lift |
-| `--shadow-md` | `0 4px 6px rgba(0,0,0,0.1)` | Cards, buttons |
-| `--shadow-lg` | `0 10px 15px rgba(0,0,0,0.1)` | Modals, dropdowns |
-| `--shadow-xl` | `0 20px 25px rgba(0,0,0,0.15)` | Hero images, featured cards |
-
----
-
-## Component Specs
-
-### Buttons
-
-```css
-/* Primary Button */
-.btn-primary {
-  background: #F97316;
-  color: white;
-  padding: 12px 24px;
-  border-radius: 8px;
-  font-weight: 600;
-  transition: all 200ms ease;
-  cursor: pointer;
-}
-
-.btn-primary:hover {
-  opacity: 0.9;
-  transform: translateY(-1px);
-}
-
-/* Secondary Button */
-.btn-secondary {
-  background: transparent;
-  color: #2563EB;
-  border: 2px solid #2563EB;
-  padding: 12px 24px;
-  border-radius: 8px;
-  font-weight: 600;
-  transition: all 200ms ease;
-  cursor: pointer;
-}
-```
-
-### Cards
-
-```css
-.card {
-  background: #EFF6FF;
-  border-radius: 12px;
-  padding: 24px;
-  box-shadow: var(--shadow-md);
-  transition: all 200ms ease;
-  cursor: pointer;
-}
-
-.card:hover {
-  box-shadow: var(--shadow-lg);
-  transform: translateY(-2px);
-}
-```
-
-### Inputs
-
-```css
-.input {
-  padding: 12px 16px;
-  border: 1px solid #E2E8F0;
-  border-radius: 8px;
-  font-size: 16px;
-  transition: border-color 200ms ease;
-}
-
-.input:focus {
-  border-color: #2563EB;
-  outline: none;
-  box-shadow: 0 0 0 3px #2563EB20;
-}
-```
-
-### Modals
-
-```css
-.modal-overlay {
-  background: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(4px);
-}
-
-.modal {
-  background: white;
-  border-radius: 16px;
-  padding: 32px;
-  box-shadow: var(--shadow-xl);
-  max-width: 500px;
-  width: 90%;
-}
-```
-
----
-
-## Style Guidelines
-
-**Style:** Vibrant & Block-based
-
-**Keywords:** Bold, energetic, playful, block layout, geometric shapes, high color contrast, duotone, modern, energetic
-
-**Best For:** Startups, creative agencies, gaming, social media, youth-focused, entertainment, consumer
-
-**Key Effects:** Large sections (48px+ gaps), animated patterns, bold hover (color shift), scroll-snap, large type (32px+), 200-300ms
-
-### Page Pattern
-
-**Pattern Name:** Minimal Single Column
-
-- **Conversion Strategy:** Single CTA focus. Large typography. Lots of whitespace. No nav clutter. Mobile-first.
-- **CTA Placement:** Center, large CTA button
-- **Section Order:** 1. Hero headline, 2. Short description, 3. Benefit bullets (3 max), 4. CTA, 5. Footer
-
----
-
-## Anti-Patterns (Do NOT Use)
-
-- ❌ Flat design without depth
-- ❌ Text-heavy pages
-
-### Additional Forbidden Patterns
-
-- ❌ **Emojis as icons** — Use SVG icons (Heroicons, Lucide, Simple Icons)
-- ❌ **Missing cursor:pointer** — All clickable elements must have cursor:pointer
-- ❌ **Layout-shifting hovers** — Avoid scale transforms that shift layout
-- ❌ **Low contrast text** — Maintain 4.5:1 minimum contrast ratio
-- ❌ **Instant state changes** — Always use transitions (150-300ms)
-- ❌ **Invisible focus states** — Focus states must be visible for a11y
-
----
-
-## Pre-Delivery Checklist
-
-Before delivering any UI code, verify:
-
-- [ ] No emojis used as icons (use SVG instead)
-- [ ] All icons from consistent icon set (Heroicons/Lucide)
-- [ ] `cursor-pointer` on all clickable elements
-- [ ] Hover states with smooth transitions (150-300ms)
-- [ ] Light mode: text contrast 4.5:1 minimum
-- [ ] Focus states visible for keyboard navigation
-- [ ] `prefers-reduced-motion` respected
-- [ ] Responsive: 375px, 768px, 1024px, 1440px
-- [ ] No content hidden behind fixed navbars
-- [ ] No horizontal scroll on mobile
+## Accessibility and Stability
+- Maintain visible focus states and sufficient contrast in dark mode.
+- Keep typography stable across 1.0 and 1.15 text scale.
+- Preserve business behavior while refactoring visual layers.
