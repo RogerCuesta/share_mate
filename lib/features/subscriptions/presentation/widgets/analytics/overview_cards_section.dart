@@ -1,98 +1,67 @@
-// lib/features/subscriptions/presentation/widgets/analytics/overview_cards_section.dart
-
 import 'package:flutter/material.dart';
+import 'package:flutter_project_agents/core/theme/theme_extensions.dart';
 
 import 'package:flutter_project_agents/features/subscriptions/domain/entities/analytics_overview.dart';
 
-/// Overview Cards Section
-///
-/// Displays 4 key metrics in a 2x2 grid:
-/// - Total Monthly Cost (purple gradient)
-/// - Active Subscriptions (blue gradient)
-/// - Total Members (cyan gradient)
-/// - Average Cost per Subscription (red gradient)
+/// Overview cards section for analytics metrics.
 class OverviewCardsSection extends StatelessWidget {
-
   const OverviewCardsSection({
-    required this.overview, super.key,
+    required this.overview,
+    super.key,
   });
+
   final AnalyticsOverview overview;
 
   @override
   Widget build(BuildContext context) {
+    final tokens = Theme.of(context).appTokens;
+
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24),
+      padding: EdgeInsets.symmetric(horizontal: tokens.spacingLarge),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SizedBox(height: 8),
+          SizedBox(height: tokens.spacingSmall),
           Text(
             'Overview',
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
+                  color: tokens.textPrimary,
+                  fontWeight: FontWeight.w700,
                 ),
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: tokens.spacingMedium),
           GridView.count(
             crossAxisCount: 2,
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
-            mainAxisSpacing: 16,
-            crossAxisSpacing: 16,
+            mainAxisSpacing: tokens.spacingMedium,
+            crossAxisSpacing: tokens.spacingMedium,
             childAspectRatio: 1.4,
             children: [
               _OverviewCard(
                 title: 'Monthly Cost',
                 value: '\$${overview.totalMonthlyCost.toStringAsFixed(2)}',
                 icon: Icons.attach_money,
-                gradient: const LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    Color(0xFF6C63FF),
-                    Color(0xFF8B7FFF),
-                  ],
-                ),
+                gradient: tokens.cardGradientPurple,
               ),
               _OverviewCard(
                 title: 'Active Subscriptions',
                 value: overview.totalActiveSubscriptions.toString(),
                 icon: Icons.subscriptions,
-                gradient: const LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    Color(0xFF4A90E2),
-                    Color(0xFF5FA8FF),
-                  ],
-                ),
+                gradient: tokens.cardGradientBlue,
               ),
               _OverviewCard(
                 title: 'Total Members',
                 value: overview.totalMembers.toString(),
                 icon: Icons.people,
-                gradient: const LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    Color(0xFF00D4FF),
-                    Color(0xFF4ECDC4),
-                  ],
-                ),
+                gradient: tokens.cardGradientCyan,
               ),
               _OverviewCard(
                 title: 'Avg per Sub',
-                value: '\$${overview.averageCostPerSubscription.toStringAsFixed(2)}',
+                value:
+                    '\$${overview.averageCostPerSubscription.toStringAsFixed(2)}',
                 icon: Icons.trending_up,
-                gradient: const LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    Color(0xFFFF6B6B),
-                    Color(0xFFFF8E8E),
-                  ],
-                ),
+                gradient: tokens.cardGradientRed,
               ),
             ],
           ),
@@ -102,15 +71,14 @@ class OverviewCardsSection extends StatelessWidget {
   }
 }
 
-/// Individual Overview Card with gradient background
 class _OverviewCard extends StatelessWidget {
-
   const _OverviewCard({
     required this.title,
     required this.value,
     required this.icon,
     required this.gradient,
   });
+
   final String title;
   final String value;
   final IconData icon;
@@ -118,30 +86,25 @@ class _OverviewCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final tokens = Theme.of(context).appTokens;
+
     return Container(
       decoration: BoxDecoration(
         gradient: gradient,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.2),
-            blurRadius: 8,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        borderRadius: BorderRadius.circular(tokens.borderRadiusLarge),
+        boxShadow: tokens.cardShadow,
       ),
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.all(tokens.spacingMedium),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            // Icon
             Container(
-              padding: const EdgeInsets.all(8),
+              padding: EdgeInsets.all(tokens.spacingSmall),
               decoration: BoxDecoration(
                 color: Colors.white.withValues(alpha: 0.2),
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(tokens.borderRadiusSmall),
               ),
               child: Icon(
                 icon,
@@ -149,27 +112,22 @@ class _OverviewCard extends StatelessWidget {
                 size: 24,
               ),
             ),
-
-            // Title and Value
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   title,
-                  style: const TextStyle(
-                    color: Colors.white70,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
-                  ),
+                  style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                        color: Colors.white70,
+                      ),
                 ),
-                const SizedBox(height: 4),
+                SizedBox(height: tokens.spacingXSmall),
                 Text(
                   value,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w700,
+                      ),
                   overflow: TextOverflow.ellipsis,
                 ),
               ],

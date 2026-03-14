@@ -1,20 +1,13 @@
-// lib/features/subscriptions/presentation/widgets/payment_status_toggle.dart
-
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_project_agents/core/theme/theme_extensions.dart';
+import 'package:flutter_project_agents/core/widgets/app_operational_snackbar.dart';
 import 'package:flutter_project_agents/features/subscriptions/domain/entities/subscription_member.dart';
 import 'package:flutter_project_agents/features/subscriptions/presentation/providers/payment_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-/// Payment status toggle widget with checkbox and undo functionality
-///
-/// Features:
-/// - Checkbox to mark payment as paid/unpaid
-/// - Shows amount to pay
-/// - Undo functionality with 5-second window
-/// - SnackBar feedback with undo button
-/// - Material 3 dark theme styling
+/// Payment status toggle widget with checkbox and undo functionality.
 class PaymentStatusToggle extends ConsumerStatefulWidget {
   const PaymentStatusToggle({
     required this.member,
@@ -31,13 +24,8 @@ class PaymentStatusToggle extends ConsumerStatefulWidget {
 }
 
 class _PaymentStatusToggleState extends ConsumerState<PaymentStatusToggle> {
-  // Timer for undo window
   Timer? _undoTimer;
-
-  // Track if we're in undo window
   bool _canUndo = false;
-
-  // Store last action for undo
   bool _lastPaidStatus = false;
 
   @override
@@ -46,15 +34,11 @@ class _PaymentStatusToggleState extends ConsumerState<PaymentStatusToggle> {
     super.dispose();
   }
 
-  /// Toggle payment status
   Future<void> _togglePaymentStatus(bool? newValue) async {
-    if (newValue == null) return;
+    if (newValue == null) {
+      return;
+    }
 
-    debugPrint('🔍 [PaymentStatusToggle] Toggling payment status...');
-    debugPrint('   Member: ${widget.member.userName}');
-    debugPrint('   Current: ${widget.member.hasPaid}, New: $newValue');
-
-    // Cancel existing undo timer if any
     _undoTimer?.cancel();
     _canUndo = false;
 
@@ -65,7 +49,6 @@ class _PaymentStatusToggleState extends ConsumerState<PaymentStatusToggle> {
     }
 
     if (newValue) {
-      // Mark as paid
       _lastPaidStatus = true;
       final success = await paymentNotifier.markAsPaid(
         subscriptionId: widget.subscriptionId,
@@ -74,90 +57,56 @@ class _PaymentStatusToggleState extends ConsumerState<PaymentStatusToggle> {
       );
 
       if (success && mounted) {
-        _showSuccessSnackBar(
+        _showUndoableSuccess(
           '${widget.member.userName} marked as paid (\$${widget.member.amountToPay.toStringAsFixed(2)})',
         );
       }
-    } else {
-      // Unmark payment
-      _lastPaidStatus = false;
-      final success = await paymentNotifier.unmark(
-        subscriptionId: widget.subscriptionId,
-        memberId: widget.member.id,
-        amount: widget.member.amountToPay,
-      );
+      return;
+    }
 
-      if (success && mounted) {
-        _showSuccessSnackBar(
-          '${widget.member.userName} unmarked (\$${widget.member.amountToPay.toStringAsFixed(2)})',
-        );
-      }
+    _lastPaidStatus = false;
+    final success = await paymentNotifier.unmark(
+      subscriptionId: widget.subscriptionId,
+      memberId: widget.member.id,
+      amount: widget.member.amountToPay,
+    );
+
+    if (success && mounted) {
+      _showUndoableSuccess(
+        '${widget.member.userName} unmarked (\$${widget.member.amountToPay.toStringAsFixed(2)})',
+      );
     }
   }
 
-  /// Show success SnackBar with undo button
-  void _showSuccessSnackBar(String message) {
-    // Clear any existing snackbars
-    ScaffoldMessenger.of(context).clearSnackBars();
-
-    // Enable undo
+  void _showUndoableSuccess(String message) {
     setState(() {
       _canUndo = true;
     });
 
-    // Start undo timer (5 seconds)
     _undoTimer = Timer(const Duration(seconds: 5), () {
-      if (mounted) {
-        setState(() {
-          _canUndo = false;
-        });
+      if (!mounted) {
+        return;
       }
+      setState(() {
+        _canUndo = false;
+      });
     });
 
-    // Show SnackBar
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Row(
-          children: [
-            const Icon(
-              Icons.check_circle,
-              color: Color(0xFF4CAF50),
-              size: 20,
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Text(
-                message,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 14,
-                ),
-              ),
-            ),
-          ],
-        ),
-        backgroundColor: const Color(0xFF1E1E2D),
-        behavior: SnackBarBehavior.floating,
-        duration: const Duration(seconds: 5),
-        action: SnackBarAction(
-          label: 'Undo',
-          textColor: const Color(0xFF6B4FBB),
-          onPressed: _handleUndo,
-        ),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
-      ),
+    AppOperationalSnackbar.show(
+      context,
+      message: message,
+      tone: AppOperationalTone.success,
+      duration: const Duration(seconds: 5),
+      actionLabel: 'Undo',
+      onAction: _handleUndo,
     );
   }
 
-  /// Handle undo action
   Future<void> _handleUndo() async {
-    if (!_canUndo) return;
+    if (!_canUndo) {
+      return;
+    }
 
-    debugPrint('🔄 [PaymentStatusToggle] Undoing last action...');
-
-    // Cancel undo timer
     _undoTimer?.cancel();
     if (mounted) {
       setState(() {
@@ -167,9 +116,7 @@ class _PaymentStatusToggleState extends ConsumerState<PaymentStatusToggle> {
 
     final paymentNotifier = ref.read(paymentActionProvider.notifier);
 
-    // Reverse the last action
     if (_lastPaidStatus) {
-      // Last action was marking as paid, so unmark
       await paymentNotifier.unmark(
         subscriptionId: widget.subscriptionId,
         memberId: widget.member.id,
@@ -177,7 +124,6 @@ class _PaymentStatusToggleState extends ConsumerState<PaymentStatusToggle> {
         notes: 'Undo - Unmarked via undo button',
       );
     } else {
-      // Last action was unmarking, so mark as paid
       await paymentNotifier.markAsPaid(
         subscriptionId: widget.subscriptionId,
         memberId: widget.member.id,
@@ -186,130 +132,91 @@ class _PaymentStatusToggleState extends ConsumerState<PaymentStatusToggle> {
       );
     }
 
-    // Show undo feedback
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Row(
-            children: [
-              Icon(
-                Icons.undo,
-                color: Colors.white70,
-                size: 20,
-              ),
-              SizedBox(width: 12),
-              Text(
-                'Action undone',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 14,
-                ),
-              ),
-            ],
-          ),
-          backgroundColor: const Color(0xFF1E1E2D),
-          behavior: SnackBarBehavior.floating,
-          duration: const Duration(seconds: 2),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-        ),
-      );
+    if (!mounted) {
+      return;
     }
+
+    AppOperationalSnackbar.show(
+      context,
+      message: 'Action undone',
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    // Listen to payment action state for error handling
+    final tokens = Theme.of(context).appTokens;
+
     ref.listen<PaymentActionState>(
       paymentActionProvider,
       (previous, next) {
         next.maybeWhen(
           error: (message) {
-            if (mounted) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Row(
-                    children: [
-                      const Icon(
-                        Icons.error_outline,
-                        color: Colors.red,
-                        size: 20,
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Text(
-                          message,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 14,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  backgroundColor: const Color(0xFF1E1E2D),
-                  behavior: SnackBarBehavior.floating,
-                  duration: const Duration(seconds: 3),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-              );
+            if (!mounted) {
+              return;
             }
+            AppOperationalSnackbar.show(
+              context,
+              message: message,
+              tone: AppOperationalTone.error,
+              duration: const Duration(seconds: 3),
+            );
           },
           orElse: () {},
         );
       },
     );
 
-    final paymentNotifier = (ref..watch(paymentActionProvider))
-        .read(paymentActionProvider.notifier);
-    final isLoading = paymentNotifier.loadingMember(widget.member.id) ||
+    final paymentState = ref.watch(paymentActionProvider);
+    final paymentNotifier = ref.read(paymentActionProvider.notifier);
+    final isLoading = paymentState.maybeWhen(
+          loadingMember: (memberId) => memberId == widget.member.id,
+          loadingBulk: (subscriptionId) =>
+              subscriptionId == widget.subscriptionId,
+          orElse: () => false,
+        ) ||
+        paymentNotifier.loadingMember(widget.member.id) ||
         paymentNotifier.loadingBulk(widget.subscriptionId);
 
     final isPaid = widget.member.hasPaid;
+    final paidAccent = tokens.statusSuccess;
 
     return GestureDetector(
       onTap: isLoading ? null : () => _togglePaymentStatus(!isPaid),
       child: Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: const Color(0xFF2A2A3E),
-          borderRadius: BorderRadius.circular(12),
+          color: tokens.surfaceAccent,
+          borderRadius: BorderRadius.circular(tokens.borderRadiusMedium),
           border: Border.all(
             color: isPaid
-                ? const Color(0xFF4CAF50).withValues(alpha: 0.3)
-                : Colors.grey.withValues(alpha: 0.2),
+                ? paidAccent.withValues(alpha: 0.3)
+                : tokens.borderSubtle,
             width: 1.5,
           ),
         ),
         child: Row(
           children: [
-            // Avatar
             CircleAvatar(
               radius: 24,
-              backgroundColor: Colors.grey[700],
+              backgroundColor: tokens.surfaceRaised,
               child: Text(
                 widget.member.userName[0].toUpperCase(),
-                style: const TextStyle(
-                  color: Colors.white,
+                style: TextStyle(
+                  color: tokens.textPrimary,
                   fontWeight: FontWeight.bold,
                 ),
               ),
             ),
             const SizedBox(width: 12),
-
-            // Info
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     widget.member.userName,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w500,
+                    style: TextStyle(
+                      color: tokens.textPrimary,
+                      fontWeight: FontWeight.w600,
                       fontSize: 16,
                     ),
                   ),
@@ -317,36 +224,31 @@ class _PaymentStatusToggleState extends ConsumerState<PaymentStatusToggle> {
                   Text(
                     '\$${widget.member.amountToPay.toStringAsFixed(2)}',
                     style: TextStyle(
-                      color:
-                          isPaid ? const Color(0xFF4CAF50) : Colors.grey[400],
+                      color: isPaid ? paidAccent : tokens.textSecondary,
                       fontSize: 14,
-                      fontWeight: FontWeight.w600,
+                      fontWeight: FontWeight.w700,
                     ),
                   ),
                 ],
               ),
             ),
-
-            // Checkbox
             if (isLoading)
-              const SizedBox(
+              SizedBox(
                 width: 24,
                 height: 24,
                 child: CircularProgressIndicator(
                   strokeWidth: 2,
-                  color: Color(0xFF6B4FBB),
+                  color: tokens.ctaPrimary,
                 ),
               )
             else
               Checkbox(
                 value: isPaid,
                 onChanged: _togglePaymentStatus,
-                activeColor: const Color(0xFF4CAF50),
-                checkColor: Colors.white,
+                activeColor: paidAccent,
+                checkColor: tokens.textOnAccent,
                 side: BorderSide(
-                  color: isPaid
-                      ? const Color(0xFF4CAF50)
-                      : const Color(0xFF9E9E9E),
+                  color: isPaid ? paidAccent : tokens.borderStrong,
                   width: 2,
                 ),
                 shape: RoundedRectangleBorder(

@@ -1,8 +1,12 @@
-// lib/features/subscriptions/presentation/screens/subscription_detail_screen.dart
-
 import 'package:flutter/material.dart';
 import 'package:flutter_project_agents/core/di/injection.dart';
 import 'package:flutter_project_agents/core/sync/sync_status.dart';
+import 'package:flutter_project_agents/core/theme/theme_extensions.dart';
+import 'package:flutter_project_agents/core/widgets/app_confirmation_dialog.dart';
+import 'package:flutter_project_agents/core/widgets/app_operational_snackbar.dart';
+import 'package:flutter_project_agents/core/widgets/app_screen_scaffold.dart';
+import 'package:flutter_project_agents/core/widgets/app_section_card.dart';
+import 'package:flutter_project_agents/core/widgets/app_section_header.dart';
 import 'package:flutter_project_agents/features/home/presentation/providers/debt_home_provider.dart';
 import 'package:flutter_project_agents/features/subscriptions/domain/entities/subscription.dart';
 import 'package:flutter_project_agents/features/subscriptions/domain/entities/subscription_member.dart';
@@ -13,9 +17,13 @@ import 'package:flutter_project_agents/features/subscriptions/presentation/provi
 import 'package:flutter_project_agents/features/subscriptions/presentation/widgets/payment_action_buttons.dart';
 import 'package:flutter_project_agents/features/subscriptions/presentation/widgets/payment_stats_card.dart';
 import 'package:flutter_project_agents/features/subscriptions/presentation/widgets/payment_status_toggle.dart';
+import 'package:flutter_project_agents/features/subscriptions/presentation/widgets/subscription_detail_summary_hero.dart';
+import 'package:flutter_project_agents/features/subscriptions/presentation/widgets/subscription_detail_sync_status_card.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+
+export 'package:flutter_project_agents/features/subscriptions/presentation/widgets/subscription_detail_sync_status_card.dart';
 
 @visibleForTesting
 List<SubscriptionMember> sortMembersForDetail(
@@ -43,19 +51,6 @@ List<SubscriptionMember> sortMembersForDetail(
   return sortedMembers;
 }
 
-/// Screen displaying detailed information about a subscription
-///
-/// Shows:
-/// - Subscription header with icon and status
-/// - Cost information (price, billing cycle, due date)
-/// - Members list (if group subscription)
-/// - Split information (if group subscription)
-/// - Action buttons (edit, delete, mark as paid)
-///
-/// Uses providers for data fetching and state management:
-/// - subscriptionDetailProvider: Fetches subscription by ID
-/// - subscriptionMembersProvider: Fetches members for subscription
-/// - subscriptionStatsProvider: Calculates split statistics
 class SubscriptionDetailScreen extends ConsumerWidget {
   const SubscriptionDetailScreen({
     required this.subscriptionId,
@@ -71,6 +66,7 @@ class SubscriptionDetailScreen extends ConsumerWidget {
     final membersAsync = ref.watch(subscriptionMembersProvider(subscriptionId));
     final statsAsync = ref.watch(subscriptionStatsProvider(subscriptionId));
     final syncStatus = ref.watch(subscriptionDetailSyncStatusProvider);
+
     ref.listen<PaymentReconciliationSignal?>(
       paymentReconciliationProvider,
       (previous, next) {
@@ -86,93 +82,8 @@ class SubscriptionDetailScreen extends ConsumerWidget {
     );
 
     return subscriptionAsync.when(
-      loading: () => Scaffold(
-        backgroundColor: const Color(0xFF0D0D1E),
-        appBar: AppBar(
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back, color: Colors.white),
-            onPressed: () => context.pop(),
-          ),
-          title: const Text(
-            'Loading...',
-            style: TextStyle(color: Colors.white),
-          ),
-        ),
-        body: const Center(
-          child: CircularProgressIndicator(
-            color: Color(0xFF6B4FBB),
-          ),
-        ),
-      ),
-      error: (error, stack) => Scaffold(
-        backgroundColor: const Color(0xFF0D0D1E),
-        appBar: AppBar(
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back, color: Colors.white),
-            onPressed: () => context.pop(),
-          ),
-          title: const Text(
-            'Error',
-            style: TextStyle(color: Colors.white),
-          ),
-        ),
-        body: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(
-                  Icons.error_outline,
-                  size: 64,
-                  color: Colors.red,
-                ),
-                const SizedBox(height: 16),
-                const Text(
-                  'Failed to load subscription',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  error.toString(),
-                  style: TextStyle(
-                    color: Colors.grey[400],
-                    fontSize: 14,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 24),
-                ElevatedButton.icon(
-                  onPressed: () {
-                    ref
-                      ..invalidate(subscriptionDetailProvider(subscriptionId))
-                      ..invalidate(subscriptionMembersProvider(subscriptionId))
-                      ..invalidate(subscriptionStatsProvider(subscriptionId));
-                  },
-                  icon: const Icon(Icons.refresh),
-                  label: const Text('Retry'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF6B4FBB),
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 24,
-                      vertical: 12,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
+      loading: () => _buildLoadingState(context),
+      error: (error, _) => _buildErrorState(context, ref, error),
       data: (subscription) => _buildContent(
         context,
         ref,
@@ -180,6 +91,72 @@ class SubscriptionDetailScreen extends ConsumerWidget {
         membersAsync,
         statsAsync,
         syncStatus,
+      ),
+    );
+  }
+
+  Widget _buildLoadingState(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => context.pop(),
+        ),
+        title: const Text('Loading...'),
+      ),
+      body: const Center(
+        child: CircularProgressIndicator(strokeWidth: 2),
+      ),
+    );
+  }
+
+  Widget _buildErrorState(BuildContext context, WidgetRef ref, Object error) {
+    final tokens = Theme.of(context).appTokens;
+
+    return Scaffold(
+      appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => context.pop(),
+        ),
+        title: const Text('Error'),
+      ),
+      body: Center(
+        child: Padding(
+          padding: EdgeInsets.all(tokens.spacingLarge),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                Icons.error_outline,
+                size: 48,
+                color: tokens.statusError,
+              ),
+              SizedBox(height: tokens.spacingSmall),
+              Text(
+                'Failed to load subscription',
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
+              SizedBox(height: tokens.spacingXSmall),
+              Text(
+                error.toString(),
+                style: Theme.of(context).textTheme.bodySmall,
+                textAlign: TextAlign.center,
+              ),
+              SizedBox(height: tokens.spacingMedium),
+              ElevatedButton.icon(
+                onPressed: () {
+                  ref
+                    ..invalidate(subscriptionDetailProvider(subscriptionId))
+                    ..invalidate(subscriptionMembersProvider(subscriptionId))
+                    ..invalidate(subscriptionStatsProvider(subscriptionId));
+                },
+                icon: const Icon(Icons.refresh),
+                label: const Text('Retry'),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -200,31 +177,10 @@ class SubscriptionDetailScreen extends ConsumerWidget {
       return;
     }
 
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(
-        SnackBar(
-          behavior: SnackBarBehavior.floating,
-          backgroundColor: const Color(0xFF1E1E2D),
-          duration: const Duration(seconds: 2),
-          content: Row(
-            children: [
-              const Icon(
-                Icons.info_outline,
-                color: Color(0xFF4FC3F7),
-                size: 18,
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: Text(
-                  paymentReconciliationMessage(signal.reason),
-                  style: const TextStyle(color: Colors.white),
-                ),
-              ),
-            ],
-          ),
-        ),
-      );
+    AppOperationalSnackbar.show(
+      context,
+      message: paymentReconciliationMessage(signal.reason),
+    );
   }
 
   Widget _buildContent(
@@ -235,244 +191,140 @@ class SubscriptionDetailScreen extends ConsumerWidget {
     AsyncValue<SubscriptionStatsData> statsAsync,
     SyncStatus syncStatus,
   ) {
+    final tokens = Theme.of(context).appTokens;
     final members = sortMembersForDetail(membersAsync.valueOrNull ?? []);
     final stats = statsAsync.valueOrNull;
 
-    return Scaffold(
-      backgroundColor: const Color(0xFF0D0D1E),
-      appBar: _buildAppBar(context, subscription),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _HeaderCard(subscription: subscription),
-            const SizedBox(height: 16),
-            _CostInformationCard(subscription: subscription),
-            const SizedBox(height: 16),
-            SubscriptionDetailSyncStatusCard(syncStatus: syncStatus),
-            const SizedBox(height: 16),
-            if (members.isNotEmpty) ...[
-              _MembersSection(
-                members: members,
-                subscriptionId: subscriptionId,
-              ),
-              const SizedBox(height: 16),
-              if (stats != null)
-                _SplitInformationCard(
-                  subscription: subscription,
-                  members: members,
-                  stats: stats,
-                )
-              else
-                const Center(
-                  child: CircularProgressIndicator(
-                    color: Color(0xFF6B4FBB),
-                  ),
-                ),
-              const SizedBox(height: 24),
-            ],
-            // Payment Analytics Card
-            if (members.isNotEmpty) ...[
-              PaymentStatsCard(subscriptionId: subscriptionId),
-              const SizedBox(height: 16),
-            ],
-            _ActionButtons(
+    return AppScreenScaffold(
+      appBar: _buildAppBar(context, ref, subscription),
+      padding: EdgeInsets.symmetric(
+        horizontal: tokens.spacingLarge,
+        vertical: tokens.spacingSmall,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SubscriptionDetailSummaryHero(subscription: subscription),
+          SizedBox(height: tokens.spacingMedium),
+          _CostInformationCard(subscription: subscription),
+          SizedBox(height: tokens.spacingMedium),
+          SubscriptionDetailSyncStatusCard(syncStatus: syncStatus),
+          if (members.isNotEmpty) ...[
+            SizedBox(height: tokens.spacingMedium),
+            _MembersSection(
+              members: members,
               subscriptionId: subscriptionId,
-              hasPendingPayments: members.any((m) => !m.hasPaid),
             ),
-            const SizedBox(height: 40),
+            SizedBox(height: tokens.spacingMedium),
+            if (stats != null)
+              _SplitInformationCard(
+                stats: stats,
+              )
+            else
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 20),
+                child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
+              ),
+            SizedBox(height: tokens.spacingMedium),
+            PaymentStatsCard(subscriptionId: subscriptionId),
+            SizedBox(height: tokens.spacingMedium),
           ],
-        ),
+          _ActionButtons(
+            subscriptionId: subscriptionId,
+            hasPendingPayments: members.any((member) => !member.hasPaid),
+            onDeletePressed: () => _deleteSubscription(context, ref),
+          ),
+        ],
       ),
     );
   }
 
   PreferredSizeWidget _buildAppBar(
     BuildContext context,
+    WidgetRef ref,
     Subscription subscription,
   ) {
+    final tokens = Theme.of(context).appTokens;
+
     return AppBar(
-      backgroundColor: Colors.transparent,
-      elevation: 0,
       leading: IconButton(
-        icon: const Icon(Icons.arrow_back, color: Colors.white),
+        icon: const Icon(Icons.arrow_back),
         onPressed: () => context.pop(),
       ),
-      title: const Text(
-        'Subscription Details',
-        style: TextStyle(color: Colors.white),
-      ),
+      title: const Text('Subscription Details'),
       actions: [
         IconButton(
-          icon: const Icon(Icons.edit, color: Colors.white),
+          icon: const Icon(Icons.edit),
           onPressed: () {
             context.push('/subscription/$subscriptionId/edit');
           },
         ),
         IconButton(
-          icon: const Icon(Icons.delete_outline, color: Colors.red),
-          onPressed: () => _showDeleteConfirmation(context),
+          icon: Icon(
+            Icons.delete_outline,
+            color: tokens.statusError,
+          ),
+          onPressed: () => _deleteSubscription(context, ref),
+          tooltip: 'Delete Subscription',
         ),
       ],
     );
   }
 
-  void _showDeleteConfirmation(BuildContext context) {
-    showDialog<void>(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: const Color(0xFF1E1E2D),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-        ),
-        title: const Text(
-          'Delete Subscription?',
-          style: TextStyle(color: Colors.white),
-        ),
-        content: const Text(
+  Future<void> _deleteSubscription(BuildContext context, WidgetRef ref) async {
+    final confirmed = await AppConfirmationDialog.show(
+      context,
+      title: 'Delete Subscription?',
+      message:
           'This will permanently delete the subscription and all associated data. This action cannot be undone.',
-          style: TextStyle(color: Colors.white70),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(
-              'Cancel',
-              style: TextStyle(color: Colors.grey[400]),
-            ),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              // TODO: Delete subscription
-              Navigator.pop(context);
-              context.pop();
-              debugPrint('🗑️ Delete subscription: $subscriptionId');
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
-            ),
-            child: const Text('Delete'),
-          ),
-        ],
-      ),
+      confirmLabel: 'Delete',
+      destructive: true,
+    );
+
+    if (!confirmed || !context.mounted) {
+      return;
+    }
+
+    final deleteSubscriptionUseCase = ref.read(deleteSubscriptionProvider);
+    final result = await deleteSubscriptionUseCase(subscriptionId);
+
+    if (!context.mounted) {
+      return;
+    }
+
+    result.fold(
+      (failure) {
+        final message = failure.maybeWhen(
+          notFound: () => 'Subscription not found',
+          networkError: () => 'Network error. Please check your connection.',
+          orElse: () => 'Failed to delete subscription',
+        );
+
+        AppOperationalSnackbar.show(
+          context,
+          message: message,
+          tone: AppOperationalTone.error,
+        );
+      },
+      (_) {
+        ref
+          ..invalidate(activeSubscriptionsProvider)
+          ..invalidate(monthlyStatsProvider)
+          ..invalidate(debtHomeSnapshotProvider)
+          ..invalidate(pendingPaymentsProvider);
+
+        AppOperationalSnackbar.show(
+          context,
+          message: 'Subscription deleted successfully',
+          tone: AppOperationalTone.success,
+        );
+
+        context.pop();
+      },
     );
   }
 }
 
-/// Header card with subscription icon, name, and status badge
-class _HeaderCard extends StatelessWidget {
-  const _HeaderCard({required this.subscription});
-
-  final Subscription subscription;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [Color(0xFF6B4FBB), Color(0xFF4834DF)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Column(
-        children: [
-          // Icon
-          Container(
-            width: 80,
-            height: 80,
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.2),
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: const Center(
-              child: Icon(
-                Icons.subscriptions,
-                size: 40,
-                color: Colors.white,
-              ),
-            ),
-          ),
-          const SizedBox(height: 16),
-
-          // Name
-          Text(
-            subscription.name,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 8),
-
-          // Status Badge
-          _StatusBadge(status: subscription.status),
-        ],
-      ),
-    );
-  }
-}
-
-/// Status badge showing active/paused/cancelled state
-class _StatusBadge extends StatelessWidget {
-  const _StatusBadge({required this.status});
-
-  final SubscriptionStatus status;
-
-  @override
-  Widget build(BuildContext context) {
-    final config = _getStatusConfig();
-
-    return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 16,
-        vertical: 6,
-      ),
-      decoration: BoxDecoration(
-        color: config.color.withValues(alpha: 0.2),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: config.color),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(config.icon, size: 16, color: config.color),
-          const SizedBox(width: 6),
-          Text(
-            status.displayName,
-            style: TextStyle(
-              color: config.color,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  ({Color color, IconData icon}) _getStatusConfig() {
-    return switch (status) {
-      SubscriptionStatus.active => (
-          color: Colors.green,
-          icon: Icons.check_circle,
-        ),
-      SubscriptionStatus.paused => (
-          color: Colors.orange,
-          icon: Icons.pause_circle,
-        ),
-      SubscriptionStatus.cancelled => (
-          color: Colors.red,
-          icon: Icons.cancel,
-        ),
-    };
-  }
-}
-
-/// Card displaying cost, billing cycle, due date, and owner information
 class _CostInformationCard extends StatelessWidget {
   const _CostInformationCard({required this.subscription});
 
@@ -480,248 +332,66 @@ class _CostInformationCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final daysUntilDue = subscription.dueDate.difference(DateTime.now()).inDays;
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final dueDate = DateTime(
+      subscription.dueDate.year,
+      subscription.dueDate.month,
+      subscription.dueDate.day,
+    );
+    final dueDelta = dueDate.difference(today).inDays;
 
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: const Color(0xFF1E1E2D),
-        borderRadius: BorderRadius.circular(16),
-      ),
+    return AppSectionCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Cost Information',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
+          const AppSectionHeader(
+            title: 'Cost Information',
           ),
           const SizedBox(height: 16),
-
-          // Total Cost
           _InfoRow(
             label: 'Total Cost',
             value: '\$${subscription.totalCost.toStringAsFixed(2)}',
-            valueStyle: const TextStyle(
-              color: Colors.white,
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-            ),
+            emphasized: true,
           ),
           const SizedBox(height: 12),
-
-          // Billing Cycle
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'Billing Cycle',
-                style: TextStyle(color: Colors.grey[400]),
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 4,
-                ),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF2A2A3E),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Text(
-                  subscription.billingCycle.displayName,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ),
-            ],
+          _InfoRow(
+            label: 'Billing Cycle',
+            value: subscription.billingCycle.displayName,
           ),
           const SizedBox(height: 12),
-
-          // Next Due Date
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'Next Due Date',
-                style: TextStyle(color: Colors.grey[400]),
-              ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Text(
-                    DateFormat('MMM dd, yyyy').format(subscription.dueDate),
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                  Text(
-                    'in $daysUntilDue days',
-                    style: TextStyle(
-                      color: Colors.grey[400],
-                      fontSize: 12,
-                    ),
-                  ),
-                ],
-              ),
-            ],
+          _InfoRow(
+            label: 'Next Due Date',
+            value: DateFormat('MMM dd, yyyy').format(subscription.dueDate),
+            detail: _dueCopy(dueDelta),
           ),
           const SizedBox(height: 12),
-
-          // Owner
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'Owner',
-                style: TextStyle(color: Colors.grey[400]),
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 6,
-                ),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF6B4FBB).withValues(alpha: 0.2),
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(
-                    color: const Color(0xFF6B4FBB),
-                  ),
-                ),
-                child: const Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      Icons.person,
-                      size: 16,
-                      color: Color(0xFF6B4FBB),
-                    ),
-                    SizedBox(width: 6),
-                    Text(
-                      'You',
-                      style: TextStyle(
-                        color: Color(0xFF6B4FBB),
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class SubscriptionDetailSyncStatusCard extends StatelessWidget {
-  const SubscriptionDetailSyncStatusCard({
-    required this.syncStatus,
-    super.key,
-  });
-
-  final SyncStatus syncStatus;
-
-  @override
-  Widget build(BuildContext context) {
-    final statusLabel = syncStatusLabel(syncStatus);
-    final statusColor = _statusColor(statusLabel);
-    final helperText = switch (syncStatus.kind) {
-      SyncStatusKind.synced =>
-        'Changes for this subscription are synchronized.',
-      SyncStatusKind.pending =>
-        'Pending changes are syncing in the background.',
-      SyncStatusKind.requiresAction =>
-        'Requires action: recover terminal sync failures in Settings.',
-    };
-    final lastSyncText = syncStatus.lastSuccessfulSyncAt == null
-        ? 'Last successful sync: Not available'
-        : 'Last successful sync: ${DateFormat('MMM dd, HH:mm').format(syncStatus.lastSuccessfulSyncAt!.toLocal())}';
-
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: const Color(0xFF1E1E2D),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: statusColor.withValues(alpha: 0.35),
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              const Icon(
-                Icons.sync,
-                color: Colors.white,
-                size: 20,
-              ),
-              const SizedBox(width: 8),
-              const Text(
-                'Sync status',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              const Spacer(),
-              Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                decoration: BoxDecoration(
-                  color: statusColor.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(999),
-                  border: Border.all(color: statusColor),
-                ),
-                child: Text(
-                  statusLabel,
-                  style: TextStyle(
-                    color: statusColor,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 10),
-          Text(
-            helperText,
-            style: TextStyle(
-              color: Colors.grey[300],
-              fontSize: 13,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            lastSyncText,
-            style: TextStyle(
-              color: Colors.grey[400],
-              fontSize: 12,
-            ),
+          const _InfoRow(
+            label: 'Owner',
+            value: 'You',
           ),
         ],
       ),
     );
   }
 
-  Color _statusColor(String label) {
-    return switch (label) {
-      syncedStatusLabel => const Color(0xFF66BB6A),
-      pendingStatusLabel => const Color(0xFFFFB74D),
-      _ => const Color(0xFFEF5350),
-    };
+  String _dueCopy(int daysUntilDue) {
+    if (daysUntilDue < 0) {
+      final overdueDays = daysUntilDue.abs();
+      return overdueDays == 1
+          ? 'Overdue by 1 day'
+          : 'Overdue by $overdueDays days';
+    }
+    if (daysUntilDue == 0) {
+      return 'Due today';
+    }
+    if (daysUntilDue == 1) {
+      return 'Due in 1 day';
+    }
+    return 'Due in $daysUntilDue days';
   }
 }
 
-/// Members section showing all members with payment status
 class _MembersSection extends StatelessWidget {
   const _MembersSection({
     required this.members,
@@ -737,52 +407,21 @@ class _MembersSection extends StatelessWidget {
       return const SizedBox.shrink();
     }
 
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: const Color(0xFF1E1E2D),
-        borderRadius: BorderRadius.circular(16),
-      ),
+    return AppSectionCard(
+      tone: AppSectionCardTone.raised,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text(
-                'Members',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 4,
-                ),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF2A2A3E),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Text(
-                  '${members.length}',
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-            ],
+          AppSectionHeader(
+            title: 'Members',
+            count: members.length,
           ),
           const SizedBox(height: 16),
-
-          // Member tiles
           ...members.map(
             (member) => Padding(
               padding: const EdgeInsets.only(bottom: 12),
-              child: _MemberTile(
+              child: PaymentStatusToggle(
+                key: ValueKey('payment-toggle-${member.id}'),
                 member: member,
                 subscriptionId: subscriptionId,
               ),
@@ -794,62 +433,18 @@ class _MembersSection extends StatelessWidget {
   }
 }
 
-/// Individual member tile showing avatar, info, amount, and payment status
-class _MemberTile extends StatelessWidget {
-  const _MemberTile({
-    required this.member,
-    required this.subscriptionId,
-  });
-
-  final SubscriptionMember member;
-  final String subscriptionId;
-
-  @override
-  Widget build(BuildContext context) {
-    // Use PaymentStatusToggle widget for interactive payment management
-    return PaymentStatusToggle(
-      key: ValueKey('payment-toggle-${member.id}'),
-      member: member,
-      subscriptionId: subscriptionId,
-    );
-  }
-}
-
-/// Split information card showing totals and collection status
 class _SplitInformationCard extends StatelessWidget {
-  const _SplitInformationCard({
-    required this.subscription,
-    required this.members,
-    required this.stats,
-  });
+  const _SplitInformationCard({required this.stats});
 
-  final Subscription subscription;
-  final List<SubscriptionMember> members;
   final SubscriptionStatsData stats;
 
   @override
   Widget build(BuildContext context) {
-    if (members.isEmpty) {
-      return const SizedBox.shrink();
-    }
-
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: const Color(0xFF1E1E2D),
-        borderRadius: BorderRadius.circular(16),
-      ),
+    return AppSectionCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Split Information',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
+          const AppSectionHeader(title: 'Split Information'),
           const SizedBox(height: 16),
           _InfoRow(
             label: 'Total Members',
@@ -864,13 +459,13 @@ class _SplitInformationCard extends StatelessWidget {
           _InfoRow(
             label: 'Collected So Far',
             value: '\$${stats.collectedAmount.toStringAsFixed(2)}',
-            valueColor: Colors.green,
+            highlightedColorRole: _HighlightColorRole.success,
           ),
           const SizedBox(height: 12),
           _InfoRow(
             label: 'Remaining to Collect',
             value: '\$${stats.remainingAmount.toStringAsFixed(2)}',
-            valueColor: Colors.orange,
+            highlightedColorRole: _HighlightColorRole.warning,
           ),
         ],
       ),
@@ -878,64 +473,97 @@ class _SplitInformationCard extends StatelessWidget {
   }
 }
 
-/// Reusable info row widget
+enum _HighlightColorRole { none, success, warning }
+
 class _InfoRow extends StatelessWidget {
   const _InfoRow({
     required this.label,
     required this.value,
-    this.valueColor,
-    this.valueStyle,
+    this.detail,
+    this.emphasized = false,
+    this.highlightedColorRole = _HighlightColorRole.none,
   });
 
   final String label;
   final String value;
-  final Color? valueColor;
-  final TextStyle? valueStyle;
+  final String? detail;
+  final bool emphasized;
+  final _HighlightColorRole highlightedColorRole;
 
   @override
   Widget build(BuildContext context) {
+    final tokens = Theme.of(context).appTokens;
+
+    final valueColor = switch (highlightedColorRole) {
+      _HighlightColorRole.success => tokens.statusSuccess,
+      _HighlightColorRole.warning => tokens.statusWarning,
+      _HighlightColorRole.none => tokens.textPrimary,
+    };
+
+    final valueStyle = emphasized
+        ? Theme.of(context).textTheme.headlineSmall?.copyWith(
+              color: tokens.textPrimary,
+              fontWeight: FontWeight.w700,
+            )
+        : Theme.of(context).textTheme.titleMedium?.copyWith(
+              color: valueColor,
+              fontWeight: FontWeight.w600,
+            );
+
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          label,
-          style: TextStyle(color: Colors.grey[400]),
+        Expanded(
+          child: Text(
+            label,
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: tokens.textSecondary,
+                ),
+          ),
         ),
-        Text(
-          value,
-          style: valueStyle ??
-              TextStyle(
-                color: valueColor ?? Colors.white,
-                fontWeight: FontWeight.w600,
+        const SizedBox(width: 12),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            Text(value, style: valueStyle),
+            if (detail != null) ...[
+              const SizedBox(height: 2),
+              Text(
+                detail!,
+                style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                      color: tokens.textMuted,
+                    ),
               ),
+            ],
+          ],
         ),
       ],
     );
   }
 }
 
-/// Action buttons section (mark as paid, edit, delete)
-class _ActionButtons extends ConsumerWidget {
+class _ActionButtons extends StatelessWidget {
   const _ActionButtons({
     required this.subscriptionId,
     required this.hasPendingPayments,
+    required this.onDeletePressed,
   });
 
   final String subscriptionId;
   final bool hasPendingPayments;
+  final VoidCallback onDeletePressed;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
+    final tokens = Theme.of(context).appTokens;
+
     return Column(
       children: [
-        // Mark All as Paid Button (only shows if there are pending payments)
         PaymentActionButtons(
           subscriptionId: subscriptionId,
           hasPendingPayments: hasPendingPayments,
         ),
-        if (hasPendingPayments) const SizedBox(height: 12),
-
-        // Edit Subscription
+        if (hasPendingPayments) SizedBox(height: tokens.spacingSmall + 4),
         SizedBox(
           width: double.infinity,
           height: 50,
@@ -945,141 +573,27 @@ class _ActionButtons extends ConsumerWidget {
             },
             icon: const Icon(Icons.edit),
             label: const Text('Edit Subscription'),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF6B4FBB),
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-            ),
           ),
         ),
-        const SizedBox(height: 12),
-
-        // Delete Subscription
+        SizedBox(height: tokens.spacingSmall + 4),
         SizedBox(
           width: double.infinity,
           height: 50,
           child: OutlinedButton.icon(
-            onPressed: () => _showDeleteDialog(context, ref),
-            icon: const Icon(Icons.delete_outline),
-            label: const Text('Delete Subscription'),
+            onPressed: onDeletePressed,
+            icon: Icon(
+              Icons.delete_outline,
+              color: tokens.statusError,
+            ),
+            label: Text(
+              'Delete Subscription',
+              style: TextStyle(color: tokens.statusError),
+            ),
             style: OutlinedButton.styleFrom(
-              foregroundColor: Colors.red,
-              side: const BorderSide(color: Colors.red),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
+              side:
+                  BorderSide(color: tokens.statusError.withValues(alpha: 0.7)),
             ),
           ),
-        ),
-      ],
-    );
-  }
-
-  void _showDeleteDialog(BuildContext context, WidgetRef ref) {
-    showDialog<void>(
-      context: context,
-      builder: (dialogContext) => _DeleteConfirmationDialog(
-        subscriptionId: subscriptionId,
-        onCancel: () => Navigator.pop(dialogContext),
-        onConfirm: () async {
-          Navigator.pop(dialogContext); // Close dialog
-          await _deleteSubscription(context, ref);
-        },
-      ),
-    );
-  }
-
-  Future<void> _deleteSubscription(BuildContext context, WidgetRef ref) async {
-    final deleteSubscriptionUseCase = ref.read(deleteSubscriptionProvider);
-
-    // Execute deletion
-    final result = await deleteSubscriptionUseCase(subscriptionId);
-
-    // Handle result
-    if (!context.mounted) return;
-
-    result.fold(
-      (failure) {
-        // Show error
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              failure.maybeWhen(
-                notFound: () => 'Subscription not found',
-                networkError: () =>
-                    'Network error. Please check your connection.',
-                orElse: () => 'Failed to delete subscription',
-              ),
-            ),
-            backgroundColor: Colors.red,
-          ),
-        );
-      },
-      (_) {
-        // Success - invalidate providers to refresh home screen
-        ref
-          ..invalidate(activeSubscriptionsProvider)
-          ..invalidate(monthlyStatsProvider);
-
-        // Navigate back to home
-        context.pop();
-
-        // Show success message
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Subscription deleted successfully'),
-            backgroundColor: Colors.green,
-          ),
-        );
-      },
-    );
-  }
-}
-
-/// Delete confirmation dialog
-class _DeleteConfirmationDialog extends StatelessWidget {
-  const _DeleteConfirmationDialog({
-    required this.subscriptionId,
-    required this.onCancel,
-    required this.onConfirm,
-  });
-
-  final String subscriptionId;
-  final VoidCallback onCancel;
-  final VoidCallback onConfirm;
-
-  @override
-  Widget build(BuildContext context) {
-    return AlertDialog(
-      backgroundColor: const Color(0xFF1E1E2D),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-      ),
-      title: const Text(
-        'Delete Subscription?',
-        style: TextStyle(color: Colors.white),
-      ),
-      content: const Text(
-        'This will permanently delete the subscription and all associated data. This action cannot be undone.',
-        style: TextStyle(color: Colors.white70),
-      ),
-      actions: [
-        TextButton(
-          onPressed: onCancel,
-          child: Text(
-            'Cancel',
-            style: TextStyle(color: Colors.grey[400]),
-          ),
-        ),
-        ElevatedButton(
-          onPressed: onConfirm,
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.red,
-            foregroundColor: Colors.white,
-          ),
-          child: const Text('Delete'),
         ),
       ],
     );

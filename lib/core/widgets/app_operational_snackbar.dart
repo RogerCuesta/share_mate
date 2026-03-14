@@ -11,6 +11,8 @@ class AppOperationalSnackbar {
     required String message,
     AppOperationalTone tone = AppOperationalTone.info,
     Duration duration = const Duration(seconds: 2),
+    String? actionLabel,
+    VoidCallback? onAction,
   }) {
     final tokens = Theme.of(context).appTokens;
     final accent = switch (tone) {
@@ -25,6 +27,13 @@ class AppOperationalSnackbar {
       AppOperationalTone.warning => Icons.warning_amber_rounded,
       AppOperationalTone.error => Icons.error_outline,
     };
+    final action = actionLabel != null && onAction != null
+        ? SnackBarAction(
+            label: actionLabel,
+            textColor: tokens.ctaPrimary,
+            onPressed: onAction,
+          )
+        : null;
 
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
@@ -45,6 +54,7 @@ class AppOperationalSnackbar {
               ),
             ],
           ),
+          action: action,
         ),
       );
   }
