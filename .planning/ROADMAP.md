@@ -17,7 +17,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 3: Subscription Setup Flow** - Alta de suscripción completa con catálogo, contactos locales y split robusto. (completed 2026-03-09)
 - [x] **Phase 4: Payment Tracking & Debt Home** - Seguimiento de cobro por contacto con impacto inmediato y consistente en Home. (completed 2026-03-10)
 - [x] **Phase 5: Billing Automation Cycle** - Recordatorios T-24h y reseteo mensual reconciliado de estados. (completed 2026-03-11)
-- [ ] **Phase 6: UX System Consistency** - Pantallas núcleo y componentes quedan alineados al design system persistido.
+- [x] **Phase 6: UX System Consistency** - Pantallas núcleo y componentes quedan alineados al design system persistido. (completed 2026-03-14)
 
 ## Phase Details
 
@@ -97,4 +97,4 @@ Phases execute in numeric order: 1 → 1.1 → 1.2 → 2 → 2.1 → 3 → 4 →
 | 3. Subscription Setup Flow | 5/5 | Complete | 2026-03-09 |
 | 4. Payment Tracking & Debt Home | 5/5 | Complete    | 2026-03-10 |
 | 5. Billing Automation Cycle | 4/4 | Complete | 2026-03-11 |
-| 6. UX System Consistency | 2/5 | In Progress | - |
+| 6. UX System Consistency | 5/5 | Complete | 2026-03-14 |

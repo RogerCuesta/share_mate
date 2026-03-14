@@ -58,8 +58,8 @@
 
 ### UX Consistency (Flutter)
 
-- [ ] **UX-01**: Pantallas núcleo (Home, Catálogo, Crear, Split, Detalle) siguen el design system `ui-ux-pro-max` persistido.
-- [ ] **UX-02**: Nuevos componentes usan theming/tokens compartidos y evitan estilos hardcoded ad-hoc.
+- [x] **UX-01**: Pantallas núcleo (Home, Catálogo, Crear, Split, Detalle) siguen el design system `ui-ux-pro-max` persistido.
+- [x] **UX-02**: Nuevos componentes usan theming/tokens compartidos y evitan estilos hardcoded ad-hoc.
 
 ## v2 Requirements
 
@@ -116,8 +116,8 @@
 | SYNC-01 | Phase 2 | Complete |
 | SYNC-02 | Phase 2 | Complete |
 | SYNC-03 | Phase 2 | Complete |
-| UX-01 | Phase 6 | Pending |
-| UX-02 | Phase 6 | Pending |
+| UX-01 | Phase 6 | Complete |
+| UX-02 | Phase 6 | Complete |
 
 **Coverage:**
 - v1 requirements: 26 total
@@ -126,4 +126,4 @@
 
 ---
 *Requirements defined: 2026-03-08*
-*Last updated: 2026-03-12 after Phase 5 close and Phase 6 planning*
+*Last updated: 2026-03-14 after Phase 6 completion*
